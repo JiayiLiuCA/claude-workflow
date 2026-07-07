@@ -74,7 +74,7 @@ flowchart LR
 │   ├── pipeline/                    # 按域拆分的行为详细参考（Close 阶段维护）
 │   ├── STEPS/                       # 每个 step 的 plan 与 discuss 存档
 │   └── PROGRESS.md                  # step 实录（最新置顶，每 10 条归档）
-└── .github/workflows/ci.yml.example # CI 模板（bootstrap 按技术栈实例化）
+└── .github/ci.yml.example           # CI 模板（bootstrap 实例化为 workflows/ci.yml）
 ```
 
 ## 阶段纪律（hooks）
