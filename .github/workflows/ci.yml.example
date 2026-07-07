@@ -1,0 +1,44 @@
+# CI 模板 — bootstrap 阶段按项目技术栈实例化为 ci.yml 后删除本文件。
+# 保留适用的 job、删除其余；替换 <> 占位符。
+# 目标：PR 与 main push 时自动跑测试与构建，让「测试全绿」不依赖本地自觉。
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  # ---- Python 后端示例 ----
+  backend:
+    runs-on: ubuntu-latest # 有平台相关代码（如 Windows API / GPU）时改 windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "<3.11>"
+      - name: Install
+        run: |
+          cd backend
+          pip install -e ".[dev]" # 或 pip install -r requirements.txt
+      - name: Test
+        run: cd backend && pytest
+
+  # ---- Node / 前端示例 ----
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "<22>"
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - name: Install
+        run: cd frontend && pnpm install --frozen-lockfile
+      - name: Typecheck & build
+        run: |
+          cd frontend
+          pnpm exec tsc -b
+          pnpm build

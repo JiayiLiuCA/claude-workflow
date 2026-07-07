@@ -1,0 +1,5 @@
+# 工作流阶段标记（transient，由各阶段 skill 写入/清除）
+.claude/workflow-phase
+
+# Claude Code 个人本地设置
+.claude/settings.local.json
