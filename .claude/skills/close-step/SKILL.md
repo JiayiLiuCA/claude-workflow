@@ -7,7 +7,7 @@ description: Close 阶段：Step N 代码验收通过后，把实况写入文档
 
 # 第零步：阶段标记
 
-用 Bash 执行 `printf 'close' > .claude/workflow-phase`（此后 hook 只允许写 `docs/planning/`）
+用 Bash 执行 `printf 'close' > "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`（此后 hook 只允许写 `docs/planning/`）
 
 # 第一步：读取并对照
 
@@ -48,7 +48,7 @@ description: Close 阶段：Step N 代码验收通过后，把实况写入文档
 
 # 第五步：更新 PROGRESS.md
 
-在**顶部**（紧跟一级标题和说明之后）插入新记录，格式：
+在「杂项（hotfix log）」节之后、第一条 step 记录之前插入新记录，格式：
 
 ```markdown
 ## Step {N}: {简短标题} — {日期}
@@ -88,8 +88,8 @@ Execute 阶段做的、plan 没写明确的决定 + 理由。
 # 第七步：收尾
 
 1. commit：`Step {N} Close: <标题>`
-2. push 分支，提议创建 PR（标题 `Step {N}: <标题>`，正文含 step 摘要与验收结果），**经用户确认后**执行 `gh pr create`
-3. 用 Bash 执行 `rm -f .claude/workflow-phase`
+2. push 分支，提议创建 PR（标题 `Step {N}: <标题>`，正文含 step 摘要与验收结果），**经用户确认后**创建（用 `gh pr create` 或当前环境可用的平台工具）
+3. 用 Bash 执行 `rm -f "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
 4. 输出总结：
    - 本次修改的文档清单（文件 + 改动位置）
    - **最关键的一条记录**（后续 step 的 Claude 最需要知道的一条事实）

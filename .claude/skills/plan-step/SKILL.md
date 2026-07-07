@@ -7,8 +7,8 @@ description: Plan 阶段：为 Step N 生成 implementation plan（docs/planning
 
 # 第零步：阶段标记与分支
 
-1. 用 Bash 执行 `printf 'plan' > .claude/workflow-phase`（此后 hook 只允许写 `docs/planning/`）
-2. 若 `feat/step-{NN}-<slug>` 分支不存在：从最新 main 创建；已存在（如 discuss 阶段建过）则切换过去
+1. 用 Bash 执行 `printf 'plan' > "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`（此后 hook 只允许写 `docs/planning/`）
+2. 若 `feat/step-{NN}-<slug>` 分支不存在：`git fetch origin` 后从 `origin/main` 创建（无 origin 的纯本地 repo 从本地 main 建）；已存在（如 discuss 阶段建过）则切换过去
 
 # 第一步：读取文档并复述
 
@@ -82,6 +82,6 @@ plan 做的假设（如「某 package 假设提供 X 函数」），用户 revie
 
 等用户 review。**所有 review 结论（含对话中的口头调整）必须回写进 plan 文件**——Execute 阶段只认 plan 文件，不接受文件外的补充。用户确认后：
 
-1. commit：`Step {N} Plan: <标题>`
-2. 用 Bash 执行 `rm -f .claude/workflow-phase`
-3. 提示用户下一步 `execute step {N}`（新会话）
+1. commit：`Step {N} Plan: <标题>`（execute 中途大偏离回到 plan 修订时，同样以 `Step {N} Plan: <修订说明>` 提交）
+2. 用 Bash 执行 `rm -f "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
+3. 提示用户下一步 `execute step {N}`（大 step 建议新会话，小 step 可同会话继续；见 CLAUDE.md「Session 策略」）

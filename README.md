@@ -6,7 +6,7 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 
 ## 核心理念
 
-- **每个 step 的每个阶段独立一个会话**——context 干净，每阶段只读它需要的文档
+- **每个 step 从干净 context 开始，阶段间按 step 大小切分会话**——大 step 分会话（探索噪音不跨阶段），小 step 可同会话连跑；底线是 execute 的权威输入永远是 plan 文件而非对话记忆
 - **Plan 描述行为与契约，不写实现代码**——plan 里的代码在 execute 时必然过期，还白耗两遍 context
 - **「范围外」与「不要做的事」和「范围内」同等重要**——防越界是这套流程的核心价值
 - **文档以实际代码为准**：代码能回答的问题不进文档；文档只存决策理由、被推翻的假设、edge case 行为、实测结论、跨 step 承诺
@@ -28,11 +28,13 @@ discuss step N   （可选：大 step 先逐项拍板，产出决议清单）
 plan step N      → review plan（结论回写 plan 文件）
 execute step N   → 验收
 close step N     → 实况写入文档 → merge PR
+
+hotfix <描述>    （小改动快速通道：typo / 一行修复 / 依赖 bump，不走四阶段）
 ```
 
 ### 已有项目
 
-把 `.claude/`、`docs/planning/`、`CLAUDE.md` 复制进项目，跑 `bootstrap`（会读取现状后实例化文档）。
+把 `.claude/`、`docs/planning/`、`CLAUDE.md` 复制进项目，跑 `bootstrap`（会读取现状后实例化文档）。若项目已有 `CLAUDE.md` 或 `.claude/settings.json`，**合并而非覆盖**——settings.json 已有 hooks 时，把本脚手架的 PreToolUse / SessionStart 条目手动并入既有 hooks 数组。
 
 ## 四阶段
 
@@ -54,20 +56,32 @@ flowchart LR
     C --> M["PR merge<br/>→ 下一个 step"]
 ```
 
+### 小改动快速通道（hotfix）
+
+typo / 一行修复 / 依赖 bump 不必套四阶段仪式：`hotfix <描述>`。判据：≤3 文件量级、不碰接口契约 / DB schema / 新依赖，不满足则升级为正式 step。影响行为的修复在 PROGRESS「杂项」节留一行记录——防止体系外改动造成记忆漂移。
+
+### Session 策略
+
+小 step 可 plan → execute → close 同会话连跑（review 结论仍须回写 plan 文件、close 仍须对 git diff 审计而非凭记忆）；大 step 阶段间开新会话或 `/clear`。底线：execute 的权威输入是 plan 文件，不是 plan 对话。
+
 ## 目录结构
 
 ```text
 .
 ├── CLAUDE.md                        # 项目指令：触发语 → skill 映射、文档结构、git 约定
 ├── .claude/
-│   ├── settings.json                # PreToolUse hook 配置
-│   ├── hooks/phase-guard.js         # 阶段纪律守卫（按阶段拦截越界写入）
+│   ├── settings.json                # hooks 配置（PreToolUse + SessionStart）
+│   ├── hooks/
+│   │   ├── phase-guard.js           # 阶段纪律守卫（按阶段拦截越界写入）
+│   │   ├── phase-guard.test.js      # 守卫自测（node 运行，10 用例）
+│   │   └── clear-phase.js           # 新会话启动自动清残留阶段标记
 │   └── skills/
 │       ├── bootstrap/               # 项目启动：实例化文档 + Step 0 plan
 │       ├── discuss-step/            # 可选第 0 阶段：逐项拍板
 │       ├── plan-step/               # 生成 step plan
 │       ├── execute-step/            # 按 plan 写代码
-│       └── close-step/              # 实况写入文档 + 收尾
+│       ├── close-step/              # 实况写入文档 + 收尾
+│       └── hotfix/                  # 小改动快速通道
 ├── docs/planning/
 │   ├── ARCHITECTURE.md              # 技术栈 + ADR + 代码规范（稳定文档）
 │   ├── PIPELINE.md                  # 薄核心：概念 / step 拆分 / schema / 契约索引 / 决议台账
@@ -79,9 +93,9 @@ flowchart LR
 
 ## 阶段纪律（hooks）
 
-各阶段 skill 把阶段名写入 `.claude/workflow-phase`；`phase-guard.js` 在每次 Write/Edit 前检查，越界写入直接拒绝并说明原因。阶段正常结束时 skill 清除标记。
+各阶段 skill 把阶段名写入 `.claude/workflow-phase`；`phase-guard.js` 在每次 Write/Edit 前检查，越界写入直接拒绝并说明原因。阶段正常结束时 skill 清除标记；异常中断残留的标记由 SessionStart hook（`clear-phase.js`）在下次新会话启动时自动清除（resume 续会话不清）。仍遇误拦时手动 `rm .claude/workflow-phase`。
 
-**故障排除**：session 异常中断导致标记残留时，文件写入会被 phase-guard 拒绝（报错信息含处理方法）——手动执行 `rm .claude/workflow-phase` 即可。
+hook 只拦 Write/Edit 类工具，Bash 改文件属于自律范围（各 skill 禁止事项已点名）。改动 hook 后跑 `node .claude/hooks/phase-guard.test.js` 自测（10 用例断言退出码）。
 
 不想要 hooks：删除 `.claude/settings.json` 中的 `hooks` 段与 `.claude/hooks/` 目录，纪律退化为 skill 文本约束。
 

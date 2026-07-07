@@ -7,7 +7,7 @@ description: Execute 阶段：严格按 STEP_NN_plan.md 写代码，不越界、
 
 # 第零步：阶段标记与分支
 
-1. 用 Bash 执行 `printf 'execute' > .claude/workflow-phase`（此后 hook 会拦截对 `docs/planning/` 的写入）
+1. 用 Bash 执行 `printf 'execute' > "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`（此后 hook 会拦截对 `docs/planning/` 的写入）
 2. 确认当前在 `feat/step-{NN}-*` 分支上
 
 # 核心原则
@@ -46,6 +46,11 @@ description: Execute 阶段：严格按 STEP_NN_plan.md 写代码，不越界、
 
 **唯一必须立刻停下汇报并等待指示的情况：发现任何偏离 plan 的事实**——字段类型不对、依赖的接口与预期不符、plan 遗漏了必要改动。
 
+停下汇报后，按用户裁决分流：
+
+- **小偏离**（不动范围边界与契约本质：字段改名、必要的连带修改、实现细节调整）：会话内继续执行，Close 阶段记入「与 plan 的偏离」。
+- **大偏离**（方案更换、范围增减、契约 / schema 变化）：中止 execute——清除阶段标记，由用户重开 plan 阶段（`plan step {N}`）把修订写进 plan 文件、review 后再重新 execute。**不允许带着「文件是方案 A、口头改成方案 B」的状态继续跑**：plan 文件必须始终反映最新共识。execute 阶段被 hook 禁止改 plan 文件是有意设计——修订必须经由 plan 阶段的人工 gate，防止执行者自我合法化越界。
+
 **大规模机械改造**（全量重命名、批量文案抽取、迁移适配等）：拆成互不相交的文件集，用并行 subagent 分组执行，汇合后统一跑类型检查与测试校验。
 
 # 第四步：验收自检
@@ -55,6 +60,8 @@ description: Execute 阶段：严格按 STEP_NN_plan.md 写代码，不越界、
 - ✅ 已验证通过（附验证方式）
 - ⚠️ 需用户手动验证（附具体操作步骤）
 - ❌ 未达成（附原因）
+
+自检通过后、交用户验收前，建议对本 step 的完整 diff 跑一轮代码审查（如 `/code-review`），发现的问题当场修复并纳入汇报。
 
 # 第五步：总结汇报
 
@@ -67,8 +74,8 @@ description: Execute 阶段：严格按 STEP_NN_plan.md 写代码，不越界、
 # 收尾（用户验收通过后）
 
 1. commit：`Step {N} Execute: <标题>`（改动大可拆 `P1（后端）` / `P2（前端）` 两个 commit）
-2. 用 Bash 执行 `rm -f .claude/workflow-phase`
-3. 提示用户下一步 `close step {N}`（新会话）
+2. 用 Bash 执行 `rm -f "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
+3. 提示用户下一步 `close step {N}`（同会话继续时，close 仍必须以 git diff 与实际代码为准，不凭对话记忆写文档）
 
 # 禁止事项
 
@@ -77,3 +84,4 @@ description: Execute 阶段：严格按 STEP_NN_plan.md 写代码，不越界、
 - 不顺手引入 plan 之外的依赖库
 - 不添加 "for future use" 的代码
 - 不把多个独立改动打包成一个「优化」
+- 不用 Bash（`sed -i`、重定向等）绕过阶段写入限制修改 `docs/planning/`——hook 只拦 Write/Edit 类工具，这条靠纪律
