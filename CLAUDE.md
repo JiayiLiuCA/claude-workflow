@@ -41,6 +41,8 @@
 
 触发语后可追加补充说明（如 `plan step 3，特别注意离线场景`），作为该阶段的「特殊关注点」传入。收到触发语后必须以对应 skill 的指示为准，严格按其步骤顺序执行；不要跳过步骤，不要基于触发语直接开工。
 
+各阶段 skill 会把自己的步骤 / 执行顺序建成任务清单（TaskCreate / TaskUpdate，即 terminal 的 todo tracker）作为实时进度显示；执行中新增的工作先入清单再动手。
+
 ### Session 策略
 
 - **小 step**（改动集中、三阶段能舒适装进一个 context）：可 plan → execute → close 同一会话连跑。两条纪律不因同会话豁免：**review 结论必须回写 plan 文件**（不允许只存在于对话记忆）；**close 必须以 git diff 与实际代码为准**写文档，不凭对话记忆。

@@ -9,6 +9,7 @@ description: Plan 阶段：为 Step N 生成 implementation plan（docs/planning
 
 1. 用 Bash 执行 `printf 'plan' > "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`（此后 hook 只允许写 `docs/planning/`）
 2. 若 `feat/step-{NN}-<slug>` 分支不存在：`git fetch origin` 后从 `origin/main` 创建（无 origin 的纯本地 repo 从本地 main 建）；已存在（如 discuss 阶段建过）则切换过去
+3. 把本阶段五个步骤（读取复述 / 冲突检查 / 生成 plan / 输出总结 / review 收尾）建成任务清单（TaskCreate），推进时同步状态
 
 # 第一步：读取文档并复述
 

@@ -9,6 +9,8 @@ description: Close 阶段：Step N 代码验收通过后，把实况写入文档
 
 用 Bash 执行 `printf 'close' > "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`（此后 hook 只允许写 `docs/planning/`）
 
+随后把第一步到第七步建成任务清单（TaskCreate），推进时同步状态——文档更新步骤多，任务 tracker 让进度一目了然。
+
 # 第一步：读取并对照
 
 1. `STEPS/STEP_{NN}_plan.md`（原计划）与 `STEP_{NN}_discuss.md`（如有）

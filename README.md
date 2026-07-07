@@ -13,6 +13,7 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 - **读取成本不随项目增长**：PROGRESS 最新置顶只读最近几条；PIPELINE 薄核心 + 按域拆分；契约一行一条索引
 - **ADR 只增不删**，被推翻的决策用删除线保留——错误结论也是资产
 - **阶段纪律由 hooks 确定性强制**，不止靠模型自律
+- **阶段步骤映射到 terminal 任务清单**——execute 的执行顺序、discuss 的待决问题、close 的文档更新步骤都建成 todo tracker，进度实时可见
 
 ## 快速开始
 
