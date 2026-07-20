@@ -36,7 +36,7 @@ description: Execute 阶段：严格按 STEP_NN_plan.md 写代码，不越界、
 
 有问题暂停等用户回答；没有则明确说「理解无歧义，开始执行」，进入第三步。
 
-开工前把执行顺序建成任务清单（TaskCreate，一个阶段一个任务；末尾追加「验收自检」「代码审查」两个收尾任务）——terminal 的任务 tracker 就是本次 execute 的实时进度条。
+开工前把执行顺序建成任务清单（TaskCreate，一个阶段一个任务；末尾追加「验收自检」收尾任务）——terminal 的任务 tracker 就是本次 execute 的实时进度条。
 
 # 第三步：按序执行
 
@@ -65,7 +65,7 @@ description: Execute 阶段：严格按 STEP_NN_plan.md 写代码，不越界、
 - ⚠️ 需用户手动验证（附具体操作步骤）
 - ❌ 未达成（附原因）
 
-自检通过后、交用户验收前，建议对本 step 的完整 diff 跑一轮代码审查（如 `/code-review`），发现的问题当场修复并纳入汇报。
+**不自动跑代码审查。**若本 step diff 较大或触及核心逻辑，在总结汇报中提示用户：可在 `close step {N}` 前手动跑 `/code-review origin/main...HEAD`（该 range 覆盖本 step 全部改动，不受分支 upstream 状态影响）；是否执行由用户决定。
 
 # 第五步：总结汇报
 
