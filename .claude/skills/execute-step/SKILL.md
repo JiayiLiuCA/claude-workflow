@@ -67,6 +67,12 @@ description: Execute 阶段：严格按 STEP_NN_plan.md 写代码，不越界、
 
 **不自动跑代码审查。**若本 step diff 较大或触及核心逻辑，在总结汇报中提示用户：可在 `close step {N}` 前手动跑 `/code-review origin/main...HEAD`（该 range 覆盖本 step 全部改动，不受分支 upstream 状态影响）；是否执行由用户决定。
 
+**review 发现的问题按性质分流，不一律回写 plan**（「结论回写 plan」是 plan review 的纪律，不适用于 code review）：
+
+- **实现 bug**（默认，绝大多数）：当场修复，追加 commit（`Step {N} Execute: review fixes`），plan 文件不动；Close 以 git diff 为准写实录，修复自然被记录。
+- **plan 缺漏但不动范围边界与契约**：按既有「小偏离」通道处理——修掉，Close 记入「与 plan 的偏离」。
+- **发现动摇 plan 决策**（契约 / schema / 方案不成立）：才升级为「大偏离」，重开 plan 增量修订、execute 只补差异。
+
 # 第五步：总结汇报
 
 1. 实际修改的文件清单（新建 / 修改分列）
