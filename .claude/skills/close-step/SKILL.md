@@ -90,7 +90,7 @@ Execute 阶段做的、plan 没写明确的决定 + 理由。
 # 第七步：收尾
 
 1. commit：`Step {N} Close: <标题>`
-2. push 分支，提议创建 PR（标题 `Step {N}: <标题>`，正文含 step 摘要与验收结果），**经用户确认后**创建（用 `gh pr create` 或当前环境可用的平台工具）
+2. push 分支，提议创建 PR（标题 `Step {N}: <标题>`，正文含 step 摘要与验收结果；摘要以用户可感知的功能变化开头，技术细节其次），**经用户确认后**创建（用 `gh pr create` 或当前环境可用的平台工具）
 3. 用 Bash 执行 `rm -f "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
 4. 输出总结：
    - 本次修改的文档清单（文件 + 改动位置）
