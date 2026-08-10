@@ -19,6 +19,7 @@ description: Close 阶段：Step N 代码验收通过后，把实况写入文档
 4. `PROGRESS.md` 最近记录（对齐格式）
 5. `git log --stat` 与 `git diff main...HEAD`：本 step 实际引入的变更
 6. 读实际代码确认：API 实际签名、表实际 schema、组件实际 props
+7. 若 plan 含「执行分段」章节：用 `git log --oneline` 核对 P1 至末段的 Execute commit 齐全后再继续；缺段说明 execute 尚未完成，停下询问用户
 
 # 第二步：差异分析
 
