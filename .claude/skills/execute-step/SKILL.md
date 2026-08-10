@@ -1,14 +1,18 @@
 ---
 name: execute-step
-description: Execute 阶段：严格按 STEP_NN_plan.md 写代码，不越界、不自由发挥；文档更新留给 Close。用户输入 "execute step N" 时执行。
+description: Execute 阶段：严格按 STEP_NN_plan.md 写代码，不越界、不自由发挥；文档更新留给 Close。用户输入 "execute step N"（分段执行时 "execute step N P1" / "P2" 等）时执行。
 ---
 
-你现在处于 **Step {N}** 的 Execute 阶段。N 取自参数的第一个 token；其余文本是补充说明。目标：严格按 plan 写代码。
+你现在处于 **Step {N}** 的 Execute 阶段。N 取自参数的第一个 token；若紧随其后的 token 形如 `P{k}`（如 `execute step 7 P2`），本次只执行 plan「执行分段」章节中的 P{k} 段；其余文本是补充说明。目标：严格按 plan 写代码。
 
 # 第零步：阶段标记与分支
 
 1. 用 Bash 执行 `printf 'execute' > "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`（此后 hook 会拦截对 `docs/planning/` 的写入）
 2. 确认当前在 `feat/step-{NN}-*` 分支上
+3. **分段对齐**：查看 `STEPS/STEP_{NN}_plan.md` 是否含「执行分段」章节，与触发语核对：
+   - plan 有分段、触发语带 `P{k}`：k > 1 时先用 `git log --oneline` 确认 P1…P{k-1} 的 Execute commit 齐全，并快速重跑上一段的退出验收（至少：编译 / 类型检查 + 相关测试绿）确认交接状态成立；缺段或验收不过，停下汇报等用户指示
+   - plan 有分段、触发语未带段号：按 git log 推断下一个未执行的段，明确告知「本次执行 P{k}」后继续
+   - plan 无分段、触发语带段号：停下询问——plan 未定义分段，不能自行发明段边界
 
 # 核心原则
 
@@ -17,11 +21,12 @@ description: Execute 阶段：严格按 STEP_NN_plan.md 写代码，不越界、
 3. **plan 与实际代码冲突，停下来问用户**，不要自己调和。
 4. **不修改 `docs/planning/` 下任何文件**（hook 强制拦截；文档更新是 Close 阶段的事）。
 5. **按依赖顺序推进**：migration → model → service → API → 前端（按项目形态调整），每层写完先跑通再下一层；**写一块测一块**，不把问题往下堆。
+6. **分段执行时，本段之外的段一律视同「范围外」**：不提前实现后续段的内容，不重构已交付段的代码（plan 明确要求的衔接改动除外）；发现段边界本身有问题（依赖顺序不对、本段无法独立验证），按「偏离 plan」停下汇报。
 
 # 第一步：读取并复述
 
 1. `ARCHITECTURE.md`：代码规范、目录结构、命名约定的要点
-2. `STEPS/STEP_{NN}_plan.md` 完整阅读：复述「范围内」「范围外」「不要做的事」「测试计划」
+2. `STEPS/STEP_{NN}_plan.md` 完整阅读：复述「范围内」「范围外」「不要做的事」「测试计划」；分段执行时另复述本段（P{k}）的范围、前置与退出验收，以及与相邻段的边界
 3. `PIPELINE.md` 契约索引 + 相关域文件：本 step 会用到或依赖的已有 API / 表 / 组件
 4. 如涉及前端：design reference 对应文件，记住视觉与交互
 5. 相关的现有代码
@@ -32,7 +37,7 @@ description: Execute 阶段：严格按 STEP_NN_plan.md 写代码，不越界、
 
 1. plan 中不够清楚、需要澄清的点（如有）
 2. plan 与现有代码的潜在冲突（如有）
-3. 计划的执行顺序（按文件或模块分段）
+3. 计划的执行顺序（按文件或模块分组）
 
 有问题暂停等用户回答；没有则明确说「理解无歧义，开始执行」，进入第三步。
 
@@ -59,13 +64,15 @@ description: Execute 阶段：严格按 STEP_NN_plan.md 写代码，不越界、
 
 # 第四步：验收自检
 
+**分段执行的非末段**：只按本段「退出验收」逐条自检 + 跑本段涉及的测试；plan 全量「验收标准」与下方 code review 提示留给末段。以下适用于单段执行与分段的末段。
+
 全部写完后，按 plan「验收标准」逐条自检，并跑全量测试。输出 checklist，每条标注：
 
 - ✅ 已验证通过（附验证方式）
 - ⚠️ 需用户手动验证（附具体操作步骤）
 - ❌ 未达成（附原因）
 
-**不自动跑代码审查。**若本 step diff 较大或触及核心逻辑，在总结汇报中提示用户：可在 `close step {N}` 前手动跑 `/code-review origin/main...HEAD`（该 range 覆盖本 step 全部改动，不受分支 upstream 状态影响）；是否执行由用户决定。
+**不自动跑代码审查。**若本 step diff 较大或触及核心逻辑，在总结汇报中提示用户：可在 `close step {N}` 前手动跑 `/code-review origin/main...HEAD`（该 range 覆盖本 step 全部改动——分段执行时含此前各段，不受分支 upstream 状态影响）；是否执行由用户决定。
 
 **review 发现的问题按性质分流，不一律回写 plan**（「结论回写 plan」是 plan review 的纪律，不适用于 code review）：
 
@@ -82,11 +89,15 @@ description: Execute 阶段：严格按 STEP_NN_plan.md 写代码，不越界、
 5. 遗留问题（已知但本 step 不打算解决的）
 6. 建议用户手动验证的操作步骤
 
+分段执行的非末段：以上各项只覆盖本段，且第 1 点先注明进度——「P{k} 完成，下一段 P{k+1}：<段标题>」。
+
 # 收尾（用户验收通过后）
 
-1. commit：`Step {N} Execute: <标题>`（改动大可拆 `P1（后端）` / `P2（前端）` 两个 commit）
+1. commit：`Step {N} Execute: <标题>`；分段执行时为 `Step {N} Execute: <标题>（P{k}）`——P 标号专用于分段（后续 session 靠它判断段完成状态）；单段内要拆多个 commit，用 `Step {N} Execute: <子标题>`，不带 P 号
 2. 用 Bash 执行 `rm -f "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
-3. 提示用户下一步 `close step {N}`（同会话继续时，close 仍必须以 git diff 与实际代码为准，不凭对话记忆写文档）
+3. 提示用户下一步：
+   - 分段执行且本段非末段：**新开 session** 执行 `execute step {N} P{k+1}`——不要同会话连跑下一段，分段的意义就是给下一段全新 context
+   - 单段执行或末段完成：`close step {N}`（同会话继续时，close 仍必须以 git diff 与实际代码为准，不凭对话记忆写文档）
 
 # 禁止事项
 

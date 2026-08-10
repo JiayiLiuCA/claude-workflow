@@ -43,7 +43,7 @@ hotfix <描述>    （小改动快速通道：typo / 一行修复 / 依赖 bump�
 |---|---|---|---|
 | Discuss（可选） | `discuss step N` | `STEPS/STEP_NN_discuss.md` 决议清单 | 只能写 `docs/planning/` |
 | Plan | `plan step N` | `STEPS/STEP_NN_plan.md` | 只能写 `docs/planning/` |
-| Execute | `execute step N` | 代码 + 测试 + 验收自检 | **禁止**写 `docs/planning/` |
+| Execute | `execute step N`（分段时 `… P1` / `P2`） | 代码 + 测试 + 验收自检 | **禁止**写 `docs/planning/` |
 | Close | `close step N` | PIPELINE 索引 / 域文件 / PROGRESS / ARCHITECTURE 更新 + PR | 只能写 `docs/planning/` |
 
 ```mermaid
@@ -63,7 +63,7 @@ typo / 一行修复 / 依赖 bump 不必套四阶段仪式：`hotfix <描述>`�
 
 ### Session 策略
 
-小 step 可 plan → execute → close 同会话连跑（review 结论仍须回写 plan 文件、close 仍须对 git diff 审计而非凭记忆）；大 step 阶段间开新会话或 `/clear`。底线：execute 的权威输入是 plan 文件，不是 plan 对话。
+小 step 可 plan → execute → close 同会话连跑（review 结论仍须回写 plan 文件、close 仍须对 git diff 审计而非凭记忆）；大 step 阶段间开新会话或 `/clear`。execute 工作量单 session 装不下的超大 step，由 plan 阶段按工作量与 context window 判定后拆成 P1/P2… 执行段（plan 文件「执行分段」章节），每段新开 session 执行（`execute step N P1`…），段末必须是可验证的完整状态，段间交接只靠 git commit 与 plan 文件。底线：execute 的权威输入是 plan 文件，不是 plan 对话。
 
 ## 目录结构
 
