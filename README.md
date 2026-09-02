@@ -48,7 +48,7 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 
 ### 从旧版升级
 
-用新版合并覆盖 `.claude/` 与 `CLAUDE.md`（保留项目自己的 rules、`settings.local.json` 和 CLAUDE.md「关于本项目」一节），然后在 step 间隙让 Claude 按本 README「文档体系与防膨胀」一节描述的新结构搬家：需求进 `REQUIREMENTS.md`，契约与表进域文件索引，PROGRESS 记录拆成各 step 实录，代码规范进 `.claude/rules/`。只搬不改写。
+用新版合并覆盖 `.claude/` 与 `CLAUDE.md`（保留项目自己的 rules、`settings.local.json` 和 CLAUDE.md「关于本项目」一节），然后让 Claude 按本 README「文档体系与防膨胀」一节描述的新结构搬家：需求进 `REQUIREMENTS.md`，契约与表进域文件索引，PROGRESS 记录拆成各 step 实录，代码规范进 `.claude/rules/`。只搬不改写。
 
 ## 四阶段与两条通道
 
