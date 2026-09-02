@@ -46,6 +46,15 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 
 把 `.claude/`、`docs/planning/`、`CLAUDE.md` 复制进项目，跑 `/bootstrap`（会读取现状后实例化文档）。若项目已有 `CLAUDE.md` 或 `.claude/settings.json`，**合并而非覆盖**——settings.json 已有 hooks 时，把本脚手架的 PreToolUse / PostToolUse / SessionStart 条目手动并入既有 hooks 数组，`env` 同理。`.gitignore` 需要加上 `.claude/workflow-phase*`（阶段标记与审计状态）。
 
+### 从旧版脚手架升级
+
+旧版的 PIPELINE 含原始需求 / schema 总览 / 契约索引、PROGRESS 存完整实录、ARCHITECTURE 含代码规范。升级分两步，选一个 step 刚 close、下一个还没 plan 的间隙做：
+
+1. 用新版覆盖 `.claude/` 与 `CLAUDE.md`（CLAUDE.md 里「关于本项目」一节保留自己的内容）
+2. 在项目根目录跑 `/migrate`：它按固定对应关系把需求搬到 `REQUIREMENTS.md`、契约与表搬进域文件索引、PROGRESS 记录拆成各 step 的实录、代码规范搬进 `.claude/rules/`，只搬不改写，最后自检并提交
+
+有 step 正在执行中的话，那个 step 的旧 execute commit 没有四段正文，它的 close 会退回读 diff 一次，之后就正常。
+
 ## 四阶段与两条通道
 
 | 阶段 | 触发语 | 产出 | 纪律（hooks 强制） |
@@ -104,7 +113,8 @@ flowchart LR
 │       ├── execute-step/            # 按 plan 写代码
 │       ├── close-step/              # 定点更新文档 + 路线图校验 + 实录 + PR
 │       ├── hotfix/                  # 小改动快速通道
-│       └── roadmap/                 # 路线图变更快速通道
+│       ├── roadmap/                 # 路线图变更快速通道
+│       └── migrate/                 # 一次性：旧版脚手架项目升级到当前文档结构
 ├── docs/planning/
 │   ├── ARCHITECTURE.md              # 核心约束 + 技术栈 + 目录结构 + ADR（稳定文档）
 │   ├── REQUIREMENTS.md              # 原始需求（只在 discuss / plan 按需读）
