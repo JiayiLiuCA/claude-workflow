@@ -15,6 +15,7 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 - **阶段纪律由 hooks 确定性强制**，不止靠模型自律——Write/Edit 与 Bash/PowerShell 写入都拦，命令执行后再用 git status 兜底审计
 - **任务清单只当里程碑用**——execute 的执行顺序、discuss 的待决问题建成 todo tracker，随时看到「在哪一层 / 还剩几个决定」；plan / close / bootstrap 这类短线性阶段不建清单，清单也不代表剩余时间
 - **项目记忆只有一个真相源**：`docs/planning/` 进 git、被 Close 阶段审计；Claude Code 的 auto memory 只放个人偏好与环境怪癖
+- **汇报用产品语言**——给用户看的进展与总结只讲实现了什么、用户能看到什么、哪里和之前不一样；文件清单与临场技术决策写进 execute commit 正文，Close 阶段从那里取关键决策，跨 session 不丢
 
 ## 快速开始
 
@@ -76,7 +77,7 @@ typo / 一行修复 / 依赖 bump 不必套四阶段仪式：`/hotfix <描述>`�
 
 ```text
 .
-├── CLAUDE.md                        # 项目指令：触发语 → skill 映射、记忆分工、阶段纪律、git 约定
+├── CLAUDE.md                        # 项目指令：触发语 → skill 映射、沟通风格、记忆分工、阶段纪律、git 约定
 ├── .claude/
 │   ├── settings.json                # hooks 配置（PreToolUse / PostToolUse / SessionStart）+ env
 │   ├── rules/
@@ -112,7 +113,7 @@ typo / 一行修复 / 依赖 bump 不必套四阶段仪式：`/hotfix <描述>`�
 2. **`phase-audit.js`（PostToolUse）**：每次 Bash / PowerShell 之后跑 `git status`，execute 阶段 `docs/planning/` 下不该有未提交改动，其他阶段 `docs/planning/` 之外不该有；发现即报告并要求立即回滚。同一组文件只报一次（状态存 `.claude/workflow-phase.audit`），既有未提交改动或构建产物不会反复刷屏。
 3. **SessionStart**：`clear-phase.js` 在新会话（startup / clear）清除残留标记；`announce-phase.js` 在 resume / compact 时播报当前阶段并提示重新调用 skill——Claude Code 不会在后续 turn 重读 skill 文件，压缩后阶段指令可能已丢失。
 
-启发式拦不住的写法（`python -c` / `node -e` 里的 fs 调用）由审计兜底，最终仍靠纪律：各 skill 的禁止事项明确写了不得绕过。改动 hook 后跑自测：
+启发式拦不住的写法（`python -c` / `node -e` 里的 fs 调用）由审计兜底，最终仍靠纪律：CLAUDE.md 的阶段纪律明确写了不得绕过。改动 hook 后跑自测：
 
 ```text
 node .claude/hooks/phase-guard.test.js
@@ -133,14 +134,14 @@ node .claude/hooks/phase-audit.test.js
 
 ## 与 Claude Code 内建能力的配合
 
-- **`/code-review`**：execute-step 在末段验收后建议 `/code-review high origin/main...HEAD`（后台 subagent 运行，不占会话 context）。不要用 `--fix`：它的修改在会话 checkpoint 之外、`/rewind` 撤不掉，也绕过 execute 的分流规则。纯清理用 `/simplify`；触及鉴权 / 数据访问的 step，close-step 建 PR 前提示 `/security-review`。
+- **`/code-review`**：execute-step 在末段验收后建议 `/code-review high origin/main...HEAD`（后台 subagent 运行，不占会话 context）。不要用 `--fix`：它的修改在会话 checkpoint 之外、`/rewind` 撤不掉，也绕过 execute 的分流规则。想做不找 bug 的清理可另用 `/simplify`；触及鉴权 / 数据访问的 step，close-step 建 PR 前提示 `/security-review`。
 - **subagent**：execute 的大规模机械改造用 `fork` 类型并行分组（继承 plan 与已读代码）；close 的「新眼睛对账」可交给一个非 fork 的全新 context subagent。
 - **worktree**：多个 step 并行时用 `claude --worktree` / EnterWorktree；阶段标记是每个 checkout 独立的，天然兼容。`.gitignore` 已忽略 `.claude/worktrees/`。
 - **不适合的**：阶段 skill 不要加 `context: fork`（它们需要与用户交互）；不要用 skill frontmatter 的 `hooks` 取代标记文件（skill hook 在整个 session 持续生效，同会话连跑 plan → execute 会叠加相反规则）；不要给阶段 skill 设 `disable-model-invocation`（会让自然语言触发失效）。
 
 ## 定制
 
-- `CLAUDE.md`：语言、git 约定按团队习惯改
+- `CLAUDE.md`：语言、git 约定按团队习惯改；沟通风格默认按产品负责人视角汇报、不列技术细节，想在汇报里看到文件清单或技术方案就改这一节
 - `skills/*/SKILL.md`：各阶段步骤可按项目形态微调（如层推进顺序、验收要求）
 - `docs/planning/*.md`：骨架中的 `<!-- bootstrap -->` 注释标明了需实例化的位置，`bootstrap` skill 会自动处理
 - `.claude/settings.json`：不想恢复任务清单工具就删掉 `env.CLAUDE_CODE_ENABLE_TODO_TOOLS`（skill 会退化为文字清单）；commit / PR 的 Claude 署名与 session 链接通过 Claude Code 的 `attribution` 设置控制（保留 session 链接便于 close 阶段从 commit 回溯会话）
