@@ -84,4 +84,5 @@ Write / Edit 与 Bash / PowerShell 的写入都会被检查，命令执行后还
 - 每个 step 一个分支：`feat/step-NN-<slug>`（discuss 或 plan 开始时 `git fetch origin` 后从 `origin/main` 创建）
 - 阶段 commit：`Step N Discuss: <标题>` / `Step N Plan: <标题>` / `Step N Execute: <标题>`（分段时 `Step N Execute: <标题>（P1）`…，P 标号专用于分段；正文固定写偏离 / 临场决策 / 遗留 / 验收四段，Close 从这里取材）/ `Step N Close: <标题>`
 - Close 完成后建 PR 合回 main；merge 后可选打 tag `step-NN`
-- 小改动：`Hotfix: <描述>`；路线图变更：`Roadmap: <描述>`。默认直接在 main（main 受保护则分支 + PR）
+- 首次实例化：`Bootstrap: 实例化 planning 文档体系`，在 main
+- 小改动：`Hotfix: <描述>`；`/roadmap` 通道的路线图变更：`Roadmap: <描述>`（plan / close 内的路线图变更随该阶段的 commit）。默认直接在 main（main 受保护则分支 + PR）

@@ -6,6 +6,7 @@ argument-hint: "<变更描述>"
 ---
 
 你现在处于 Roadmap 变更通道。变更描述：`$ARGUMENTS`（为空则从对话取）。目标：把路线图改到与最新认知一致，并留下可追溯的记录。
+**续接**（resume / compact 后重新调用）：先看 `git diff` 里 PIPELINE 已改了什么，跳过已完成的步骤，不重复 commit。
 
 # 第零步：阶段标记
 

@@ -85,7 +85,7 @@ diff 较大或触及核心逻辑时，在总结中建议用户在 close 前跑 `
    偏离：与 plan 不同之处 + 原因
    临场决策：plan 没明确、现场决定的事 + 理由
    遗留：已知但本 step 不解决的问题
-   验收：验收标准逐条结果（✅ / ⚠️ / ❌）+ 测试通过数
+   验收：验收标准逐条结果（✅ / ⚠️ / ❌）+ 测试通过数（分段的非末段写本段退出验收）
    ```
 2. 用 Bash 执行 `rm -f "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
 3. 提示下一步：非末段 → **新开 session** 跑 `/execute-step {N} P{k+1}`；单段或末段 → `/close-step {N}`
