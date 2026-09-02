@@ -46,18 +46,9 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 
 把 `.claude/`、`docs/planning/`、`CLAUDE.md` 复制进项目，跑 `/bootstrap`（会读取现状后实例化文档）。若项目已有 `CLAUDE.md` 或 `.claude/settings.json`，**合并而非覆盖**——settings.json 已有 hooks 时，把本脚手架的 PreToolUse / PostToolUse / SessionStart 条目手动并入既有 hooks 数组，`env` 同理。`.gitignore` 需要加上 `.claude/workflow-phase*`（阶段标记与审计状态）。
 
-### 升级到新版 workflow
+### 从旧版升级
 
-模板会持续演进。文档结构的版本号记在项目的 `docs/planning/WORKFLOW_VERSION`（最初的脚手架没有这个文件，视为 v1），每个版本的搬家规则在 `.claude/skills/migrate/migrations/v{N}.md`。升级分两步，选一个 step 刚 close、下一个还没 plan 的间隙做：
-
-1. 用新版**合并覆盖** `.claude/` 与 `CLAUDE.md`：不要先删目录，项目自己的 `.claude/rules/<layer>.md`、`settings.local.json` 和 CLAUDE.md「关于本项目」一节要保留；settings.json 的 hooks / env 若有自定义则手动合并
-2. 在项目根目录跑 `/migrate`（或说「升级 workflow」）：它比较已应用版本与模板版本，逐版本执行搬家规则、自检、更新版本号、一版一 commit，只搬不改写，中断后重跑可续
-
-有 step 正在执行中的话，那个 step 的旧 execute commit 没有四段正文，它的 close 会退回读 diff 一次，之后就正常。
-
-### 发布新版本（模板作者）
-
-改动文档结构时做三件事，否则 `/migrate` 不知道怎么搬：更新 `docs/planning/` 骨架；把 `.claude/skills/migrate/SKILL.md` 顶部的「模板版本」加一；新增 `migrations/v{N}.md` 写清旧结构、新结构、逐项对应关系与校验清单。只改 skill、hooks、CLAUDE.md 文案而不动文档结构时，不用升版本，覆盖复制即可。
+用新版合并覆盖 `.claude/` 与 `CLAUDE.md`（保留项目自己的 rules、`settings.local.json` 和 CLAUDE.md「关于本项目」一节），然后在 step 间隙让 Claude 按本 README「文档体系与防膨胀」一节描述的新结构搬家：需求进 `REQUIREMENTS.md`，契约与表进域文件索引，PROGRESS 记录拆成各 step 实录，代码规范进 `.claude/rules/`。只搬不改写。
 
 ## 四阶段与两条通道
 
@@ -117,10 +108,8 @@ flowchart LR
 │       ├── execute-step/            # 按 plan 写代码
 │       ├── close-step/              # 定点更新文档 + 路线图校验 + 实录 + PR
 │       ├── hotfix/                  # 小改动快速通道
-│       ├── roadmap/                 # 路线图变更快速通道
-│       └── migrate/                 # 常备升级通道：按版本逐级搬家（migrations/v{N}.md 一版一文件）
+│       └── roadmap/                 # 路线图变更快速通道
 ├── docs/planning/
-│   ├── WORKFLOW_VERSION             # 已应用的文档结构版本，/migrate 据此判断要升几级
 │   ├── ARCHITECTURE.md              # 核心约束 + 技术栈 + 目录结构 + ADR（稳定文档）
 │   ├── REQUIREMENTS.md              # 原始需求（只在 discuss / plan 按需读）
 │   ├── PIPELINE.md                  # 薄核心：核心概念 / step 路线图 / 决议台账 / 域索引（体量恒定）
