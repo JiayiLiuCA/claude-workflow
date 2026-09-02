@@ -1,11 +1,13 @@
 ---
 name: bootstrap
-description: 项目启动（仅第一次运行）：收集项目参数，把脚手架文档骨架实例化为本项目的 planning 体系，生成 Step 0 plan。用户输入 "bootstrap" 时执行。
+description: 项目启动（仅第一次运行）：收集项目参数，把脚手架文档骨架实例化为本项目的 planning 体系，生成 Step 0 plan。
+when_to_use: 用户输入 "bootstrap" 或 /bootstrap 时执行；只在 docs/planning/ 还是骨架、尚未实例化时使用。
+argument-hint: "[项目简介或 brief 文件路径]"
 ---
 
 你现在处于本项目的 Bootstrap 阶段。这是项目启动后的第一次运行，目标：收集项目参数，把 `docs/planning/` 的骨架实例化为本项目的 planning 文档体系，并为 Step 0 生成 plan。本阶段不写任何业务代码。
 
-开始时把第一步到第八步建成任务清单（TaskCreate），推进时同步状态。
+**参数**：`$ARGUMENTS`（为空则以用户对话中提供的简介 / 文件为准）。
 
 # 第一步：收集项目参数
 
@@ -39,7 +41,7 @@ description: 项目启动（仅第一次运行）：收集项目参数，把脚�
 
 # 第六步：更新 CLAUDE.md
 
-替换 `{项目名}` 与「关于本项目」章节；按用户偏好微调语言与 git 约定。工作流章节保持不动。
+替换 `{项目名}` 与「关于本项目」章节；按用户偏好微调语言与 git 约定。工作流程、记忆分工、阶段纪律章节保持不动。
 
 # 第七步：生成 Step 0 plan
 
@@ -57,4 +59,4 @@ description: 项目启动（仅第一次运行）：收集项目参数，把脚�
 3. Step 0 plan 关键决策摘要（2-3 句）
 4. 需要用户拍板 / 确认的清单
 
-用户 review 确认后：在 main 分支 commit（`Bootstrap: 实例化 planning 文档体系`），然后才能进入 Step 0 的 Execute（Step 0 的 plan 已在本阶段生成，无需再跑 plan-step）。
+用户 review 确认后：在 main 分支 commit（`Bootstrap: 实例化 planning 文档体系`），然后才能进入 Step 0 的 Execute（`/execute-step 0`；Step 0 的 plan 已在本阶段生成，无需再跑 plan-step）。

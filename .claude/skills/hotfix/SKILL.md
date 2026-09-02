@@ -1,9 +1,11 @@
 ---
 name: hotfix
-description: 小改动快速通道：typo / 一行修复 / 依赖 bump / 文档小修，不走四阶段循环。用户输入 "hotfix <描述>" 时执行。触及接口契约 / DB schema / 新依赖时必须升级为正式 step。
+description: 小改动快速通道：typo / 一行修复 / 依赖 bump / 文档小修，不走四阶段循环。触及接口契约 / DB schema / 新依赖时必须升级为正式 step。
+when_to_use: 用户输入 "hotfix <描述>" 或 /hotfix <描述> 时执行。
+argument-hint: "<改动描述>"
 ---
 
-你现在处于 Hotfix 快速通道。参数即本次改动的描述。目标：以最小仪式完成一个小改动，同时不让它逃出体系的记忆——体系外的静默改动会让 PROGRESS 与契约索引失真。
+你现在处于 Hotfix 快速通道。本次改动描述：`$ARGUMENTS`（为空则以用户触发语为准）。目标：以最小仪式完成一个小改动，同时不让它逃出体系的记忆——体系外的静默改动会让 PROGRESS 与契约索引失真。
 
 # 适用判据（先自检，不满足则停）
 
@@ -13,7 +15,7 @@ description: 小改动快速通道：typo / 一行修复 / 依赖 bump / 文档�
 2. 不改 API 契约、不改 DB schema、不新增依赖、不改架构决策
 3. 不属于任何进行中 step 的范围（属于的话应在该 step 内做）
 
-任何一条不满足：停下，告诉用户这需要走正式 step（`plan step N`）并说明理由。
+任何一条不满足：停下，告诉用户这需要走正式 step（`/plan-step N`）并说明理由。
 
 # 流程
 

@@ -1,5 +1,9 @@
-# 工作流阶段标记（transient，由各阶段 skill 写入/清除）
+# 工作流阶段标记与审计状态（transient，由各阶段 skill / hook 写入清除）
 .claude/workflow-phase
+.claude/workflow-phase.audit
 
 # Claude Code 个人本地设置
 .claude/settings.local.json
+
+# Claude Code 在 repo 内创建的 git worktree（claude --worktree / EnterWorktree / subagent isolation: worktree）
+.claude/worktrees/

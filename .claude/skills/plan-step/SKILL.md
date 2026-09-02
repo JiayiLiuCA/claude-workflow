@@ -1,15 +1,20 @@
 ---
 name: plan-step
-description: Plan 阶段：为 Step N 生成 implementation plan（docs/planning/STEPS/STEP_NN_plan.md），本阶段不写代码。用户输入 "plan step N" 时执行。
+description: Plan 阶段：为 Step N 生成 implementation plan（docs/planning/STEPS/STEP_NN_plan.md），本阶段不写代码。
+when_to_use: 用户输入 "plan step N"（可附特殊关注点）或 /plan-step N 时执行。
+argument-hint: "N [特殊关注点]"
+arguments: [step]
 ---
 
-你现在处于 **Step {N}** 的 Planning 阶段。N 取自参数的第一个 token；其余文本作为本 step 的特殊关注点。本阶段不写任何代码，唯一产物是 step plan 文档。
+你现在处于 **Step {N}** 的 Planning 阶段。本阶段不写任何代码，唯一产物是 step plan 文档。
+
+**参数**：N = `$step`（为空或不是数字则从触发语取）；`$ARGUMENTS` 去掉 N 后为本 step 的特殊关注点。
+**续接**（resume / compact 后重新调用）：先看 `git status`、`git log --oneline -5` 与已有的 plan 文件判断做到哪一步，跳过已完成的，不重复建分支或 commit。
 
 # 第零步：阶段标记与分支
 
-1. 用 Bash 执行 `printf 'plan' > "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`（此后 hook 只允许写 `docs/planning/`）
-2. 若 `feat/step-{NN}-<slug>` 分支不存在：`git fetch origin` 后从 `origin/main` 创建（无 origin 的纯本地 repo 从本地 main 建）；已存在（如 discuss 阶段建过）则切换过去
-3. 把本阶段五个步骤（读取复述 / 冲突检查 / 生成 plan / 输出总结 / review 收尾）建成任务清单（TaskCreate），推进时同步状态
+1. 用 Bash 执行 `printf 'plan' > "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
+2. 若 `feat/step-{NN}-<slug>` 分支不存在：`git fetch origin` 后从 `origin/main` 创建（无 origin 则从本地 main）；已存在（如 discuss 建过）则切换过去
 
 # 第一步：读取文档并复述
 
@@ -19,9 +24,9 @@ description: Plan 阶段：为 Step N 生成 implementation plan（docs/planning
 2. `PIPELINE.md`：本 step 在 step 拆分中的描述；契约索引中相关的已有 API / 组件 / 表；决议台账中的相关决议
 3. `pipeline/` 中与本 step 相关的域文件：行为参考、edge case、之前 step 留下的承诺
 4. `STEPS/STEP_{NN}_discuss.md`（如存在）：复述全部决议，plan 必须遵守
-5. `PROGRESS.md` 最近 2-3 条：实况、偏离点、遗留问题，特别关注与本 step 相关的部分
+5. `PROGRESS.md` 最近 2-3 条：实况、偏离点、遗留问题
 6. 如涉及前端：design reference 对应文件，简述视觉与交互要点
-7. 实际代码结构（用 Glob / Grep / Read）：相关的 model / migration / 路由 / 组件 / service
+7. 实际代码结构（Glob / Grep / Read）：相关的 model / migration / 路由 / 组件 / service
 
 # 第二步：冲突检查
 
@@ -59,7 +64,7 @@ description: Plan 阶段：为 Step N 生成 implementation plan（docs/planning
 每段一小节：
 - **P{k}：<段标题>** — 范围（本段负责的文件 / 模块 / 层）；前置（依赖上一段交付的什么，P1 写「无」）；退出验收（`- [ ]` checklist：编译 / 测试 / 可运行行为，能明确判断本段完成）
 
-末段的退出验收 = 全 plan「验收标准」，不必重抄，写「同验收标准」即可。
+末段的退出验收 = 全 plan「验收标准」，写「同验收标准」即可。
 
 ## 假设与待确认
 plan 做的假设（如「某 package 假设提供 X 函数」），用户 review 重点。
@@ -75,33 +80,29 @@ plan 做的假设（如「某 package 假设提供 X 函数」），用户 revie
 
 **执行分段判定**（每个 plan 必做，结论写进「输出总结」）：
 
-估算 Execute 阶段能否在**一个 session 的 context** 内舒适完成全部工作量。按高推理强度（high / xhigh）假设估算——thinking、工具输出、测试与调试轮次都占 context，要留足余量。计入的开销：需读取的文档与代码量、预计新增 / 修改的代码行数与文件数、测试与调试轮次、review 修复。
+估算 Execute 能否在**一个 session 的 context** 内舒适完成。当前 effort：`${CLAUDE_EFFORT}`；effort 越高 thinking 占 context 越多，工具输出、测试与调试轮次同样计入，要留余量。计入：需读的文档与代码量、预计新增 / 修改的行数与文件数、测试调试轮次、review 修复。
 
-- **装得下 → 不分段**：分段有交接成本（每段重读文档与代码），不为分而分。plan 不写「执行分段」节即代表单段执行。
-- **装不下 → 分段**，原则是**质量优先**：宁可多分一段，不让任何一段在 context 将尽时赶工收尾。分段规则：
-  - 沿依赖顺序切（如 P1 = migration + model + service，P2 = API + 前端），段间文件集尽量不相交
-  - 每段结束必须是**可验证的完整状态**：编译 / 类型检查通过、该段测试绿、不留半成品接口——下一段是全新 session，只能从 git commit 与 plan 文件接手
-  - 常见 2-3 段；超过 4 段说明 step 本身过大，优先拆 step
-- 经验信号（满足其一即认真考虑分段）：预计新增 / 修改超过 ~1000 行或 15+ 文件；跨多个都需大量读现有代码的独立子系统；大规模机械改造与新逻辑混合
-- **分段 ≠ 拆 step**：分段解决「目标单一但工作量大」；plan 本身目标发散、篇幅明显超标，仍应拆成多个 step
+- **装得下 → 不分段**：分段有交接成本，不为分而分。不写「执行分段」节即单段执行。
+- **装不下 → 分段**，质量优先：宁可多分一段，不让任何一段在 context 将尽时赶工。沿依赖顺序切（如 P1 = migration + model + service，P2 = API + 前端），段间文件集尽量不相交；每段结束必须是可验证的完整状态（编译 / 类型检查通过、该段测试绿、不留半成品接口），下一段是全新 session，只能从 git commit 与 plan 文件接手；常见 2-3 段，超过 4 段说明 step 过大，优先拆 step。
+- 经验信号（满足其一即认真考虑分段）：预计新增 / 修改超过 ~1000 行或 15+ 文件；跨多个都需大量读现有代码的子系统；大规模机械改造与新逻辑混合。阈值按 200K context 校准，1M 窗口可放宽约 3 倍但仍质量优先；没有 auto compact 兜底的环境要更保守。
+- **分段 ≠ 拆 step**：分段解决「目标单一但工作量大」；目标发散、篇幅超标的 plan 仍应拆 step。
 
-**Plan 写作纪律**：
-
-- 描述行为与契约，**不写实现代码**（函数签名、伪代码、目录树除外）
-- 目标篇幅 150-350 行。明显超出说明 step 过大，在总结中提出拆分建议
+**Plan 写作纪律**：描述行为与契约，**不写实现代码**（函数签名、伪代码、目录树除外）；目标篇幅 150-350 行，明显超出说明 step 过大，在总结中提出拆分建议。
 
 # 第四步：输出总结
 
-1. 本 step 核心目标（1 句）
-2. 关键决策（2-3 句）
-3. 主要风险或不确定处
-4. 执行分段判定结论：单段，或分几段、每段边界与理由
-5. 开放问题清单（引用 plan 中的「开放问题」章节）
+按 CLAUDE.md「沟通风格」写给产品负责人看：
+
+1. 做完这个 step，用户能做什么（1-2 句）
+2. 关键取舍：建议怎么选、对用户意味着什么（2-3 句）
+3. 主要风险或不确定处（产品语言）
+4. 一次做完还是分几次做：分段判定结论，分段时一句话讲每段交付什么
+5. 需要用户拍板的问题（引用 plan「开放问题」章节）
 
 # 第五步：review 与收尾
 
-等用户 review。**所有 review 结论（含对话中的口头调整）必须回写进 plan 文件**——Execute 阶段只认 plan 文件，不接受文件外的补充。用户确认后：
+等用户 review。**所有 review 结论（含口头调整）必须回写进 plan 文件**：Execute 只认 plan 文件。用户确认后：
 
-1. commit：`Step {N} Plan: <标题>`（execute 中途大偏离回到 plan 修订时，同样以 `Step {N} Plan: <修订说明>` 提交）
+1. commit：`Step {N} Plan: <标题>`（execute 中途大偏离回到 plan 修订时同样以此格式提交）
 2. 用 Bash 执行 `rm -f "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
-3. 提示用户下一步：单段 plan 提示 `execute step {N}`（大 step 建议新会话，小 step 可同会话继续；见 CLAUDE.md「Session 策略」）；分段 plan 提示 `execute step {N} P1`，并说明每段完成后**新开 session** 跑下一段
+3. 提示下一步：单段 → `/execute-step {N}`（大 step 建议新会话）；分段 → `/execute-step {N} P1`，每段完成后**新开 session** 跑下一段

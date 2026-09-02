@@ -1,14 +1,20 @@
 ---
 name: discuss-step
-description: 可选的第 0 阶段：为 Step N 逐项拍板关键决策，产出决议清单存档，作为 plan 阶段的输入。大 step 或方向未明时使用；小 step 直接 plan。用户输入 "discuss step N" 时执行。
+description: 可选的第 0 阶段：为 Step N 逐项拍板关键决策，产出决议清单存档，作为 plan 阶段的输入。大 step 或方向未明时使用；小 step 直接 plan。
+when_to_use: 用户输入 "discuss step N"（可附预先给出的议题或倾向）或 /discuss-step N 时执行。
+argument-hint: "N [预先给出的议题或倾向]"
+arguments: [step]
 ---
 
-你现在处于 **Step {N}** 的 Discuss 阶段。N 取自参数的第一个 token；其余文本是用户预先给出的议题或倾向，优先处理。目标：把 plan 之前该拍板的事逐项与用户敲定，避免 plan 建立在未决假设上。本阶段不写任何代码，唯一产物是决议清单文档。
+你现在处于 **Step {N}** 的 Discuss 阶段。目标：把 plan 之前该拍板的事逐项与用户敲定，避免 plan 建立在未决假设上。本阶段不写任何代码，唯一产物是决议清单文档。
+
+**参数**：N = `$step`（为空或不是数字则从触发语取）；`$ARGUMENTS` 去掉 N 后是用户预先给出的议题或倾向，优先处理。
+**续接**（resume / compact 后重新调用）：先看 `git status`、`git log --oneline -5` 与已有的 discuss 文件判断做到哪一步，跳过已完成的。
 
 # 第零步：阶段标记与分支
 
-1. 用 Bash 执行 `printf 'discuss' > "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`（此后 hook 只允许写 `docs/planning/`）
-2. 若 `feat/step-{NN}-<slug>` 分支不存在：`git fetch origin` 后从 `origin/main` 创建（`git checkout -b feat/step-{NN}-<slug> origin/main`，slug 用本 step 主题的 kebab-case 短词；无 origin 的纯本地 repo 从本地 main 建）；存在则切换过去
+1. 用 Bash 执行 `printf 'discuss' > "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
+2. 若 `feat/step-{NN}-<slug>` 分支不存在：`git fetch origin` 后从 `origin/main` 创建（`git checkout -b feat/step-{NN}-<slug> origin/main`，slug 用本 step 主题的 kebab-case 短词；无 origin 则从本地 main）；已存在则切换过去
 
 # 第一步：读取背景
 
@@ -29,13 +35,13 @@ description: 可选的第 0 阶段：为 Step N 逐项拍板关键决策，产�
 - **UI / 交互形态**（如涉及）
 - **与既有代码的关系**：复用 / 重写 / 不动
 
-每个问题给出你的推荐 + 理由 + 备选项。问题与选项用用户视角表述：先讲各选项在功能 / 体验 / 代价上的差异（选了它用户得到什么、放弃什么），技术实现差异其次（见 CLAUDE.md「沟通风格」）。已有明显惯例答案的不要拿来问——直接按惯例处理并在决议清单中注明。
+每个问题给出你的推荐 + 理由 + 备选项，按 CLAUDE.md「沟通风格」表述（先讲用户后果，技术差异其次）。已有明显惯例答案的不要拿来问，按惯例处理并在决议清单中注明。
 
-把列出的待决问题建成任务清单（TaskCreate，一个问题一个任务）；第三步每拍板一项即置 completed——清单清零才进入第四步。
+把待决问题建成任务清单（TaskCreate，一个问题一个任务）；每拍板一项置 completed，清单清零才进入第四步。
 
 # 第三步：逐项拍板
 
-用 AskUserQuestion 或对话逐项与用户确认。用户预先给出的议题优先处理。所有问题拍板完成前不进入第四步；用户明确说「留到 plan 再定」的项单独记录。
+用 AskUserQuestion 或对话逐项与用户确认，用户预先给出的议题优先。所有问题拍板完成前不进入第四步；用户明确说「留到 plan 再定」的项单独记录。
 
 # 第四步：产出决议清单
 
@@ -49,4 +55,4 @@ description: 可选的第 0 阶段：为 Step N 逐项拍板关键决策，产�
 
 1. commit：`Step {N} Discuss: <标题>`
 2. 用 Bash 执行 `rm -f "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
-3. 输出决议摘要（一条一行），提示用户下一步 `plan step {N}`（同会话或新会话均可，见 CLAUDE.md「Session 策略」）
+3. 输出决议摘要（一条一行），提示下一步 `/plan-step {N}`
