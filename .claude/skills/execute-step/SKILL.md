@@ -25,15 +25,15 @@ arguments: [step, segment]
 1. **按 plan 的「范围内 / 范围外」严格约束自己**：plan 没写的不做，明确说不做的绝对不做。
 2. **plan 没写清楚的细节，停下来问用户**（命名、字段类型、UI 交互、错误处理策略），不要自己决定。
 3. **plan 与实际代码冲突，停下来问用户**，不要自己调和。
-4. **不修改 `docs/planning/`**（hook 拦截；文档更新是 Close 的事）。
+4. **不修改 `docs/planning/` 与 `.claude/rules/`**（hook 拦截；文档更新是 Close 的事）。
 5. **按依赖顺序推进**：migration → model → service → API → 前端（按项目形态调整），每层写完先跑通再下一层，写一块测一块。
 6. **分段执行时，本段之外一律视同「范围外」**：不提前实现后续段，不重构已交付段（plan 明确要求的衔接改动除外）；段边界本身有问题时按「偏离 plan」停下汇报。
 
 # 第一步：读取并复述
 
-1. `ARCHITECTURE.md`：代码规范、目录结构、命名约定
-2. `STEPS/STEP_{NN}_plan.md` 完整阅读：复述「范围内」「范围外」「不要做的事」「测试计划」；分段执行时另复述本段的范围、前置、退出验收与相邻段边界
-3. `PIPELINE.md` 契约索引 + 相关域文件：本 step 依赖的已有 API / 表 / 组件
+1. `STEPS/STEP_{NN}_plan.md` 完整阅读：复述「范围内」「范围外」「不要做的事」「测试计划」；分段执行时另复述本段的范围、前置、退出验收与相邻段边界
+2. 相关域文件 `pipeline/<domain>.md`：契约索引、表索引中本 step 依赖的已有 API / 表 / 组件，以及行为参考
+3. 代码规范由 `.claude/rules/` 在触碰对应文件时自动加载；`ARCHITECTURE.md` 只在需要目录结构或某条 ADR 时用 Grep 定位读取，不通读
 4. 如涉及前端：design reference 对应文件
 5. 相关的现有代码
 
@@ -49,7 +49,7 @@ arguments: [step, segment]
 
 **唯一必须停下汇报并等待指示的情况：发现任何偏离 plan 的事实**（字段类型不对、依赖的接口与预期不符、plan 遗漏了必要改动）。按用户裁决分流：
 
-- **小偏离**（不动范围边界与契约本质：字段改名、必要的连带修改、实现细节调整）：继续执行，Close 记入「与 plan 的偏离」。
+- **小偏离**（不动范围边界与契约本质：字段改名、必要的连带修改、实现细节调整）：继续执行，记入 commit 正文的「偏离」。
 - **大偏离**（方案更换、范围增减、契约 / schema 变化）：中止 execute，清除阶段标记，由用户重开 `/plan-step {N}` 把修订写进 plan 文件、review 后再重新 execute。不允许带着「文件是方案 A、口头改成方案 B」的状态继续跑：修订必须经过 plan 阶段的人工 gate。
 
 **大规模机械改造**（全量重命名、批量文案抽取、迁移适配）：拆成互不相交的文件集，用并行 subagent 分组执行（Agent 工具选 `fork` 类型，继承已读的 plan 与代码），汇合后统一跑类型检查与测试。
@@ -80,9 +80,15 @@ diff 较大或触及核心逻辑时，在总结中建议用户在 close 前跑 `
 
 # 收尾（用户验收通过后）
 
-1. commit：标题 `Step {N} Execute: <标题>`（分段时 `Step {N} Execute: <标题>（P{k}）`，P 标号专用于分段；单段内拆多个 commit 用 `Step {N} Execute: <子标题>`）；正文一条一行写临场决策（plan 没明确、现场决定的事 + 理由）与与 plan 的偏离，Close 阶段从这里取「关键决策」
+1. commit：标题 `Step {N} Execute: <标题>`（分段时 `Step {N} Execute: <标题>（P{k}）`，P 标号专用于分段；单段内拆多个 commit 用 `Step {N} Execute: <子标题>`）。正文固定四段，Close 阶段直接取用，无内容写「无」：
+   ```text
+   偏离：与 plan 不同之处 + 原因
+   临场决策：plan 没明确、现场决定的事 + 理由
+   遗留：已知但本 step 不解决的问题
+   验收：验收标准逐条结果（✅ / ⚠️ / ❌）+ 测试通过数
+   ```
 2. 用 Bash 执行 `rm -f "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
-3. 提示下一步：非末段 → **新开 session** 跑 `/execute-step {N} P{k+1}`；单段或末段 → `/close-step {N}`（同会话继续时 close 仍以 git diff 为准）
+3. 提示下一步：非末段 → **新开 session** 跑 `/execute-step {N} P{k+1}`；单段或末段 → `/close-step {N}`
 
 # 禁止事项
 

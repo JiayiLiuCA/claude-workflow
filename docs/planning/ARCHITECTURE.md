@@ -2,7 +2,7 @@
 
 <!-- bootstrap 阶段按各节注释填充本文档，填完删除注释 -->
 
-本文档定义技术栈、目录结构、核心架构决策（ADR）、代码规范。属于稳定文档，除非有明确理由，不随 step 频繁变化。
+本文档定义核心约束、技术栈、目录结构、核心架构决策（ADR）。属于稳定文档，除非有明确理由，不随 step 频繁变化。代码规范与前端设计规范不在这里，见末节。
 
 ## 项目概述
 
@@ -37,34 +37,16 @@
 
 ### A2. <!-- bootstrap：数据持久化分层等 -->
 
-## 代码规范
+## 代码规范与前端设计规范
 
-<!-- bootstrap：按技术栈填写。建议覆盖：
-- 语言版本、类型注解要求
-- 错误处理模式（异常分层、谁捕获谁转译）
-- 日志约定
-- 命名约定（文件 / 类 / 函数 / DB 表 / API 路由）
-- 测试约定（框架、目录、跑法）
-后续 step 引入新约定时由 Close 阶段追加到这里 -->
+不在本文档，按层写在 `.claude/rules/<layer>.md`：frontmatter 的 `paths` 指定作用范围，Claude Code 在触碰对应文件时自动加载，其他会话不付这笔 context。
 
-## 前端设计规范（如适用）
-
-### Design Reference 使用原则
-
-<!-- 如有 docs/design-reference/：
-1. 涉及 frontend 的任务必读对应 reference 文件，不自行发挥 UI 设计
-2. reference 是视觉与交互的 ground truth，但不是可直接复制的代码源——需按本文档规范重新组织，提取 design tokens 后实现
-没有 reference 则删除本节，注明 UI 规范待定 -->
-
-### Design Tokens
-
-<!-- bootstrap：从 reference 提取实际出现的 tokens（颜色 / 字体 / 间距 / 圆角 / 阴影），标注来源文件；不自行发挥添加 -->
-
-### 核心组件
-
-<!-- bootstrap：reference 中的核心复用组件清单，每个一句话用途；在对应 step 实现后标注「（Step N 落地）」 -->
+<!-- bootstrap：按技术栈生成，例如
+- backend.md（paths: backend/**）：语言版本与类型要求、错误处理模式、日志约定、命名约定、测试约定
+- frontend.md（paths: frontend/**）：同上 + design reference 使用原则、从 reference 提取的 design tokens（只写实际出现的）、核心复用组件清单
+每个 rule 文件必须带 paths，否则每个会话都会加载。后续 step 引入新约定时由 Close 阶段追加到对应文件 -->
 
 ## 文档维护
 
-- 本文档主要在 Bootstrap 阶段完善；后续 step 引入新约定或推翻旧决策时，由该 step 的 Close 阶段追加 / 修订
+- 本文档主要在 Bootstrap 阶段完善；后续 step 推翻旧决策或需固化新 ADR 时，由该 step 的 Close 阶段追加 / 修订
 - ADR 只增不删；被推翻的决策用删除线保留

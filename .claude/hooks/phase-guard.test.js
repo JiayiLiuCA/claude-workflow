@@ -54,6 +54,11 @@ const CASES = [
   ["close：写 planning 放行", "close", undefined, j(abs("docs/planning/PROGRESS.md")), 0],
   ["UTF-16 标记 close：写代码拒绝", "close", "utf16le", j(abs("src/foo.ts")), 2],
   ["非法 JSON：fail-open 放行", "execute", undefined, "{not json", 0],
+  ["roadmap：写 PIPELINE 放行", "roadmap", undefined, j("docs/planning/PIPELINE.md", "Edit"), 0],
+  ["roadmap：写代码拒绝", "roadmap", undefined, j(abs("src/foo.ts")), 2],
+  ["close：写 .claude/rules 放行", "close", undefined, j(abs(".claude/rules/backend.md")), 0],
+  ["execute：写 .claude/rules 拒绝", "execute", undefined, j(abs(".claude\\rules\\backend.md")), 2],
+  ["execute：Bash 追加 .claude/rules 拒绝", "execute", undefined, b("echo x >> .claude/rules/frontend.md"), 2],
   // ---- Bash ----
   ["无标记：Bash 写 planning 放行", null, undefined, b("echo x > docs/planning/X.md"), 0],
   ["execute：Bash 重定向写 planning 拒绝", "execute", undefined, b("printf 'x' > docs/planning/PROGRESS.md"), 2],

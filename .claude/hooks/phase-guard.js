@@ -3,9 +3,9 @@
  * phase-guard.js — PreToolUse hook：按当前工作流阶段限制文件写入范围。
  *
  * 阶段标记：.claude/workflow-phase（由各阶段 skill 通过 Bash 写入/清除）
- *   discuss / plan / close → 只允许写 docs/planning/ 下的文件
- *   execute               → 禁止写 docs/planning/ 下的文件
- *   标记不存在            → 不限制
+ *   discuss / plan / close / roadmap → 只允许写文档：docs/planning/ 与 .claude/rules/
+ *   execute                          → 禁止写文档
+ *   标记不存在                       → 不限制
  *
  * 覆盖的工具：
  *   - Write / Edit / MultiEdit / NotebookEdit：按 file_path / notebook_path 判断
@@ -24,7 +24,8 @@
 const fs = require("fs");
 const path = require("path");
 
-const DOCS_ONLY = { discuss: "Discuss", plan: "Plan", close: "Close" };
+const DOCS_ONLY = { discuss: "Discuss", plan: "Plan", close: "Close", roadmap: "Roadmap" };
+const DOCS_RE = /(^|\/)(docs\/planning|\.claude\/rules)(\/|$)/; // 文档范围：planning 文档 + path-scoped rules
 const SEP = Symbol("sep"); // 命令分隔哨兵（; | || && 换行）
 const REDIR = /^(\d*|&)>{1,2}\|?$/; // > >> 2> &> >|  → 下一个 token 是写入目标
 const FDDUP = /^(\d*|&)>{1,2}&\d*$/; // 2>&1 >&2      → fd 复制，不是文件
@@ -64,7 +65,7 @@ function classify(rawToken, root) {
   let n = t.replace(/\\/g, "/");
   const lower = n.toLowerCase();
   if (lower.includes(".claude/workflow-phase")) return "ignore";
-  if (/(^|\/)docs\/planning(\/|$)/.test(lower)) return "planning";
+  if (DOCS_RE.test(lower)) return "planning";
   if (/[$`~]/.test(n)) return "ignore"; // 变量 / 命令替换 / home 展开：无法确定
   if (/^\/(dev|tmp|proc|sys)(\/|$)/.test(lower)) return "ignore";
   if (process.platform === "win32") n = n.replace(/^\/([a-zA-Z])\//, "$1:/"); // MSYS 风格 /d/foo
@@ -73,15 +74,15 @@ function classify(rawToken, root) {
   const rootN = path.resolve(root).replace(/\\/g, "/").toLowerCase().replace(/\/+$/, "") + "/";
   if (!resolved.startsWith(rootN)) return "ignore";
   const rel = resolved.slice(rootN.length);
-  return rel === "docs/planning" || rel.startsWith("docs/planning/") ? "planning" : "code";
+  return DOCS_RE.test(rel) ? "planning" : "code";
 }
 
 function judge(phase, kind, target) {
   if (phase === "execute" && kind === "planning") {
-    return `[phase-guard] 当前处于 Execute 阶段，禁止修改 docs/planning/ 下的文件（目标：${target}）——文档更新是 Close 阶段的事。`;
+    return `[phase-guard] 当前处于 Execute 阶段，禁止修改 docs/planning/ 与 .claude/rules/ 下的文档（目标：${target}）——文档更新是 Close 阶段的事。`;
   }
   if (DOCS_ONLY[phase] && kind === "code") {
-    return `[phase-guard] 当前处于 ${DOCS_ONLY[phase]} 阶段，只允许修改 docs/planning/ 下的文档，不允许改动代码或其他文件（目标：${target}）。`;
+    return `[phase-guard] 当前处于 ${DOCS_ONLY[phase]} 阶段，只允许修改 docs/planning/ 与 .claude/rules/ 下的文档，不允许改动代码或其他文件（目标：${target}）。`;
   }
   return null;
 }

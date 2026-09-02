@@ -1,6 +1,6 @@
 ---
 name: plan-step
-description: Plan 阶段：为 Step N 生成 implementation plan（docs/planning/STEPS/STEP_NN_plan.md），本阶段不写代码。
+description: Plan 阶段：为 Step N 生成 implementation plan（docs/planning/STEPS/STEP_NN_plan.md），本阶段不写代码。含路线图对齐闸门。
 when_to_use: 用户输入 "plan step N"（可附特殊关注点）或 /plan-step N 时执行。
 argument-hint: "N [特殊关注点]"
 arguments: [step]
@@ -18,21 +18,30 @@ arguments: [step]
 
 # 第一步：读取文档并复述
 
-按以下顺序读取，然后用中文简短复述：
+按需定位读取，不通读；读完用中文简短复述：
 
-1. `ARCHITECTURE.md`：与本 step 相关的架构决策（ADR）与代码规范
-2. `PIPELINE.md`：本 step 在 step 拆分中的描述；契约索引中相关的已有 API / 组件 / 表；决议台账中的相关决议
-3. `pipeline/` 中与本 step 相关的域文件：行为参考、edge case、之前 step 留下的承诺
-4. `STEPS/STEP_{NN}_discuss.md`（如存在）：复述全部决议，plan 必须遵守
-5. `PROGRESS.md` 最近 2-3 条：实况、偏离点、遗留问题
-6. 如涉及前端：design reference 对应文件，简述视觉与交互要点
-7. 实际代码结构（Glob / Grep / Read）：相关的 model / migration / 路由 / 组件 / service
+1. `ARCHITECTURE.md`：与本 step 相关的 ADR 与约束（代码规范由 `.claude/rules/` 自动加载，不用读）
+2. `REQUIREMENTS.md` 中与本 step 相关的章节
+3. `PIPELINE.md`：路线图中本 step 的条目（目标一句话 + 范围要点 + 依赖）、决议台账中的相关决议、域索引
+4. 相关域文件 `pipeline/<domain>.md`：契约索引、表索引中相关的已有 API / 组件 / 表；行为参考、edge case、之前 step 留下的承诺
+5. `STEPS/STEP_{NN}_discuss.md`（如存在）：复述全部决议，plan 必须遵守
+6. `PROGRESS.md` 索引 + 最近 1-2 个 `STEP_NN_close.md`：实况、偏离、遗留，特别关注与本 step 相关的
+7. 如涉及前端：design reference 对应文件，简述视觉与交互要点
+8. 实际代码结构（Glob / Grep / Read）：相关的 model / migration / 路由 / 组件 / service
 
 # 第二步：冲突检查
 
-对比「文档记录的接口 / schema」与「实际代码」：一致则在复述中确认；不一致**以实际代码为准**，并在 plan 末尾「文档待更新」章节记录修正项。不要猜测 schema，实际代码是终极 ground truth。
+对比域文件索引记录的接口 / 表与实际代码：一致则在复述中确认；不一致**以实际代码为准**，并在 plan 末尾「文档待更新」章节记录修正项。不要猜测 schema，实际代码是终极 ground truth。
 
-# 第三步：生成 Step Plan
+# 第三步：路线图对齐
+
+plan 的「目标」必须是路线图中本 step 条目的细化，不得扩展。对照后分三种：
+
+- **一致**：进入第四步。
+- **范围小于条目**（有意推迟部分内容）：推迟部分写进「范围外」并注明去向（哪个 step 或待定），在总结里说明。
+- **范围超出条目或目标变了**：超出部分不写进「范围内」，在总结里列为「路线图变更」交用户拍板；用户同意后先按 PIPELINE §2 的规则改路线图（变更日志 + 条目 + 决议台账），再定稿 plan；不同意则进「范围外」。
+
+# 第四步：生成 Step Plan
 
 创建 `docs/planning/STEPS/STEP_{NN}_plan.md`（N 补零两位），章节如下：
 
@@ -72,8 +81,8 @@ plan 做的假设（如「某 package 假设提供 X 函数」），用户 revie
 ## 不要做的事
 明确告诉 Execute 阶段哪些不要顺手做，越具体越好：不要实现某后续 step 的功能 / 不要动某表 / 不要重构某模块 / 不要修某个已知的 pre-existing 问题。
 
-## 文档待更新（Close 阶段处理）
-本 step 完成后 PIPELINE / 域文件 / PROGRESS / ARCHITECTURE 需更新的内容草稿；第二步发现的文档偏差修正项也记在这里。
+## 文档待更新（Close 阶段的工作清单）
+本 step 完成后要更新的文档，具体到章节：哪个域文件的契约索引 / 表索引要加行、要写哪些行为参考；决议台账要落哪几条；是否需要新 ADR；`.claude/rules/` 是否新增约定；第二步发现的文档偏差修正项。Close 阶段以这一节为清单，不再通读文档。
 
 ## 开放问题
 需要用户 review 时回答的问题。
@@ -85,24 +94,26 @@ plan 做的假设（如「某 package 假设提供 X 函数」），用户 revie
 - **装得下 → 不分段**：分段有交接成本，不为分而分。不写「执行分段」节即单段执行。
 - **装不下 → 分段**，质量优先：宁可多分一段，不让任何一段在 context 将尽时赶工。沿依赖顺序切（如 P1 = migration + model + service，P2 = API + 前端），段间文件集尽量不相交；每段结束必须是可验证的完整状态（编译 / 类型检查通过、该段测试绿、不留半成品接口），下一段是全新 session，只能从 git commit 与 plan 文件接手；常见 2-3 段，超过 4 段说明 step 过大，优先拆 step。
 - 经验信号（满足其一即认真考虑分段）：预计新增 / 修改超过 ~1000 行或 15+ 文件；跨多个都需大量读现有代码的子系统；大规模机械改造与新逻辑混合。阈值按 200K context 校准，1M 窗口可放宽约 3 倍但仍质量优先；没有 auto compact 兜底的环境要更保守。
-- **分段 ≠ 拆 step**：分段解决「目标单一但工作量大」；目标发散、篇幅超标的 plan 仍应拆 step。
+- **分段 ≠ 拆 step**：分段解决「目标单一但工作量大」；目标发散、篇幅超标的 plan 仍应拆 step，走路线图变更。
 
 **Plan 写作纪律**：描述行为与契约，**不写实现代码**（函数签名、伪代码、目录树除外）；目标篇幅 150-350 行，明显超出说明 step 过大，在总结中提出拆分建议。
 
-# 第四步：输出总结
+# 第五步：输出总结
 
 按 CLAUDE.md「沟通风格」写给产品负责人看：
 
 1. 做完这个 step，用户能做什么（1-2 句）
 2. 关键取舍：建议怎么选、对用户意味着什么（2-3 句）
-3. 主要风险或不确定处（产品语言）
-4. 一次做完还是分几次做：分段判定结论，分段时一句话讲每段交付什么
-5. 需要用户拍板的问题（引用 plan「开放问题」章节）
+3. 路线图变更（如有）：超出条目的部分、建议是否纳入、对后续 step 的影响，需要用户拍板
+4. 主要风险或不确定处（产品语言）
+5. 一次做完还是分几次做：分段判定结论，分段时一句话讲每段交付什么
+6. 需要用户拍板的问题（引用 plan「开放问题」章节）
 
-# 第五步：review 与收尾
+# 第六步：review 与收尾
 
 等用户 review。**所有 review 结论（含口头调整）必须回写进 plan 文件**：Execute 只认 plan 文件。用户确认后：
 
-1. commit：`Step {N} Plan: <标题>`（execute 中途大偏离回到 plan 修订时同样以此格式提交）
-2. 用 Bash 执行 `rm -f "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
-3. 提示下一步：单段 → `/execute-step {N}`（大 step 建议新会话）；分段 → `/execute-step {N} P1`，每段完成后**新开 session** 跑下一段
+1. 若拍板了路线图变更：先按 PIPELINE §2 规则改路线图，再定稿 plan
+2. commit：`Step {N} Plan: <标题>`（execute 中途大偏离回到 plan 修订时同样以此格式提交）
+3. 用 Bash 执行 `rm -f "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
+4. 提示下一步：单段 → `/execute-step {N}`（大 step 建议新会话）；分段 → `/execute-step {N} P1`，每段完成后**新开 session** 跑下一段

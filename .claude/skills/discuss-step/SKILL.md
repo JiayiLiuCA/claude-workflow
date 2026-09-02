@@ -18,12 +18,15 @@ arguments: [step]
 
 # 第一步：读取背景
 
-1. `docs/planning/ARCHITECTURE.md` 全文
-2. `docs/planning/PIPELINE.md`：本 step 在 step 拆分中的描述、决议台账相关条目、契约索引中相关的已有接口
-3. `docs/planning/pipeline/` 下与本 step 相关的域文件
-4. `docs/planning/PROGRESS.md` 最近 2-3 条记录
-5. 相关的实际代码（结构与既有实现）
-6. 如涉及前端：design reference 对应文件
+按需定位读取，不通读：
+
+1. `ARCHITECTURE.md`：核心约束、技术栈、相关 ADR
+2. `REQUIREMENTS.md` 中与本 step 相关的章节
+3. `PIPELINE.md`：路线图中本 step 的条目、决议台账相关条目、域索引
+4. 相关域文件 `pipeline/<domain>.md`：契约索引、表索引、行为参考
+5. `PROGRESS.md` 索引 + 最近 1-2 个 `STEPS/STEP_NN_close.md` 实录
+6. 相关的实际代码（结构与既有实现）
+7. 如涉及前端：design reference 对应文件
 
 # 第二步：列出待决问题
 
