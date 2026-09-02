@@ -35,6 +35,7 @@
 - `pipeline/<domain>.md` — 各域的契约索引、表索引、行为参考（Close 阶段维护）
 - `STEPS/STEP_NN_{discuss,plan,close}.md` — 每个 step 的决议、plan、实录（历史存档，close 后不改）
 - `PROGRESS.md` — step 索引（一行一 step，指向实录）+ hotfix log
+- `WORKFLOW_VERSION` — 已应用的 workflow 文档结构版本，`/migrate` 据此逐级升级
 
 代码规范与前端设计规范在 `.claude/rules/<layer>.md`（path-scoped，触碰对应文件时自动加载，不用读）。
 
