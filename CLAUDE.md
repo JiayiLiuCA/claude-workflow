@@ -85,4 +85,3 @@ Write / Edit 与 Bash / PowerShell 的写入都会被检查，命令执行后还
 - 阶段 commit：`Step N Discuss: <标题>` / `Step N Plan: <标题>` / `Step N Execute: <标题>`（分段时 `Step N Execute: <标题>（P1）`…，P 标号专用于分段；正文固定写偏离 / 临场决策 / 遗留 / 验收四段，Close 从这里取材）/ `Step N Close: <标题>`
 - Close 完成后建 PR 合回 main；merge 后可选打 tag `step-NN`
 - 小改动：`Hotfix: <描述>`；路线图变更：`Roadmap: <描述>`。默认直接在 main（main 受保护则分支 + PR）
-- 多个 step 并行可用 git worktree，阶段标记按 checkout 独立；分支已在别的 worktree 检出时直接去该 worktree 工作

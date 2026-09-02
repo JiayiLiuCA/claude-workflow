@@ -146,9 +146,8 @@ node .claude/hooks/phase-audit.test.js
 
 ## 与 Claude Code 内建能力的配合
 
-- **`/code-review`**：execute-step 在末段验收后建议 `/code-review high origin/main...HEAD`（后台 subagent 运行，不占会话 context）。不要用 `--fix`：它的修改在会话 checkpoint 之外、`/rewind` 撤不掉，也绕过 execute 的分流规则。想做不找 bug 的清理可另用 `/simplify`；触及鉴权 / 数据访问的 step，close-step 建 PR 前提示 `/security-review`。
+- **`/code-review`**：execute-step 在末段验收后建议 `/code-review high origin/main...HEAD`（后台 subagent 运行，不占会话 context）。不要用 `--fix`：它的修改在会话 checkpoint 之外、`/rewind` 撤不掉，也绕过 execute 的分流规则。触及鉴权 / 数据访问的 step，close-step 建 PR 前提示 `/security-review`（只报告不改代码）。
 - **subagent**：execute 的大规模机械改造用 `fork` 类型并行分组（继承 plan 与已读代码）。
-- **worktree**：多个 step 并行时用 `claude --worktree` / EnterWorktree；阶段标记是每个 checkout 独立的，天然兼容。`.gitignore` 已忽略 `.claude/worktrees/`。
 - **不适合的**：阶段 skill 不要加 `context: fork`（它们需要与用户交互）；不要用 skill frontmatter 的 `hooks` 取代标记文件（skill hook 在整个 session 持续生效，同会话连跑 plan → execute 会叠加相反规则）；不要给阶段 skill 设 `disable-model-invocation`（会让自然语言触发失效）。
 
 ## 定制
