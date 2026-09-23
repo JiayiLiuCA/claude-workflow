@@ -48,7 +48,7 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 
 ### 从旧版升级
 
-用新版合并覆盖 `.claude/` 与 `CLAUDE.md`（保留项目自己的 rules、`settings.local.json` 和 CLAUDE.md「关于本项目」一节），然后让 Claude 按本 README「文档体系与防膨胀」一节描述的新结构搬家：需求进 `REQUIREMENTS.md`，契约与表进域文件索引，PROGRESS 记录拆成各 step 实录，代码规范进 `.claude/rules/`。只搬不改写。
+用新版合并覆盖 `.claude/` 与 `CLAUDE.md`（保留项目自己的 rules、`settings.local.json` 和 CLAUDE.md「关于本项目」一节），然后让 Claude 按本 README「文档体系与防膨胀」一节描述的新结构搬家：需求进 `REQUIREMENTS.md`，契约与表进域文件索引，PROGRESS 记录拆成各 step 实录，代码规范进 `.claude/rules/`，路线图里已完成的条目剪切进各 step 实录，只有单个域引用的决议从台账搬进域文件「决议」节。只搬不改写。
 
 ## 四阶段与两条通道
 
@@ -57,7 +57,7 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 | Discuss（可选） | `/discuss-step N` | `STEPS/STEP_NN_discuss.md` 决议清单 | 只能写文档 |
 | Plan | `/plan-step N` | `STEPS/STEP_NN_plan.md`；路线图对齐闸门 | 只能写文档 |
 | Execute | `/execute-step N [Pk]` | 代码 + 测试 + 验收自检；commit 正文记偏离 / 临场决策 / 遗留 / 验收 | **禁止**写文档 |
-| Close | `/close-step N` | 域文件索引与行为参考、决议台账、路线图校验、`STEP_NN_close.md` 实录 + PR | 只能写文档 |
+| Close | `/close-step N` | 域文件索引 / 决议 / 行为参考、跨域决议台账、路线图校验（本 step 条目移出）、`STEP_NN_close.md` 实录 + PR | 只能写文档 |
 | hotfix | `/hotfix <描述>` | 小改动直接提交，影响行为的记进 PROGRESS 杂项 | 无标记 |
 | roadmap | `/roadmap <描述>` | 路线图变更日志 + step 条目 + 决议台账 | 只能写文档 |
 
@@ -76,7 +76,7 @@ flowchart LR
 
 ### 路线图怎么变
 
-路线图（PIPELINE §2）在 bootstrap 时只是草案，之后靠三个入口保持与认知同步：Close 阶段逐条校验后续 step 的目标与范围是否仍成立；Plan 阶段发现 plan 目标超出路线图条目时，超出部分作为「路线图变更」交用户拍板而不是悄悄写进范围内；用户随时用 `/roadmap` 加需求、砍功能、合并拆分 step、调顺序。三个入口共用一套规则：变更写进变更日志并在决议台账记一条，step 编号不变、新增顺延、废弃用删除线保留，已 plan 未 execute 的 step 受影响时标「需重跑 plan」，历史存档不改。
+路线图（PIPELINE §2）在 bootstrap 时只是草案，之后靠三个入口保持与认知同步：Close 阶段逐条校验后续 step 的目标与范围是否仍成立；Plan 阶段发现 plan 目标超出路线图条目时，超出部分作为「路线图变更」交用户拍板而不是悄悄写进范围内；用户随时用 `/roadmap` 加需求、砍功能、合并拆分 step、调顺序。三个入口共用一套规则：变更写进变更日志并在决议台账记一条，step 编号不变、新增顺延、废弃用删除线保留，已 plan 未 execute 的 step 受影响时标「需重跑 plan」，历史存档不改。已完成的 step 不留在路线图里：close 时条目剪切进该 step 的实录，`PROGRESS.md` 是已完成 step 的唯一索引，路线图永远只有待做的事。
 
 ### Session 策略
 
@@ -112,10 +112,10 @@ flowchart LR
 ├── docs/planning/
 │   ├── ARCHITECTURE.md              # 核心约束 + 技术栈 + 目录结构 + ADR（稳定文档）
 │   ├── REQUIREMENTS.md              # 原始需求（只在 discuss / plan 按需读）
-│   ├── PIPELINE.md                  # 薄核心：核心概念 / step 路线图 / 决议台账 / 域索引（体量恒定）
-│   ├── pipeline/                    # 每域一文件：契约索引 + 表索引 + 行为参考（Close 阶段维护）
+│   ├── PIPELINE.md                  # 薄核心：核心概念 / 未开工 step 路线图 / 跨域决议台账 / 域索引（体量恒定）
+│   ├── pipeline/                    # 每域一文件：契约索引 + 表索引 + 决议 + 行为参考（Close 阶段维护）
 │   ├── STEPS/                       # 每 step 三个文件：discuss / plan / close（实录）
-│   └── PROGRESS.md                  # step 索引（一行一 step）+ hotfix log
+│   └── PROGRESS.md                  # 已完成 step 索引（一行一 step）+ hotfix log
 └── .github/ci.yml.example           # CI 模板（bootstrap 实例化为 workflows/ci.yml）
 ```
 
@@ -140,9 +140,9 @@ node .claude/hooks/phase-audit.test.js
 
 长周期项目的文档会吃掉 context，这套体系的对策是让「每个 session 起步要读的东西」不随 step 数增长：
 
-1. **PIPELINE.md 体量恒定**：只留核心概念、step 路线图、决议台账、域索引。原始需求单独放 `REQUIREMENTS.md`，只在 discuss / plan 按需读相关章节
-2. **随 step 增长的内容按域拆分**：每个 `pipeline/<domain>.md` 以契约索引与表索引开头（一行一条：用途 + 实现位置 + step，签名与 schema 以代码为准），其后是行为参考；哪个 step 碰哪个域就读哪个文件
-3. **每 step 一个实录文件**：`STEPS/STEP_NN_close.md` 记实际完成、偏离、关键决策、遗留、路线图校验；`PROGRESS.md` 只是一行一 step 的索引，永远不需要归档
+1. **PIPELINE.md 体量恒定**：只留核心概念、未开工 step 的路线图、跨域决议台账、域索引——step close 时路线图条目剪切进实录，单域决议落域文件，PIPELINE 不随 step 数变长。原始需求单独放 `REQUIREMENTS.md`，只在 discuss / plan 按需读相关章节
+2. **随 step 增长的内容按域拆分**：每个 `pipeline/<domain>.md` 以契约索引与表索引开头（一行一条：用途 + 实现位置 + step，签名与 schema 以代码为准；行只做定位，不累积各 step 的改动注记），接着是本域的决议，其后是行为参考；哪个 step 碰哪个域就读哪个文件
+3. **每 step 一个实录文件**：`STEPS/STEP_NN_close.md` 记实际完成、偏离、关键决策、遗留、路线图校验、归档的路线图条目；`PROGRESS.md` 是已完成 step 的唯一索引（一行一 step），永远不需要归档
 4. **代码规范是 path-scoped rules**：bootstrap 把代码规范与前端设计规范按层写进 `.claude/rules/<layer>.md`，触碰对应文件时自动加载，其他会话不付这笔 context
 5. **各阶段只读自己需要的**：plan 读路线图条目、相关域文件、最近 1-2 个实录；execute 读 plan 与相关域文件；close 只读 plan 的「文档待更新」、commit 正文、`git diff --stat`；hotfix 什么都不预读
 6. **收录原则**：代码能回答的不进文档——写进 `.claude/rules/planning-docs.md`，只在触碰 `docs/planning/` 时加载

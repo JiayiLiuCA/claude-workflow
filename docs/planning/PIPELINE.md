@@ -1,8 +1,8 @@
 # {项目名} Pipeline
 
-本文档是 planning 体系的**薄核心**，体量不随 step 数增长：核心概念、step 路线图、决议台账、域索引。会随项目增长的内容都不在这里：原始需求在 `REQUIREMENTS.md`；各域的契约索引、表索引与行为参考在 `pipeline/<domain>.md`；每个 step 的 plan 与实录在 `STEPS/`。
+本文档是 planning 体系的**薄核心**，体量不随 step 数增长：核心概念、未开工 step 的路线图、跨域决议台账、域索引。会随项目增长的内容都不在这里：原始需求在 `REQUIREMENTS.md`；各域的契约索引、表索引、决议与行为参考在 `pipeline/<domain>.md`；每个 step 的 plan 与实录在 `STEPS/`，已完成 step 的索引在 `PROGRESS.md`。
 
-<!-- bootstrap 阶段填充 §1-§3；§4 与路线图的 ✅ 标记由各 step 的 Close 阶段维护 -->
+<!-- bootstrap 阶段填充 §1-§3；§4 由各 step 的 Close 阶段维护，Close 同时把完成的 step 条目从 §2 剪切进实录 -->
 
 ## 1. 核心概念
 
@@ -27,7 +27,7 @@ _暂无。_
 
 <!-- bootstrap 生成草案（标 DRAFT 待用户 review）。每 step：目标一句话 + 范围要点 + 依赖关系。
 拆分原则：每 step 完成后有用户可观察的行为增量；外部依赖集成的 step 单独拆。
-完成后由 Close 阶段在条目末尾追加「✅ 完成于 {日期}」。 -->
+只列未开工的 step；完成后由 Close 阶段把条目剪切进该 step 的实录（`STEPS/STEP_NN_close.md`「路线图条目」节）并在 PROGRESS.md 加一行索引。 -->
 
 #### Step 0: Bootstrap 可运行骨架
 
@@ -35,7 +35,7 @@ _暂无。_
 
 ## 3. 决议台账
 
-所有跨 step 的待定项与已拍板决议，格式：
+只收跨域决议（两个以上域文件都会引用）、路线图 / 流程级决议与待决项；只有一个域会引用的决议记在该域文件的「决议」节。格式：
 
 - `- [ ] 待决问题（预计 Step N 确定）`
 - `- [x] 结论 + 理由（Step N 决议）`
@@ -45,7 +45,7 @@ _暂无。_
 
 ## 4. 域索引
 
-各子系统的契约索引、表索引与行为参考在 `pipeline/<domain>.md`，由 Close 阶段创建与维护，结构与收录标准见 `pipeline/README.md`。找某个 API / 表 / 组件时先在这里定位域文件。
+各子系统的契约索引、表索引、决议与行为参考在 `pipeline/<domain>.md`，由 Close 阶段创建与维护，结构与收录标准见 `pipeline/README.md`。找某个 API / 表 / 组件 / 决议时先在这里定位域文件。
 
 | 域 | 文件 | 内容摘要 |
 |---|---|---|

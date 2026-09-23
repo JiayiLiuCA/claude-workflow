@@ -14,8 +14,8 @@ argument-hint: "<变更描述>"
 
 # 第一步：读取
 
-1. `PIPELINE.md` §2 路线图（变更日志 + Step 列表）与 §3 决议台账
-2. `PROGRESS.md` 索引：哪些 step 已完成；`git branch --show-current` 看进行中的是哪个
+1. `PIPELINE.md` §2 路线图（变更日志 + 未开工 Step 列表）与 §3 决议台账
+2. `PROGRESS.md` 索引：哪些 step 已完成（已完成 step 不在 §2，其条目在各自实录末尾）；`git branch --show-current` 看进行中的是哪个
 3. 受影响的 step 若已有 plan 文件，读其「目标」「范围内」两节
 
 # 第二步：提出变更方案
@@ -25,7 +25,7 @@ argument-hint: "<变更描述>"
 # 第三步：落笔
 
 - 变更日志最新在上加一行：日期 + 改了什么 + 为什么 + 来源 roadmap
-- 已有 step 编号不变；新增 step 编号顺延；废弃的用 ~~删除线~~ 保留并注明原因
+- 已有 step 编号不变；新增 step 编号顺延（接在已完成与未开工的最大编号之后）；废弃的用 ~~删除线~~ 保留并注明原因
 - 决议台账记一条
 - 已 plan 未 execute 的受影响 step，在条目上标「需重跑 plan」
 - 历史 plan、实录、`REQUIREMENTS.md` 不改；新需求的原文补进决议台账那一条里
