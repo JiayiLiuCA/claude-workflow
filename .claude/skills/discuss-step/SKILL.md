@@ -20,13 +20,12 @@ arguments: [step]
 
 按需定位读取，不通读：
 
-1. `ARCHITECTURE.md`：核心约束、技术栈、相关 ADR
-2. `REQUIREMENTS.md` 中与本 step 相关的章节
-3. `PIPELINE.md`：路线图中本 step 的条目、决议台账相关条目（跨域 / 待决）、域索引
-4. 相关域文件 `pipeline/<domain>.md`：契约索引、表索引、决议、行为参考
-5. `PROGRESS.md` 索引 + 最近 1-2 个 `STEPS/STEP_NN_close.md` 实录
-6. 相关的实际代码（结构与既有实现）
-7. 如涉及前端：design reference 对应文件
+1. `ARCHITECTURE.md`：项目概述、核心约束、技术栈、相关 ADR
+2. `PIPELINE.md`：路线图中本 step 的条目、决议台账相关条目（跨域 / 待决）、域索引
+3. 相关域文件 `pipeline/<domain>.md`：契约索引、表索引、决议、行为参考
+4. `PROGRESS.md` 索引 + 最近 1-2 个 `STEPS/STEP_NN_close.md` 实录
+5. 相关的实际代码（结构与既有实现）
+6. 如涉及前端：design reference 对应文件
 
 # 第二步：列出待决问题
 

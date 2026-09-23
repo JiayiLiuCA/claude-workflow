@@ -20,14 +20,13 @@ arguments: [step]
 
 按需定位读取，不通读；读完用中文简短复述：
 
-1. `ARCHITECTURE.md`：与本 step 相关的 ADR 与约束（代码规范由 `.claude/rules/` 自动加载，不用读）
-2. `REQUIREMENTS.md` 中与本 step 相关的章节
-3. `PIPELINE.md`：路线图中本 step 的条目（目标一句话 + 范围要点 + 依赖；§2 只列未开工的 step，条目不存在 = 尚未登记）、决议台账中的相关跨域决议与待决项、域索引
-4. 相关域文件 `pipeline/<domain>.md`：契约索引、表索引中相关的已有 API / 组件 / 表；「决议」节中本域的既有决议（plan 要推翻的须显式写明）；行为参考、edge case、之前 step 留下的承诺
-5. `STEPS/STEP_{NN}_discuss.md`（如存在）：复述全部决议，plan 必须遵守
-6. `PROGRESS.md` 索引 + 最近 1-2 个 `STEP_NN_close.md`：实况、偏离、遗留，特别关注与本 step 相关的
-7. 如涉及前端：design reference 对应文件，简述视觉与交互要点
-8. 实际代码结构（Glob / Grep / Read）：相关的 model / migration / 路由 / 组件 / service
+1. `ARCHITECTURE.md`：项目概述、与本 step 相关的 ADR 与约束（代码规范由 `.claude/rules/` 自动加载，不用读）
+2. `PIPELINE.md`：路线图中本 step 的条目（目标一句话 + 范围要点 + 依赖；§2 只列未开工的 step，条目不存在 = 尚未登记）、决议台账中的相关跨域决议与待决项、域索引
+3. 相关域文件 `pipeline/<domain>.md`：契约索引、表索引中相关的已有 API / 组件 / 表；「决议」节中本域的既有决议（plan 要推翻的须显式写明）；行为参考、edge case、之前 step 留下的承诺
+4. `STEPS/STEP_{NN}_discuss.md`（如存在）：复述全部决议，plan 必须遵守
+5. `PROGRESS.md` 索引 + 最近 1-2 个 `STEP_NN_close.md`：实况、偏离、遗留，特别关注与本 step 相关的
+6. 如涉及前端：design reference 对应文件，简述视觉与交互要点
+7. 实际代码结构（Glob / Grep / Read）：相关的 model / migration / 路由 / 组件 / service
 
 # 第二步：冲突检查
 

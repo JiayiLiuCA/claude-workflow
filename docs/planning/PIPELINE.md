@@ -1,6 +1,6 @@
 # {项目名} Pipeline
 
-本文档是 planning 体系的**薄核心**，体量不随 step 数增长：核心概念、未开工 step 的路线图、跨域决议台账、域索引。会随项目增长的内容都不在这里：原始需求在 `REQUIREMENTS.md`；各域的契约索引、表索引、决议与行为参考在 `pipeline/<domain>.md`；每个 step 的 plan 与实录在 `STEPS/`，已完成 step 的索引在 `PROGRESS.md`。
+本文档是 planning 体系的**薄核心**，体量不随 step 数增长：核心概念、未开工 step 的路线图、跨域决议台账、域索引。会随项目增长的内容都不在这里：各域的契约索引、表索引、决议与行为参考在 `pipeline/<domain>.md`；每个 step 的 plan 与实录在 `STEPS/`，已完成 step 的索引在 `PROGRESS.md`。
 
 <!-- bootstrap 阶段填充 §1-§3；§4 由各 step 的 Close 阶段维护，Close 同时把完成的 step 条目从 §2 剪切进实录 -->
 
@@ -15,7 +15,7 @@
 - 变更写进「变更日志」（最新在上）并在决议台账记一条
 - 已有 step 编号不变，新增顺延，废弃的用 ~~删除线~~ 保留并注明原因
 - 已 plan 未 execute 的 step 受影响时，在条目上标「需重跑 plan」
-- 历史 plan、实录、需求原文不改
+- 历史 plan、实录不改
 
 ### 变更日志
 

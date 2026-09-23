@@ -30,7 +30,6 @@
 所有 planning 文档位于 `docs/planning/`：
 
 - `ARCHITECTURE.md` — 核心约束、技术栈、目录结构、ADR（稳定文档）
-- `REQUIREMENTS.md` — 原始需求（只在 discuss / plan 按需读相关章节）
 - `PIPELINE.md` — 核心概念、未开工 step 的路线图、跨域决议台账、域索引（**薄核心**，体量不随 step 增长）
 - `pipeline/<domain>.md` — 各域的契约索引、表索引、决议、行为参考（Close 阶段维护）
 - `STEPS/STEP_NN_{discuss,plan,close}.md` — 每个 step 的决议、plan、实录（历史存档，close 后不改）
