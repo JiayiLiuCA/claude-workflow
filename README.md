@@ -11,7 +11,7 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 - **「范围外」与「不要做的事」和「范围内」同等重要**——防越界是这套流程的核心价值
 - **路线图是活文档**——Close 校验、Plan 对齐闸门、`/roadmap` 三个入口都能改它，同一套记录规则；大方向靠每个 step 刷新一次，而不是 bootstrap 时定死
 - **文档以实际代码为准**：代码能回答的问题不进文档；文档只存决策理由、被推翻的假设、edge case 行为、实测结论、跨 step 承诺
-- **读取成本不随项目增长**：PIPELINE 体量恒定，随 step 增长的内容进域文件与每 step 一个的实录文件；各阶段只定位读取自己需要的段落
+- **读取成本不随项目增长**：OVERVIEW 体量恒定，随 step 增长的内容进域文件与每 step 一个的实录文件；各阶段只定位读取自己需要的段落
 - **Close 记账不对账**：Execute 的 commit 正文固定写偏离 / 临场决策 / 遗留 / 验收，Close 以它和 plan 的「文档待更新」为输入定点更新，不重读 diff 和代码
 - **ADR 只增不删**，被推翻的决策用删除线保留——错误结论也是资产
 - **阶段纪律由 hooks 确定性强制**，不止靠模型自律——Write/Edit 与 Bash/PowerShell 写入都拦，命令执行后再用 git status 兜底审计
@@ -76,7 +76,7 @@ flowchart LR
 
 ### 路线图怎么变
 
-路线图（PIPELINE §2）在 bootstrap 时只是草案，之后靠三个入口保持与认知同步：Close 阶段逐条校验后续 step 的目标与范围是否仍成立；Plan 阶段发现 plan 目标超出路线图条目时，超出部分作为「路线图变更」交用户拍板而不是悄悄写进范围内；用户随时用 `/roadmap` 加需求、砍功能、合并拆分 step、调顺序。三个入口共用一套规则：变更写进变更日志并在决议台账记一条，step 编号不变、新增顺延、废弃用删除线保留，已 plan 未 execute 的 step 受影响时标「需重跑 plan」，历史存档不改。已完成的 step 不留在路线图里：close 时条目剪切进该 step 的实录，`PROGRESS.md` 是已完成 step 的唯一索引，路线图永远只有待做的事。
+路线图（OVERVIEW §2）在 bootstrap 时只是草案，之后靠三个入口保持与认知同步：Close 阶段逐条校验后续 step 的目标与范围是否仍成立；Plan 阶段发现 plan 目标超出路线图条目时，超出部分作为「路线图变更」交用户拍板而不是悄悄写进范围内；用户随时用 `/roadmap` 加需求、砍功能、合并拆分 step、调顺序。三个入口共用一套规则：变更写进变更日志并在决议台账记一条，step 编号不变、新增顺延、废弃用删除线保留，已 plan 未 execute 的 step 受影响时标「需重跑 plan」，历史存档不改。已完成的 step 不留在路线图里：close 时条目剪切进该 step 的实录，`PROGRESS.md` 是已完成 step 的唯一索引，路线图永远只有待做的事。
 
 ### Session 策略
 
@@ -111,8 +111,8 @@ flowchart LR
 │       └── roadmap/                 # 路线图变更快速通道
 ├── docs/planning/
 │   ├── ARCHITECTURE.md              # 核心约束 + 技术栈 + 目录结构 + ADR（稳定文档）
-│   ├── PIPELINE.md                  # 薄核心：核心概念 / 未开工 step 路线图 / 跨域决议台账 / 域索引（体量恒定）
-│   ├── pipeline/                    # 每域一文件：契约索引 + 表索引 + 决议 + 行为参考（Close 阶段维护）
+│   ├── OVERVIEW.md                  # 薄核心：核心概念 / 未开工 step 路线图 / 跨域决议台账 / 域索引（体量恒定）
+│   ├── domains/                     # 每域一文件：契约索引 + 表索引 + 决议 + 行为参考（Close 阶段维护）
 │   ├── STEPS/                       # 每 step 三个文件：discuss / plan / close（实录）
 │   └── PROGRESS.md                  # 已完成 step 索引（一行一 step）+ hotfix log
 └── .github/ci.yml.example           # CI 模板（bootstrap 实例化为 workflows/ci.yml）
@@ -139,8 +139,8 @@ node .claude/hooks/phase-audit.test.js
 
 长周期项目的文档会吃掉 context，这套体系的对策是让「每个 session 起步要读的东西」不随 step 数增长：
 
-1. **PIPELINE.md 体量恒定**：只留核心概念、未开工 step 的路线图、跨域决议台账、域索引——step close 时路线图条目剪切进实录，单域决议落域文件，PIPELINE 不随 step 数变长。用户的 brief / PRD 不进 planning：定位写进 ARCHITECTURE 概述，功能拆进路线图，原文件留在原处
-2. **随 step 增长的内容按域拆分**：每个 `pipeline/<domain>.md` 以契约索引与表索引开头（一行一条：用途 + 实现位置 + step，签名与 schema 以代码为准；行只做定位，不累积各 step 的改动注记），接着是本域的决议，其后是行为参考；哪个 step 碰哪个域就读哪个文件
+1. **OVERVIEW.md 体量恒定**：只留核心概念、未开工 step 的路线图、跨域决议台账、域索引——step close 时路线图条目剪切进实录，单域决议落域文件，OVERVIEW 不随 step 数变长。用户的 brief / PRD 不进 planning：定位写进 ARCHITECTURE 概述，功能拆进路线图，原文件留在原处
+2. **随 step 增长的内容按域拆分**：每个 `domains/<domain>.md` 以契约索引与表索引开头（一行一条：用途 + 实现位置 + step，签名与 schema 以代码为准；行只做定位，不累积各 step 的改动注记），接着是本域的决议，其后是行为参考；哪个 step 碰哪个域就读哪个文件
 3. **每 step 一个实录文件**：`STEPS/STEP_NN_close.md` 记实际完成、偏离、关键决策、遗留、路线图校验、归档的路线图条目；`PROGRESS.md` 是已完成 step 的唯一索引（一行一 step），永远不需要归档
 4. **代码规范是 path-scoped rules**：bootstrap 把代码规范与前端设计规范按层写进 `.claude/rules/<layer>.md`，触碰对应文件时自动加载，其他会话不付这笔 context
 5. **各阶段只读自己需要的**：plan 读路线图条目、相关域文件、最近 1-2 个实录；execute 读 plan 与相关域文件；close 只读 plan 的「文档待更新」、commit 正文、`git diff --stat`；hotfix 什么都不预读

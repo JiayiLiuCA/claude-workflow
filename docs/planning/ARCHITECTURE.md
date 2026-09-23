@@ -16,7 +16,7 @@
 
 | 层 | 选择 |
 |---|---|
-<!-- bootstrap：逐层填写；未定项写「Step 0 确定」并在 PIPELINE.md 决议台账登记。
+<!-- bootstrap：逐层填写；未定项写「Step 0 确定」并在 OVERVIEW.md 决议台账登记。
      后续 step 落地重要选型时在对应行追加「（Step N 落地）」与关键结论 -->
 
 ## 目录结构

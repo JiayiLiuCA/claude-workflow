@@ -30,8 +30,8 @@
 所有 planning 文档位于 `docs/planning/`：
 
 - `ARCHITECTURE.md` — 核心约束、技术栈、目录结构、ADR（稳定文档）
-- `PIPELINE.md` — 核心概念、未开工 step 的路线图、跨域决议台账、域索引（**薄核心**，体量不随 step 增长）
-- `pipeline/<domain>.md` — 各域的契约索引、表索引、决议、行为参考（Close 阶段维护）
+- `OVERVIEW.md` — 核心概念、未开工 step 的路线图、跨域决议台账、域索引（**薄核心**，体量不随 step 增长）
+- `domains/<domain>.md` — 各域的契约索引、表索引、决议、行为参考（Close 阶段维护）
 - `STEPS/STEP_NN_{discuss,plan,close}.md` — 每个 step 的决议、plan、实录（历史存档，close 后不改）
 - `PROGRESS.md` — 已完成 step 的唯一索引（一行一 step，指向实录）+ hotfix log
 
@@ -55,7 +55,7 @@
 | `/execute-step N [Pk]` | 严格按 plan 写代码；plan 定义了执行分段时按段执行，每段一个新 session |
 | `/close-step N` | 以 plan「文档待更新」与 commit 正文为输入定点更新文档，路线图校验并移出本 step 条目，写实录并建 PR |
 | `/hotfix <描述>` | 小改动快速通道（typo / 一行修复 / 依赖 bump），判据见 skill |
-| `/roadmap <变更描述>` | 路线图变更快速通道：新需求 / 砍功能 / 合并拆分 step / 调顺序，只改 PIPELINE 路线图与决议台账 |
+| `/roadmap <变更描述>` | 路线图变更快速通道：新需求 / 砍功能 / 合并拆分 step / 调顺序，只改 OVERVIEW 路线图与决议台账 |
 
 触发语后可追加补充说明，作为该阶段的「特殊关注点」。收到触发语必须调用对应 skill 并按其步骤执行，不要基于触发语直接开工。
 
