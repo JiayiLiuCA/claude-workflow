@@ -32,7 +32,7 @@ arguments: [step, segment]
 # 第一步：读取并复述
 
 1. `STEPS/STEP_{NN}_plan.md` 完整阅读：复述「范围内」「范围外」「不要做的事」「测试计划」；分段执行时另复述本段的范围、前置、退出验收与相邻段边界
-2. 相关域文件 `pipeline/<domain>.md`：契约索引、表索引中本 step 依赖的已有 API / 表 / 组件，「决议」节的既有决议，以及行为参考
+2. 相关域文件 `domains/<domain>.md`：契约索引、表索引中本 step 依赖的已有 API / 表 / 组件，「决议」节的既有决议，以及行为参考
 3. 代码规范由 `.claude/rules/` 在触碰对应文件时自动加载；`ARCHITECTURE.md` 只在需要目录结构或某条 ADR 时用 Grep 定位读取，不通读
 4. 如涉及前端：design reference 对应文件
 5. 相关的现有代码

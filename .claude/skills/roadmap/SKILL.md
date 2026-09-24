@@ -1,12 +1,12 @@
 ---
 name: roadmap
-description: 路线图变更快速通道：新需求、砍功能、合并 / 拆分 step、调整顺序。只改 PIPELINE 的路线图与决议台账，不写代码，不改历史存档。
+description: 路线图变更快速通道：新需求、砍功能、合并 / 拆分 step、调整顺序。只改 OVERVIEW 的路线图与决议台账，不写代码，不改历史存档。
 when_to_use: 用户输入 "roadmap <变更描述>"、"调整路线图" 或 /roadmap <描述> 时执行；Close 校验与 Plan 对齐闸门改路线图时也遵守本 skill 的规则。
 argument-hint: "<变更描述>"
 ---
 
 你现在处于 Roadmap 变更通道。变更描述：`$ARGUMENTS`（为空则从对话取）。目标：把路线图改到与最新认知一致，并留下可追溯的记录。
-**续接**（resume / compact 后重新调用）：先看 `git diff` 里 PIPELINE 已改了什么，跳过已完成的步骤，不重复 commit。
+**续接**（resume / compact 后重新调用）：先看 `git diff` 里 OVERVIEW 已改了什么，跳过已完成的步骤，不重复 commit。
 
 # 第零步：阶段标记
 
@@ -14,7 +14,7 @@ argument-hint: "<变更描述>"
 
 # 第一步：读取
 
-1. `PIPELINE.md` §2 路线图（变更日志 + 未开工 Step 列表）与 §3 决议台账
+1. `OVERVIEW.md` §2 路线图（变更日志 + 未开工 Step 列表）与 §3 决议台账
 2. `PROGRESS.md` 索引：哪些 step 已完成（已完成 step 不在 §2，其条目在各自实录末尾）；`git branch --show-current` 看进行中的是哪个
 3. 受影响的 step 若已有 plan 文件，读其「目标」「范围内」两节
 

@@ -21,8 +21,8 @@ arguments: [step]
 按需定位读取，不通读；读完用中文简短复述：
 
 1. `ARCHITECTURE.md`：项目概述、与本 step 相关的 ADR 与约束（代码规范由 `.claude/rules/` 自动加载，不用读）
-2. `PIPELINE.md`：路线图中本 step 的条目（目标一句话 + 范围要点 + 依赖；§2 只列未开工的 step，条目不存在 = 尚未登记）、决议台账中的相关跨域决议与待决项、域索引
-3. 相关域文件 `pipeline/<domain>.md`：契约索引、表索引中相关的已有 API / 组件 / 表；「决议」节中本域的既有决议（plan 要推翻的须显式写明）；行为参考、edge case、之前 step 留下的承诺
+2. `OVERVIEW.md`：路线图中本 step 的条目（目标一句话 + 范围要点 + 依赖；§2 只列未开工的 step，条目不存在 = 尚未登记）、决议台账中的相关跨域决议与待决项、域索引
+3. 相关域文件 `domains/<domain>.md`：契约索引、表索引中相关的已有 API / 组件 / 表；「决议」节中本域的既有决议（plan 要推翻的须显式写明）；行为参考、edge case、之前 step 留下的承诺
 4. `STEPS/STEP_{NN}_discuss.md`（如存在）：复述全部决议，plan 必须遵守
 5. `PROGRESS.md` 索引 + 最近 1-2 个 `STEP_NN_close.md`：实况、偏离、遗留，特别关注与本 step 相关的
 6. 如涉及前端：design reference 对应文件，简述视觉与交互要点
@@ -38,7 +38,7 @@ plan 的「目标」必须是路线图中本 step 条目的细化，不得扩展
 
 - **一致**：进入第四步。
 - **范围小于条目**（有意推迟部分内容）：推迟部分写进「范围外」并注明去向（哪个 step 或待定），在总结里说明。
-- **范围超出条目或目标变了**：超出部分不写进「范围内」，在总结里列为「路线图变更」交用户拍板；用户同意后先按 PIPELINE §2 的规则改路线图（变更日志 + 条目 + 决议台账），再定稿 plan；不同意则进「范围外」。
+- **范围超出条目或目标变了**：超出部分不写进「范围内」，在总结里列为「路线图变更」交用户拍板；用户同意后先按 OVERVIEW §2 的规则改路线图（变更日志 + 条目 + 决议台账），再定稿 plan；不同意则进「范围外」。
 - **条目不存在**（step 未登记进路线图）：先按 §2 规则登记条目（编号接在已有最大编号之后，含 `PROGRESS.md` 里已完成的），经用户确认后再进入第四步。
 
 # 第四步：生成 Step Plan
@@ -113,7 +113,7 @@ plan 做的假设（如「某 package 假设提供 X 函数」），用户 revie
 
 等用户 review。**所有 review 结论（含口头调整）必须回写进 plan 文件**：Execute 只认 plan 文件。用户确认后：
 
-1. 若拍板了路线图变更：先按 PIPELINE §2 规则改路线图，再定稿 plan
+1. 若拍板了路线图变更：先按 OVERVIEW §2 规则改路线图，再定稿 plan
 2. commit：`Step {N} Plan: <标题>`（execute 中途大偏离回到 plan 修订时同样以此格式提交）
 3. 用 Bash 执行 `rm -f "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
 4. 提示下一步：单段 → `/execute-step {N}`（大 step 建议新会话）；分段 → `/execute-step {N} P1`，每段完成后**新开 session** 跑下一段

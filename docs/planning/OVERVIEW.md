@@ -1,6 +1,6 @@
-# {项目名} Pipeline
+# {项目名} Overview
 
-本文档是 planning 体系的**薄核心**，体量不随 step 数增长：核心概念、未开工 step 的路线图、跨域决议台账、域索引。会随项目增长的内容都不在这里：各域的契约索引、表索引、决议与行为参考在 `pipeline/<domain>.md`；每个 step 的 plan 与实录在 `STEPS/`，已完成 step 的索引在 `PROGRESS.md`。
+本文档是 planning 体系的**薄核心**，体量不随 step 数增长：核心概念、未开工 step 的路线图、跨域决议台账、域索引。会随项目增长的内容都不在这里：各域的契约索引、表索引、决议与行为参考在 `domains/<domain>.md`；每个 step 的 plan 与实录在 `STEPS/`，已完成 step 的索引在 `PROGRESS.md`。
 
 <!-- bootstrap 阶段填充 §1-§3；§4 由各 step 的 Close 阶段维护，Close 同时把完成的 step 条目从 §2 剪切进实录 -->
 
@@ -45,7 +45,7 @@ _暂无。_
 
 ## 4. 域索引
 
-各子系统的契约索引、表索引、决议与行为参考在 `pipeline/<domain>.md`，由 Close 阶段创建与维护，结构与收录标准见 `pipeline/README.md`。找某个 API / 表 / 组件 / 决议时先在这里定位域文件。
+各子系统的契约索引、表索引、决议与行为参考在 `domains/<domain>.md`，由 Close 阶段创建与维护，结构与收录标准见 `domains/README.md`。找某个 API / 表 / 组件 / 决议时先在这里定位域文件。
 
 | 域 | 文件 | 内容摘要 |
 |---|---|---|
