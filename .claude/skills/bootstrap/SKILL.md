@@ -59,7 +59,7 @@ argument-hint: "[项目简介或 brief 文件路径]"
 
 1. 文档体系就位状态（哪些文件已实例化、生成了哪些 rules）
 2. step 路线图草案概览（等用户 review）
-3. Step 0 plan 关键决策摘要（2-3 句）
+3. Step 0 plan 关键决策摘要
 4. 需要用户拍板 / 确认的清单
 
 用户 review 确认后：在 main 分支 commit（`Bootstrap: 实例化 planning 文档体系`），然后才能进入 Step 0 的 Execute（`/execute-step 0`；Step 0 的 plan 已在本阶段生成，无需再跑 plan-step）。

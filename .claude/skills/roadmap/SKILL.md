@@ -1,7 +1,7 @@
 ---
 name: roadmap
 description: 路线图变更快速通道：新需求、砍功能、合并 / 拆分 step、调整顺序。只改 OVERVIEW 的路线图与决议台账，不写代码，不改历史存档。
-when_to_use: 用户输入 "roadmap <变更描述>"、"调整路线图" 或 /roadmap <描述> 时执行；Close 校验与 Plan 对齐闸门改路线图时也遵守本 skill 的规则。
+when_to_use: 用户输入 "roadmap <变更描述>"、"调整路线图" 或 /roadmap <描述> 时执行。
 argument-hint: "<变更描述>"
 ---
 
