@@ -27,8 +27,8 @@ if (!SKILL[phase]) process.exit(0);
 
 const rule =
   phase === "execute"
-    ? "禁止写文档（docs/planning/ 与 .claude/rules/），hook 仍在强制"
-    : "只允许写文档（docs/planning/ 与 .claude/rules/），hook 仍在强制";
+    ? "禁止写 docs/planning/ 与 .claude/rules/（功能目录下的 CLAUDE.md 域笔记可写），hook 仍在强制"
+    : "只允许写 docs/planning/、.claude/rules/ 与功能目录下的 CLAUDE.md 域笔记，hook 仍在强制";
 console.log(
   `[workflow] 当前仍处于 ${NAME[phase]} 阶段（.claude/workflow-phase 标记存在），本会话是续接 / 压缩后的会话，${SKILL[phase]} skill 的完整指令可能已不在 context 中。` +
     `继续之前先重新调用 /${SKILL[phase]}（带上原来的 step 参数），按其「续接」说明从中断处接着推进；` +

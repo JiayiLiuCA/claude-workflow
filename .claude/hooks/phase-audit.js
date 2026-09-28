@@ -6,6 +6,7 @@
  * 本 hook 在每次命令执行后用 git status 核对工作树（文档范围 = docs/planning/ + .claude/rules/）：
  *   execute                          → 文档范围内不应有任何未提交改动
  *   discuss / plan / close / roadmap → 文档范围之外不应有任何未提交改动
+ * 域笔记（功能目录下的 CLAUDE.md）各阶段都可写，两个方向都不审计。
  * 发现越界：stderr 报告 + exit 2（PostToolUse 无法撤销，但消息会反馈给 Claude，要求其立即回滚）。
  * 同一组文件只报告一次（状态存 .claude/workflow-phase.audit，gitignored），
  * 既有未提交改动 / 构建产物不会每次命令都刷屏；文件集变化时再报。
@@ -50,7 +51,9 @@ const files = out
   .filter((p) => !p.startsWith(".claude/workflow-phase")); // 标记与审计状态本身不算
 
 const inPlanning = (p) => p.startsWith("docs/planning/") || p.startsWith(".claude/rules/");
-const bad = (phase === "execute" ? files.filter(inPlanning) : files.filter((p) => !inPlanning(p))).sort();
+const isNote = (p) => p.includes("/") && !p.startsWith(".claude/") && path.posix.basename(p).toLowerCase() === "claude.md";
+const scoped = files.filter((p) => !isNote(p));
+const bad = (phase === "execute" ? scoped.filter(inPlanning) : scoped.filter((p) => !inPlanning(p))).sort();
 
 if (!bad.length) {
   try {
@@ -74,7 +77,7 @@ const list =
 const rollback = "（已跟踪文件 `git restore <文件>`；新文件 `git clean -f -- <文件>`）";
 const msg =
   phase === "execute"
-    ? `[phase-audit] Execute 阶段检测到文档（docs/planning/ 或 .claude/rules/）存在未提交改动：\n${list}\n文档更新是 Close 阶段的事。若这是你刚才的命令造成的，立即回滚${rollback}后再继续；若是既有改动或用户手动所为，如实向用户说明后继续，不要动它们。`
-    : `[phase-audit] ${DOCS_ONLY[phase]} 阶段检测到文档（docs/planning/、.claude/rules/）之外存在未提交改动：\n${list}\n本阶段只允许修改文档。若这是你刚才的命令造成的，立即回滚${rollback}后再继续；若是既有改动、构建产物或用户手动所为，如实向用户说明后继续，不要动它们。`;
+    ? `[phase-audit] Execute 阶段检测到文档（docs/planning/ 或 .claude/rules/）存在未提交改动：\n${list}\n这些文档由 Close 阶段更新（功能目录下的 CLAUDE.md 域笔记不受此限）。若这是你刚才的命令造成的，立即回滚${rollback}后再继续；若是既有改动或用户手动所为，如实向用户说明后继续，不要动它们。`
+    : `[phase-audit] ${DOCS_ONLY[phase]} 阶段检测到文档（docs/planning/、.claude/rules/）之外存在未提交改动：\n${list}\n本阶段只允许修改文档与功能目录下的 CLAUDE.md 域笔记。若这是你刚才的命令造成的，立即回滚${rollback}后再继续；若是既有改动、构建产物或用户手动所为，如实向用户说明后继续，不要动它们。`;
 console.error(msg);
 process.exit(2);
