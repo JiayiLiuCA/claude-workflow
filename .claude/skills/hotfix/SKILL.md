@@ -19,10 +19,10 @@ argument-hint: "<改动描述>"
 
 # 流程
 
-1. **同步 main**：`git fetch origin`；确认在 main 且与 origin/main 一致。当前分支有未提交工作时先停下向用户确认（stash 或先完成）。main 受保护或用户要求时，改为从 origin/main 建 `fix/<slug>` 分支走 PR。
+1. **同步 main**：当前分支有未提交工作时先停下向用户确认（stash 或先完成）。`git fetch origin` 后切到 main，`git merge --ff-only origin/main`，快进失败停下问用户。main 受保护或用户要求时，改为从 origin/main 建 `fix/<slug>` 分支走 PR。
 2. **改动**：完成修改，跑受影响的测试 / 类型检查；无自动化覆盖时手动验证并说明方式。
 3. **文档**：改动让某句文档不再成立时，在同一 commit 里改掉那句。通常是该功能的域笔记（改了 edge case 行为），少数是 OVERVIEW「已有功能」（用户可见的能力变了）。否则不动文档，commit message 就是记录。
-4. **commit**：`Hotfix: <描述>`；直接推 main（或走 PR，见第 1 步）。
+4. **commit**：`Hotfix: <描述>`；直接推 main（或走 PR，见第 1 步）。第 1 步从 step 分支切过来的，推完切回该分支。
 5. **汇报**：改了什么、如何验证、是否改了文档。
 
 # 禁止事项

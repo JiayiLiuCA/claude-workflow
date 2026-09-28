@@ -9,19 +9,22 @@ arguments: [step]
 你现在处于 **Step {N}** 的 Close 阶段。目标：用最少的阅读，把本 step 产生的信息写到将来消费它的地方，后续 session 不用翻历史。只改文档，不写代码。信息去处与写作原则见 `.claude/rules/planning-docs.md`，读写文档时自动加载。
 
 **参数**：N = `$step`（为空或不是数字则从触发语取）；`$ARGUMENTS` 去掉 N 后是用户在 Execute 之外手动做的变更（如手改配置、手修数据），一并处理。
-**续接**（resume / compact 后重新调用）：先看 `git status` 与 `git diff --stat` 判断哪些文档已改，跳过已完成的步骤，不重复 commit 或建 PR。
+**续接**（resume / compact 后或新会话接着做时重新调用）：先看 `git status` 与 `git diff --stat` 判断哪些文档已改，跳过已完成的步骤，不重复 commit 或建 PR。
 
-# 第零步：阶段标记
+# 第零步：阶段标记与同步
 
-用 Bash 执行 `printf 'close' > "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
+1. 用 Bash 执行 `printf 'close' > "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
+2. `git fetch origin` 后 `git merge origin/main`：step 期间落到 main 的 hotfix 与路线图变更先合进来，第四步的路线图校验才对着最新版本。有冲突停下，列出冲突文件交用户处理（本阶段只能改文档，代码冲突不要自己解）。无 origin 时跳过，下文的 `origin/main` 换成 `main`
 
 # 第一步：收集输入
 
 只读这三样：
 
 1. step 文件 Plan 节的「目标」「文档影响」「执行分段」：Grep 定位后读该段，不通读
-2. Execute commit 正文：`git log main..HEAD --format='%h %s%n%b'`。有分段时核对 P1 到末段齐全，缺段则 execute 未完成，停下询问
-3. `git diff --stat main...HEAD`：动了哪些文件，其中哪些功能目录的 CLAUDE.md 已被 execute 更新
+2. Execute commit 正文：`git log --no-merges origin/main..HEAD --format='%h %s%n%b'`。有分段时核对 P1 到末段齐全，缺段则 execute 未完成，停下询问
+3. `git diff --stat origin/main...HEAD`：动了哪些文件，其中哪些功能目录的 CLAUDE.md 已被 execute 更新
+
+以 `origin/main` 为基准，不用本地 `main`：PR 在 GitHub 上 merge 后本地 main 不会更新，拿它比会把上一个 step 的 commit 也算进来。
 
 之后只为写入而定点读要改的段落。不通读 diff，不读历史 step 文件。
 
@@ -47,7 +50,7 @@ arguments: [step]
 1. **已有功能**：更新或新增相关功能的两三句，只用产品语言，不写目录
 2. **路线图校验**：逐条看后续 step 的条目是否仍成立（依赖、范围、顺序、是否该新增或删除）。有变化按「路线图」开头的规则改，已 plan 未 execute 的标「需重跑 plan」，涉及取舍先用 AskUserQuestion 问用户；原因写进 commit 正文与实录
 3. 删除 Step {N} 的路线图条目，在「已完成」表顶部插入一行：`| {N} | [<标题>](STEPS/{NN}-<slug>.md) | {日期} | <用户得到了什么，一句话> |`
-4. 「待决」里标「预计 Step {N+1} 决定」的超过 2 条：总结里建议下一步先 `/discuss-step`
+4. 「待决」里预计由路线图中下一个 step 决定的超过 2 条：总结里建议下一步先 `/discuss-step`
 
 # 第五步：压缩检查
 
@@ -79,7 +82,7 @@ arguments: [step]
 
 1. commit：`Step {N} Close: <标题>`；正文写路线图变更原因（如有）与压缩的删除与合并清单（如有）
 2. 触及鉴权 / 数据访问 / 外部输入解析的 step，建议用户先跑 `/security-review`
-3. push 分支，提议创建 PR（标题 `Step {N}: <标题>`，正文开头一段用户可感知的变化，其后贴实录），**经用户确认后**创建
+3. push 分支，提议创建 PR（标题 `Step {N}: <标题>`，正文开头一段用户可感知的变化，其后贴实录），**经用户确认后**创建。无 origin 时不 push、不建 PR，经用户确认后在本地把分支 merge 进 main
 4. 用 Bash 执行 `rm -f "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
 5. 输出总结（产品语言）：这个 step 给用户带来了什么；路线图有无调整；下一步建议（是否先 discuss）；给用户 review 的点
 6. 提示：PR merge 后可选在 main 打 tag `step-{NN}`

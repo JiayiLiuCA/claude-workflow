@@ -156,7 +156,7 @@ backend/app/ocr/                     backend/app/models/ocr.py
 | 任何会话 | 根 `CLAUDE.md` 与它导入的 ARCHITECTURE（启动时自动）；读到的代码所属功能的域笔记与 rules（自动） |
 | discuss / plan | OVERVIEW 中本 step 条目与相关待决、相关代码 |
 | execute | 本 step 文件、相关代码 |
-| close | step 文件三个小节、commit 正文、`git diff --stat`，之后只为写入定点读 |
+| close | Plan 节的「目标」「文档影响」「执行分段」、commit 正文、`git diff --stat`，之后只为写入定点读 |
 | roadmap | OVERVIEW、受影响 step 的 Plan 目标 |
 | hotfix | 不额外预读 |
 
@@ -170,7 +170,7 @@ close 发现碰过的域笔记超过约 150 行、或 ARCHITECTURE 超过约 200
 
 小 step 可 plan → execute → close 同会话连跑（review 结论仍须回写 step 文件，close 仍以 commit 正文与 git diff 为准）；大 step 阶段间开新会话或 `/clear`。execute 单 session 装不下的超大 step，由 plan 阶段拆成 P1/P2… 执行段，每段新开 session 执行（`/execute-step N P1`…），段末必须是可验证的完整状态，段间交接只靠 git commit 与 step 文件。
 
-plan-step 的分段阈值按 200K 窗口校准，1M 窗口的模型可以放宽，但仍以质量优先；关闭了 auto compact 时分段要更保守。resume 或 compact 之后 SessionStart hook 会播报当前阶段，按提示重新调用对应 skill 即可从中断处继续。
+plan-step 的分段阈值按 200K 窗口校准，1M 窗口的模型可以放宽，但仍以质量优先；关闭了 auto compact 时分段要更保守。resume 或 compact 之后 SessionStart hook 会播报当前阶段，按提示重新调用对应 skill 即可从中断处继续；新会话接着做未完成的阶段（如隔天继续 review plan）也一样，先重新调用该阶段的 skill。
 
 ## 目录结构
 

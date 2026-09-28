@@ -9,12 +9,12 @@ arguments: [step]
 你现在处于 **Step {N}** 的 Discuss 阶段：把 plan 之前该拍板的事逐项与用户敲定，避免 plan 建立在未决假设上。不写代码，唯一产物是 step 文件的「决议」节。
 
 **参数**：N = `$step`（为空或不是数字则从触发语取）；`$ARGUMENTS` 去掉 N 后是用户预先给出的议题或倾向，优先处理。
-**续接**（resume / compact 后重新调用）：先看 `git status`、`git log --oneline -5` 与 step 文件判断做到哪一步，跳过已完成的。
+**续接**（resume / compact 后或新会话接着做时重新调用）：先看 `git status`、`git log --oneline -5` 与 step 文件判断做到哪一步，跳过已完成的。
 
 # 第零步：阶段标记与分支
 
 1. 用 Bash 执行 `printf 'discuss' > "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
-2. 分支 `feat/step-{NN}-<slug>` 不存在则 `git fetch origin` 后从 `origin/main` 创建（slug 为本 step 主题的 kebab-case 短词，无 origin 用本地 main）；已存在则切过去
+2. 分支 `feat/step-{NN}-<slug>` 已存在则切过去。不存在则 `git fetch origin`，先核对上一个 step 已合入：`git show origin/main:docs/planning/OVERVIEW.md` 的路线图里 Step {N} 前面还有条目，说明上一个 step 的 PR 还没 merge 或顺序变了，停下问用户。核对通过后从 `origin/main` 创建（slug 为本 step 主题的 kebab-case 短词；无 origin 时核对与创建都用本地 main）
 
 # 第一步：读取
 
