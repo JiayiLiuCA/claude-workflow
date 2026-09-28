@@ -87,4 +87,4 @@ brief / PRD **不复制进 `docs/planning/`**：概述写一段定位，功能�
 3. Step 0 plan 的关键决定
 4. 需要用户拍板的清单
 
-用户 review 确认后：去掉路线图的 DRAFT 标记，Step 0 状态改为「plan 已定稿」，在 main commit（`Bootstrap: 实例化 planning 文档`），然后从 main 建 `feat/step-00-skeleton` 分支，提示下一步 `/execute-step 0`（Step 0 的 plan 已在本阶段生成，无需再跑 plan-step）。
+用户 review 确认后：去掉路线图的 DRAFT 标记，Step 0 状态改为「plan 已定稿」，在 main commit（`Bootstrap: 实例化 planning 文档`）并 push（无 origin 跳过），然后从 main 建 `feat/step-00-skeleton` 分支，提示下一步 `/execute-step 0`（Step 0 的 plan 已在本阶段生成，无需再跑 plan-step）。
