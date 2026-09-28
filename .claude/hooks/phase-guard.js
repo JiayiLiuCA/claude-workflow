@@ -6,6 +6,8 @@
  *   discuss / plan / close / roadmap → 只允许写文档：docs/planning/ 与 .claude/rules/
  *   execute                          → 禁止写文档
  *   标记不存在                       → 不限制
+ * 域笔记（功能目录下的 CLAUDE.md，根目录与 .claude/ 下的除外）各阶段都可写：
+ *   execute 随代码更新，plan / close 发现过期就地修正。
  *
  * 覆盖的工具：
  *   - Write / Edit / MultiEdit / NotebookEdit：按 file_path / notebook_path 判断
@@ -58,7 +60,10 @@ function readPhase(root) {
 
 const unq = (t) => String(t).trim().replace(/^(["'])([\s\S]*)\1$/, "$2");
 
-/** 路径分类："planning" | "code" | "ignore"（repo 外 / 标记文件 / 无法判断） */
+/** 域笔记：repo 内子目录下的 CLAUDE.md；根目录与 .claude/ 下的是项目指令，不算 */
+const isNote = (rel) => rel.includes("/") && !rel.startsWith(".claude/") && path.posix.basename(rel) === "claude.md";
+
+/** 路径分类："planning" | "note" | "code" | "ignore"（repo 外 / 标记文件 / 无法判断） */
 function classify(rawToken, root) {
   const t = unq(rawToken);
   if (!t || t === "-") return "ignore";
@@ -67,22 +72,27 @@ function classify(rawToken, root) {
   if (lower.includes(".claude/workflow-phase")) return "ignore";
   if (DOCS_RE.test(lower)) return "planning";
   if (/[$`~]/.test(n)) return "ignore"; // 变量 / 命令替换 / home 展开：无法确定
-  if (/^\/(dev|tmp|proc|sys)(\/|$)/.test(lower)) return "ignore";
-  if (process.platform === "win32") n = n.replace(/^\/([a-zA-Z])\//, "$1:/"); // MSYS 风格 /d/foo
+  if (process.platform === "win32") {
+    // MSYS 的 /dev/null、/tmp 是虚拟路径，resolve 会误落到盘符根下；POSIX 上靠下面的 repo 前缀判断即可，
+    // 不能先按 /tmp 前缀放行，否则 repo 本身在 /tmp 下时守卫对绝对路径失效
+    if (/^\/(dev|tmp|proc|sys)(\/|$)/.test(lower)) return "ignore";
+    n = n.replace(/^\/([a-zA-Z])\//, "$1:/"); // MSYS 风格 /d/foo
+  }
   const isAbs = /^[a-zA-Z]:\//.test(n) || n.startsWith("/");
   const resolved = (isAbs ? path.resolve(n) : path.resolve(root, n)).replace(/\\/g, "/").toLowerCase();
   const rootN = path.resolve(root).replace(/\\/g, "/").toLowerCase().replace(/\/+$/, "") + "/";
   if (!resolved.startsWith(rootN)) return "ignore";
   const rel = resolved.slice(rootN.length);
-  return DOCS_RE.test(rel) ? "planning" : "code";
+  if (DOCS_RE.test(rel)) return "planning";
+  return isNote(rel) ? "note" : "code";
 }
 
 function judge(phase, kind, target) {
   if (phase === "execute" && kind === "planning") {
-    return `[phase-guard] 当前处于 Execute 阶段，禁止修改 docs/planning/ 与 .claude/rules/ 下的文档（目标：${target}）——文档更新是 Close 阶段的事。`;
+    return `[phase-guard] 当前处于 Execute 阶段，禁止修改 docs/planning/ 与 .claude/rules/ 下的文档（目标：${target}）。这些文档由 Close 阶段更新；功能目录下的 CLAUDE.md 域笔记不受此限。`;
   }
   if (DOCS_ONLY[phase] && kind === "code") {
-    return `[phase-guard] 当前处于 ${DOCS_ONLY[phase]} 阶段，只允许修改 docs/planning/ 与 .claude/rules/ 下的文档，不允许改动代码或其他文件（目标：${target}）。`;
+    return `[phase-guard] 当前处于 ${DOCS_ONLY[phase]} 阶段，只允许修改 docs/planning/、.claude/rules/ 下的文档与功能目录下的 CLAUDE.md 域笔记，不允许改动代码或其他文件（目标：${target}）。`;
   }
   return null;
 }
