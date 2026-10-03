@@ -15,7 +15,7 @@ argument-hint: "[项目简介或 brief 文件路径]"
 
 1. **项目定位**：做什么、给谁用
 2. **形态与平台**：Web / 桌面 / CLI / 服务 / 库；目标操作系统
-3. **技术栈**：前端 / 后端 / 数据库 / 关键依赖；未定项标「Step N 决定」
+3. **技术栈**：前端 / 后端 / 数据库 / 关键依赖 / 测试工具链（单测、API 测试，有 UI 时 component 与 e2e 框架）；未定项标「Step N 决定」
 4. **核心约束**：离线要求、数据规模、性能目标、solo 或团队、部署方式
 5. **Design reference**：有无 UI/UX 视觉参考；有则确认位置（约定 `docs/design-reference/`）
 6. **功能划分**：大致有哪些功能，用于路线图草案与功能目录
@@ -47,7 +47,7 @@ brief / PRD **不复制进 `docs/planning/`**：概述写一段定位，功能�
 
 # 第四步：代码规范 rules
 
-按技术栈分层写 `.claude/rules/<layer>.md`（如 `backend.md`、`frontend.md`），frontmatter **必须带 `paths`**（如 `backend/**`），否则每个会话都会加载。内容按技术栈惯例简洁地写：语言版本与类型要求、错误处理模式、日志约定、命名约定（文件 / 类 / 函数 / DB 表 / API 路由）、测试约定（框架、目录、跑法）。
+按技术栈分层写 `.claude/rules/<layer>.md`（如 `backend.md`、`frontend.md`），frontmatter **必须带 `paths`**（如 `backend/**`），否则每个会话都会加载。内容按技术栈惯例简洁地写：语言版本与类型要求、错误处理模式、日志约定、命名约定（文件 / 类 / 函数 / DB 表 / API 路由）、测试约定（框架、目录、跑法；有 UI 的层写明 e2e 框架、怎么起 app、截图存 `.claude/verify/`）。
 
 代码只有 Claude 读，写法按「让下一个 session 少走几轮、少犯错」来定。每份 rule 都必须有「注释与测试」一节，按下面的内容写，示例换成该层的语法：
 
@@ -55,7 +55,7 @@ brief / PRD **不复制进 `docs/planning/`**：概述写一段定位，功能�
 ## 注释与测试
 
 - 知识先放进代码：类型写全，名字表达意图，取值约束用 schema / enum 表达，不用魔法字符串。
-- edge case 写成测试，测试名描述行为，如 `test_scanned_pdf_falls_back_to_ocr`。想知道某功能的行为，先搜它的测试名。
+- 功能性行为都要有自动化测试，edge case 也写成测试，测试名描述行为，如 `test_scanned_pdf_falls_back_to_ocr`。想知道某功能的行为，先搜它的测试名。UI 的功能性行为（点了之后发生什么、表单校验、路由、数据展示、错误呈现）用 component test 或 e2e 测；审美（视觉、动效、手感）不写测试，由用户把握。
 - 注释只写两种：故意为之、看起来像 bug 的写法的原因；会被其他功能调用的函数的契约，即失败时返回什么、单位、副作用。
 - 不写复述代码的注释、教程式说明、为文档生成器写的长篇 docstring、注释掉的旧代码、文件头的作者与日期。
 - 改代码时同步改相关注释，过期注释按 bug 处理。
@@ -65,7 +65,7 @@ brief / PRD **不复制进 `docs/planning/`**：概述写一段定位，功能�
 
 # 第五步：CI
 
-把 `.github/ci.yml.example` 按技术栈改写为 `.github/workflows/ci.yml`（测试 job + 类型检查 / 构建 job），然后删除 `.example`。技术栈未定的部分留注释占位。push 时若提示 OAuth token 缺 `workflow` scope，提示用户执行 `gh auth refresh -s workflow` 后重推。
+把 `.github/ci.yml.example` 按技术栈改写为 `.github/workflows/ci.yml`（测试 job + 类型检查 / 构建 job，有 UI 时加 e2e job），然后删除 `.example`。技术栈未定的部分留注释占位。push 时若提示 OAuth token 缺 `workflow` scope，提示用户执行 `gh auth refresh -s workflow` 后重推。
 
 # 第六步：CLAUDE.md
 
@@ -77,6 +77,7 @@ brief / PRD **不复制进 `docs/planning/`**：概述写一段定位，功能�
 
 - app 能启动，走通一次端到端调用（如前端调后端 ping / CLI 跑通空命令）
 - DB 初始化 + migration 机制就位（如适用）
+- 测试基础设施就位：单测与 API 测试框架各跑通一个用例；有 UI 时 e2e 框架跑通一个打开首页的用例，并能把截图存到 `.claude/verify/`；CI 全部跑。后续每个 step 的验收默认写成这些框架里的测试
 - design tokens 落进样式系统（如适用）
 - 「待决」中标「Step 0 决定」的选型在 Plan 中定下并写明理由
 

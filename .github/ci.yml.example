@@ -1,6 +1,7 @@
 # CI 模板 — bootstrap 阶段按项目技术栈实例化为 ci.yml 后删除本文件。
 # 保留适用的 job、删除其余；替换 <> 占位符。
 # 目标：PR 与 main push 时自动跑测试与构建，让「测试全绿」不依赖本地自觉。
+# execute 的放行门以同一套测试为依据，e2e 也要在这里跑。
 name: CI
 
 on:
@@ -42,3 +43,30 @@ jobs:
           cd frontend
           pnpm exec tsc -b
           pnpm build
+
+  # ---- e2e 示例（有 UI 时；Playwright）----
+  # playwright.config 的 webServer 负责起 app（前后端都要起时写成数组）；
+  # 截图目录与本地一致（.claude/verify/），失败时作为 artifact 上传。
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "<22>"
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - name: Install
+        run: cd frontend && pnpm install --frozen-lockfile
+      - name: Install browsers
+        run: cd frontend && pnpm exec playwright install --with-deps chromium
+      - name: Test
+        run: cd frontend && pnpm exec playwright test
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            frontend/playwright-report
+            .claude/verify
