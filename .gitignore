@@ -7,3 +7,6 @@
 
 # Claude Code 在 repo 内创建的 git worktree（claude --worktree / EnterWorktree / subagent isolation: worktree）
 .claude/worktrees/
+
+# execute 阶段的审美截图与实测产物（给用户看，不进 git）
+.claude/verify/

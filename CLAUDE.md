@@ -46,7 +46,7 @@
 | `/bootstrap` | 项目启动：实例化文档、rules、CI 与 Step 0 plan（仅一次） |
 | `/discuss-step N` | 可选：逐项拍板本 step 的关键决定 |
 | `/plan-step N` | 写 step 文件的 Plan 节，含路线图对齐闸门 |
-| `/execute-step N [Pk]` | 严格按 step 文件写代码；分段时每段一个新 session |
+| `/execute-step N [Pk]` | 严格按 step 文件写代码；验收全部自动化覆盖且无偏离时自行提交并提示下一段；分段时每段一个新 session |
 | `/close-step N` | 把本 step 的信息写到消费点，校验路线图，写实录并建 PR |
 | `/hotfix <描述>` | 小改动快速通道，判据见 skill |
 | `/roadmap <描述>` | 新需求 / 砍功能 / 拆合 step / 调顺序 |

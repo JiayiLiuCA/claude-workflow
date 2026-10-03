@@ -14,6 +14,7 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 - **读取成本不随项目增长**：启动时只带固定上限的全局文档，plan 只读本 step 的路线图条目和相关代码，历史 step 文件没有人读
 - **Plan 描述行为与契约，不写实现代码**；「范围外」和「范围内」同等重要，防越界是这套流程的核心价值
 - **Execute 的权威输入是 step 文件，不是对话**；每个 step 从干净 context 开始，大 step 阶段间开新会话
+- **验收先写成测试，用户只看审美**：plan 给每条验收标准标明验证层级，功能性行为默认自动化测试；execute 过放行门（测试绿、无需用户验证、无偏离）就自行提交并提示下一段
 - **阶段纪律由 hooks 确定性强制**，不止靠模型自律
 - **汇报用产品语言**：进展与总结只讲用户能看到什么；技术细节进 commit 正文与给 Claude 的文档
 
@@ -29,7 +30,7 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 ```text
 /discuss-step N      （可选：大 step 先逐项拍板）
 /plan-step N         → review plan（结论回写 step 文件）
-/execute-step N      → 验收（分段 plan：/execute-step N P1、P2…，每段新 session）
+/execute-step N      → 过放行门自行提交，否则等验收（分段 plan：/execute-step N P1、P2…，每段新 session）
 /close-step N        → 信息写到消费点、路线图校验、实录 → merge PR
 
 /hotfix <描述>       （小改动：typo / 一行修复 / 依赖 bump，不走四阶段）
@@ -42,7 +43,7 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 
 ### 已有项目
 
-把 `.claude/`、`docs/planning/`、`CLAUDE.md` 复制进项目，跑 `/bootstrap`（会读取现状后实例化文档）。已有 `CLAUDE.md` 或 `.claude/settings.json` 时**合并而非覆盖**：把本脚手架的 PreToolUse / PostToolUse / SessionStart 条目并入既有 hooks 数组，`env` 同理。`.gitignore` 加上 `.claude/workflow-phase*`。如果设置了 `claudeMdExcludes`，不要排除功能目录下的 CLAUDE.md，否则域笔记不会自动加载。
+把 `.claude/`、`docs/planning/`、`CLAUDE.md` 复制进项目，跑 `/bootstrap`（会读取现状后实例化文档）。已有 `CLAUDE.md` 或 `.claude/settings.json` 时**合并而非覆盖**：把本脚手架的 PreToolUse / PostToolUse / SessionStart 条目并入既有 hooks 数组，`env` 同理。`.gitignore` 加上 `.claude/workflow-phase*` 与 `.claude/verify/`。如果设置了 `claudeMdExcludes`，不要排除功能目录下的 CLAUDE.md，否则域笔记不会自动加载。
 
 ### 从旧版升级
 
@@ -55,6 +56,7 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 5. ARCHITECTURE 的 ADR 改为「架构规则」：删掉删除线条目，被推翻的只留新结论；目录结构只留顶层与分层惯例；整份压到约 200 行以内，它每个 session 都会加载
 6. 项目已有的各层代码规范 `.claude/rules/<layer>.md` 补上「注释与测试」一节，内容照 bootstrap skill 第四步
 7. 删除 `PROGRESS.md`、`domains/`、`STEPS/README.md`
+8. `.gitignore` 加 `.claude/verify/`。有 UI 但还没有 e2e 框架的项目，下一个 UI step 的 plan 把「e2e 框架就位」纳入范围内；在那之前 UI 的功能性验收用 `[实测]`
 
 第 3 到 5 步是改写，让 Claude 在 commit 正文列出删除与合并清单，审这份清单即可。
 
@@ -64,7 +66,7 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 |---|---|---|---|
 | Discuss（可选） | `/discuss-step N` | step 文件「决议」节 | 只能写文档 |
 | Plan | `/plan-step N` | step 文件「Plan」节；路线图对齐闸门 | 只能写文档 |
-| Execute | `/execute-step N [Pk]` | 代码 + 测试 + 域笔记；commit 正文记偏离 / 临场决策 / 遗留 / 验收 | **禁止**写 planning 文档 |
+| Execute | `/execute-step N [Pk]` | 代码 + 测试 + 域笔记；commit 正文记偏离 / 临场决策 / 遗留 / 验收；过放行门自行提交 | **禁止**写 planning 文档 |
 | Close | `/close-step N` | 信息写到消费点、路线图校验、step 文件「实录」节 + PR | 只能写文档 |
 | hotfix | `/hotfix <描述>` | 小改动直接提交，文档有句子失效就顺手改 | 无标记 |
 | roadmap | `/roadmap <描述>` | 路线图与待决 | 只能写文档 |
@@ -75,12 +77,28 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 flowchart LR
     D["discuss step N<br/>（可选）拍板决议"] --> P["plan step N<br/>写 Plan 节"]
     P --> R{用户 review}
-    R -->|结论回写 step 文件| E["execute step N<br/>严格按 plan 写代码"]
-    E --> V{用户验收}
+    R -->|结论回写 step 文件| E["execute step N [Pk]<br/>严格按 plan 写代码"]
+    E --> G{"放行门<br/>测试绿 · 无 ⚠️ · 无偏离"}
+    G -->|过| A["自行 commit"]
+    A -->|非末段| E
+    G -->|不过| V{用户验收}
     V -->|问题| E
     V -->|通过| C["close step N<br/>信息写到消费点"]
+    A -->|末段| C
     C --> M["PR merge<br/>→ 下一个 step"]
 ```
+
+### 验收层级与放行门
+
+plan 给每条验收标准标明验证层级，execute 按层级逐条自检：
+
+| 层级 | 含义 | 谁做 |
+|---|---|---|
+| `[自动]` | 写成测试，plan 写出测试名；功能性行为（点了之后发生什么、表单校验、路由、错误呈现）默认在这一层 | execute 写，CI 跑 |
+| `[实测]` | Claude 用 e2e 框架的一次性脚本 / 浏览器工具 / curl / CLI 验证一次，产物不进 repo；只用于测试框架覆盖不到的集成点与实测数据，值得重复跑的升为 `[自动]` | Claude |
+| `[手动]` | 只允许审美（视觉、动效、手感）与本机无法复现的真实外部环境；审美项 Claude 先截图到 `.claude/verify/`，用户看图 | 用户 |
+
+段退出验收只允许前两层，审美项统一放 step 级验收。自检后三条全满足就过放行门：测试与类型检查 / build 绿、checklist 没有 ⚠️ 与 ❌、没有偏离或只有用户中途已裁决的小偏离。过门的段 execute 自行 commit，输出「✅ 已提交」与「👉 下一步」两行；末段同样自行 commit，再给完整汇报。不过门才等用户验收后 commit，commit 正文的「验收」段按用户结论改写，close 以它为准。「测试完全覆盖」的定义是每条验收标准都对应到一个通过的测试或一次实测，不用覆盖率。
 
 ## 文档体系
 
@@ -142,7 +160,7 @@ backend/app/ocr/                     backend/app/models/ocr.py
 | 层 | 放什么 | 会不会过期 |
 |---|---|---|
 | 命名、类型、schema、enum | 数据形状、取值范围、约束 | 不会，类型检查和运行时校验会发现 |
-| 测试，测试名描述行为 | edge case 行为 | 不会，过期测试就失败 |
+| 测试，测试名描述行为 | 功能性行为与 edge case | 不会，过期测试就失败 |
 | 代码旁的注释 | 故意为之、看起来像 bug 的写法的原因；会被其他功能调用的函数的契约 | 很少，和代码在同一个 diff 里改 |
 | 域笔记 | 跨文件的行为、实测数据、否决过的方案 | 可能，靠 close 核对 |
 | ARCHITECTURE | 系统地图、涉及多个功能的规则 | 可能，靠 close 核对 |
@@ -168,7 +186,7 @@ close 发现碰过的域笔记超过约 150 行、或 ARCHITECTURE 超过约 200
 
 ## Session 策略
 
-小 step 可 plan → execute → close 同会话连跑（review 结论仍须回写 step 文件，close 仍以 commit 正文与 git diff 为准）；大 step 阶段间开新会话或 `/clear`。execute 单 session 装不下的超大 step，由 plan 阶段拆成 P1/P2… 执行段，每段新开 session 执行（`/execute-step N P1`…），段末必须是可验证的完整状态，段间交接只靠 git commit 与 step 文件。
+小 step 可 plan → execute → close 同会话连跑（review 结论仍须回写 step 文件，close 仍以 commit 正文与 git diff 为准）；大 step 阶段间开新会话或 `/clear`。execute 单 session 装不下的超大 step，由 plan 阶段拆成 P1/P2… 执行段，每段新开 session 执行（`/execute-step N P1`…），段末必须是可验证的完整状态，段间交接只靠 git commit 与 step 文件。段退出验收只有自动化与实测项，过放行门后 Claude 自行提交并提示下一段，用户只在末段看审美项。
 
 plan-step 的分段阈值按 200K 窗口校准，1M 窗口的模型可以放宽，但仍以质量优先；关闭了 auto compact 时分段要更保守。resume 或 compact 之后 SessionStart hook 会播报当前阶段，按提示重新调用对应 skill 即可从中断处继续；新会话接着做未完成的阶段（如隔天继续 review plan）也一样，先重新调用该阶段的 skill。
 
@@ -189,12 +207,13 @@ plan-step 的分段阈值按 200K 窗口校准，1M 窗口的模型可以放宽�
 │   │   ├── phase-audit.test.js      # 审计自测（node 运行，19 用例，需要 git）
 │   │   ├── clear-phase.js           # SessionStart(startup|clear)：清残留阶段标记
 │   │   └── announce-phase.js        # SessionStart(resume|compact)：播报当前阶段、提示重调 skill
-│   └── skills/                      # bootstrap / discuss-step / plan-step / execute-step / close-step / hotfix / roadmap
+│   ├── skills/                      # bootstrap / discuss-step / plan-step / execute-step / close-step / hotfix / roadmap
+│   └── verify/                      # execute 的审美截图与实测产物（gitignored，运行时才出现）
 ├── docs/planning/
 │   ├── OVERVIEW.md                  # 给用户看的总览：已有功能、路线图、待决、已完成
 │   ├── ARCHITECTURE.md              # 给 Claude 的全局：概念、约束、技术栈、目录、系统地图、架构规则（根 CLAUDE.md 导入）
 │   └── STEPS/                       # 每 step 一个文件：决议、Plan、实录
-└── .github/ci.yml.example           # CI 模板（bootstrap 实例化为 workflows/ci.yml）
+└── .github/ci.yml.example           # CI 模板：测试、类型检查 / 构建、e2e（bootstrap 实例化为 workflows/ci.yml）
 ```
 
 项目跑起来之后，功能目录里会逐步出现 `CLAUDE.md` 域笔记，例如 `backend/app/ocr/CLAUDE.md`。
@@ -220,6 +239,7 @@ node .claude/hooks/phase-audit.test.js
 
 - **`/code-review`**：execute-step 在末段验收后建议 `/code-review high origin/main...HEAD`。不要用 `--fix`：它的修改在会话 checkpoint 之外、`/rewind` 撤不掉，也绕过 execute 的分流规则。触及鉴权 / 数据访问的 step，close-step 建 PR 前提示 `/security-review`。
 - **subagent**：execute 的大规模机械改造用 `fork` 类型并行分组（继承 step 文件与已读代码）。
+- **浏览器工具**：execute 的 `[实测]` 项与审美截图用 Claude in Chrome（截图 `save_to_disk` 后挪进 `.claude/verify/`）或 e2e 框架的一次性脚本。值得重复跑的写成 `[自动]` 进 repo、CI 跑；浏览器 MCP 是否可用取决于环境。
 - **不适合的**：阶段 skill 不要加 `context: fork`（它们需要与用户交互）；不要用 skill frontmatter 的 `hooks` 取代标记文件（skill hook 在整个 session 持续生效，同会话连跑 plan → execute 会叠加相反规则）；不要给阶段 skill 设 `disable-model-invocation`（会让自然语言触发失效）。
 
 ## 定制
