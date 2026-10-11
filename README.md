@@ -23,9 +23,10 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 ### 新项目
 
 1. GitHub 上点 **Use this template**（或 clone 后删 `.git` 重新 `git init`）
-2. 在 Claude Code 中输入 `/bootstrap`，回答项目参数问题：Claude 会实例化 OVERVIEW 与 ARCHITECTURE、按技术栈生成代码规范 rules 与 CI、产出 Step 0 plan
-3. Review 路线图草案与 Step 0 plan
-4. 之后每个 step 循环：
+2. 写好需求文档（brief / PRD）：定位（做什么、给谁用）、形态与平台、技术栈、核心约束、功能清单与优先级；有 UI 的把设计稿放进 `docs/design-reference/`
+3. 在 Claude Code 中输入 `/bootstrap`，回答项目参数问题：Claude 会实例化 OVERVIEW 与 ARCHITECTURE、按技术栈生成代码规范 rules 与 CI、产出 Step 0 plan
+4. Review milestone 划分、Milestone 1 的 step 与 Step 0 plan
+5. 之后每个 step 循环：
 
 ```text
 /discuss-step N      （可选：大 step 先逐项拍板）
@@ -34,7 +35,7 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 /close-step N        → 信息写到消费点、路线图校验、实录 → merge PR
 
 /hotfix <描述>       （小改动：typo / 一行修复 / 依赖 bump，不走四阶段）
-/roadmap <变更描述>  （新需求 / 砍功能 / 合并拆分 step / 调顺序）
+/roadmap <变更描述>  （新需求 / 砍功能 / 拆 milestone / 合并拆分 step / 调顺序）
 ```
 
 斜杠形式是确定性调用，自然语言形式（`plan step 3`）同样有效，两种都可以在后面追加补充说明。
@@ -54,9 +55,10 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 3. 每个 `domains/<domain>.md`：删掉契约索引和表索引；决议与行为参考改写成当前状态，去掉删除线和被推翻的原文，放进对应功能目录的 `CLAUDE.md`；按层分目录的项目改写成 `.claude/rules/<feature>.md`，并在 ARCHITECTURE「目录结构」注明；在 ARCHITECTURE「系统地图」为该功能加一行，写目录、技术职责、依赖；在 OVERVIEW「已有功能」为它写两三句产品语言，不写目录
 4. OVERVIEW：核心概念移到 ARCHITECTURE；路线图变更日志删除；决议台账里未决的进「待决」，已决的写进 ARCHITECTURE 架构规则或域笔记，被推翻的删除；实录里仍未处理的遗留写进目标 step 条目的「前置提示」
 5. ARCHITECTURE 的 ADR 改为「架构规则」：删掉删除线条目，被推翻的只留新结论；目录结构只留顶层与分层惯例；整份压到约 200 行以内，它每个 session 都会加载
-6. 项目已有的各层代码规范 `.claude/rules/<layer>.md` 补上「注释与测试」一节，内容照 bootstrap skill 第四步
+6. 项目已有的各层代码规范 `.claude/rules/<layer>.md` 补上或同步「注释与测试」一节，内容照 bootstrap skill 第四步
 7. 删除 `PROGRESS.md`、`domains/`、`STEPS/README.md`
 8. `.gitignore` 加 `.claude/verify/`。有 UI 但还没有 e2e 框架的项目，下一个 UI step 的 plan 把「e2e 框架就位」纳入范围内；在那之前 UI 的功能性验收用 `[实测]`
+9. OVERVIEW「路线图」改为 milestone 与 step 两层：开头说明与格式注释换成新版模板的；现有 step 条目按产品目标归入 milestone（数字编号，带状态行），还说不清的后续范围写进所属 milestone 的「待拆」；「已完成」表不动
 
 第 3 到 5 步是改写，让 Claude 在 commit 正文列出删除与合并清单，审这份清单即可。
 
@@ -67,7 +69,7 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 | Discuss（可选） | `/discuss-step N` | step 文件「决议」节 | 只能写文档 |
 | Plan | `/plan-step N` | step 文件「Plan」节；路线图对齐闸门 | 只能写文档 |
 | Execute | `/execute-step N [Pk]` | 代码 + 测试 + 域笔记；commit 正文记偏离 / 临场决策 / 遗留 / 验收；过放行门自行提交 | **禁止**写 planning 文档 |
-| Close | `/close-step N` | 信息写到消费点、路线图校验、step 文件「实录」节 + PR | 只能写文档 |
+| Close | `/close-step N` | 信息写到消费点、路线图校验、本 step 出过的错转成检查或规则、step 文件「实录」节 + PR | 只能写文档 |
 | hotfix | `/hotfix <描述>` | 小改动直接提交，文档有句子失效就顺手改 | 无标记 |
 | roadmap | `/roadmap <描述>` | 路线图与待决 | 只能写文档 |
 
@@ -98,7 +100,7 @@ plan 给每条验收标准标明验证层级，execute 按层级逐条自检：
 | `[实测]` | Claude 用 e2e 框架的一次性脚本 / 浏览器工具 / curl / CLI 验证一次，产物不进 repo；只用于测试框架覆盖不到的集成点与实测数据，值得重复跑的升为 `[自动]` | Claude |
 | `[手动]` | 只允许审美（视觉、动效、手感）与本机无法复现的真实外部环境；审美项 Claude 先截图到 `.claude/verify/`，用户看图 | 用户 |
 
-段退出验收只允许前两层，审美项统一放 step 级验收。自检后三条全满足就过放行门：测试与类型检查 / build 绿、checklist 没有 ⚠️ 与 ❌、没有偏离或只有用户中途已裁决的小偏离。过门的段 execute 自行 commit，输出「✅ 已提交」与「👉 下一步」两行；末段同样自行 commit，再给完整汇报。不过门才等用户验收后 commit，commit 正文的「验收」段按用户结论改写，close 以它为准。「测试完全覆盖」的定义是每条验收标准都对应到一个通过的测试或一次实测，不用覆盖率。
+段退出验收只允许前两层，审美项统一放 step 级验收。自检后三条全满足就过放行门：测试与类型检查 / build 绿、checklist 没有 ⚠️ 与 ❌、没有偏离或只有用户中途已裁决的小偏离。过门的段 execute 自行 commit，输出「✅ 已提交」与「👉 下一步」两行；末段同样自行 commit，再给完整汇报。不过门才等用户验收后 commit，commit 正文的「验收」段按用户结论改写，close 以它为准。「测试完全覆盖」的定义是每条验收标准都对应到一个通过的测试或一次实测，不用覆盖率。测试按「注释与测试」写，验收测试须在实现前因结果不符而失败过，「测试绿」才可信。放行门前，一个不带上下文的 subagent 对照 step 文件审一遍改动：漏做、多做、做错、测试写法。
 
 ## 文档体系
 
@@ -112,7 +114,7 @@ plan 给每条验收标准标明验证层级，execute 按层级逐条自检：
 | 功能目录下的 `CLAUDE.md` | 域笔记：该功能放不进代码的知识 | 读到该功能的代码时自动加载 |
 | `.claude/rules/<layer>.md` | 代码规范 | 读到对应文件时自动加载 |
 
-`OVERVIEW.md` 是用户唯一的入口。四节中「已有功能」「待决」体量恒定，「路线图」随完成而缩短，只有「已完成」表每个 step 长一行，那一行就是用户的时间线。
+`OVERVIEW.md` 是用户唯一的入口。四节中「已有功能」「待决」体量恒定。「路线图」分 milestone 与 step 两层：milestone 全程保留，完成的只留目标与完成记录；step 走到时再拆，完成后移到「已完成」表。「已完成」表每个 step 长一行，那一行就是用户的时间线。
 
 Claude 的读取路径分三层，每层都小、都是当前状态、都指向下一层：
 
@@ -147,10 +149,11 @@ backend/app/ocr/                     backend/app/models/ocr.py
 完整的表在 `.claude/rules/planning-docs.md`，要点：
 
 - 用户可见的功能现状写 OVERVIEW「已有功能」，未决问题写「待决」
-- 给某个后续 step 的提示写进 OVERVIEW 路线图里那个 step 的「前置提示」
+- 给某个后续 step 的提示写进 OVERVIEW 路线图里那个 step 的「前置提示」，尚未拆出的写进所属 milestone
 - 已有功能的目录、职责、依赖写 ARCHITECTURE「系统地图」，涉及多个功能的规则写「架构规则」
 - 单个功能内放不进代码的知识写该功能的域笔记：跨文件的行为、实测数据、否决过的方案、外部依赖改造点
 - 过程（偏离、推翻了什么、路线图为什么改）只写 step 实录与 commit 正文，后续阶段不读
+- 决定须同时满足三条才写：撤回代价大、不知道背景的人会觉得奇怪或想改掉、当时有真实的备选
 - 代码能回答的不写
 
 ### 代码里写什么
@@ -172,7 +175,7 @@ backend/app/ocr/                     backend/app/models/ocr.py
 | 阶段 | 读 |
 |---|---|
 | 任何会话 | 根 `CLAUDE.md` 与它导入的 ARCHITECTURE（启动时自动）；读到的代码所属功能的域笔记与 rules（自动） |
-| discuss / plan | OVERVIEW 中本 step 条目与相关待决、相关代码 |
+| discuss / plan | OVERVIEW 中本 step 条目、所属 milestone 的前置提示与相关待决、相关代码 |
 | execute | 本 step 文件、相关代码 |
 | close | Plan 节的「目标」「文档影响」「执行分段」、commit 正文、`git diff --stat`，之后只为写入定点读 |
 | roadmap | OVERVIEW、受影响 step 的 Plan 目标 |
@@ -186,7 +189,7 @@ close 发现碰过的域笔记超过约 150 行、或 ARCHITECTURE 超过约 200
 
 ## Session 策略
 
-小 step 可 plan → execute → close 同会话连跑（review 结论仍须回写 step 文件，close 仍以 commit 正文与 git diff 为准）；大 step 阶段间开新会话或 `/clear`。execute 单 session 装不下的超大 step，由 plan 阶段拆成 P1/P2… 执行段，每段新开 session 执行（`/execute-step N P1`…），段末必须是可验证的完整状态，段间交接只靠 git commit 与 step 文件。段退出验收只有自动化与实测项，过放行门后 Claude 自行提交并提示下一段，用户只在末段看审美项。
+小 step 可 plan → execute → close 同会话连跑（review 结论仍须回写 step 文件，close 仍以 commit 正文与 git diff 为准）；大 step 阶段间开新会话或 `/clear`。execute 单 session 装不下的 step 优先拆成几个 step；拆开单独没有意义的，由 plan 阶段拆成 P1/P2… 执行段（按功能切，先打通最细的完整路径），每段新开 session 执行（`/execute-step N P1`…），段末必须是可验证的完整状态，段间交接只靠 git commit 与 step 文件。段退出验收只有自动化与实测项，过放行门后 Claude 自行提交并提示下一段，用户只在末段看审美项。
 
 plan-step 的分段阈值按 200K 窗口校准，1M 窗口的模型可以放宽，但仍以质量优先；关闭了 auto compact 时分段要更保守。resume 或 compact 之后 SessionStart hook 会播报当前阶段，按提示重新调用对应 skill 即可从中断处继续；新会话接着做未完成的阶段（如隔天继续 review plan）也一样，先重新调用该阶段的 skill。
 

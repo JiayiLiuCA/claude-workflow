@@ -1,6 +1,6 @@
 ---
 name: roadmap
-description: 路线图变更快速通道：新需求、砍功能、合并 / 拆分 step、调整顺序。只改 OVERVIEW 的路线图与待决，不写代码，不改历史 step 文件。
+description: 路线图变更快速通道：新需求、砍功能、拆 milestone、合并 / 拆分 step、调整顺序。只改 OVERVIEW 的路线图与待决，不写代码，不改历史 step 文件。
 when_to_use: 用户输入 "roadmap <变更描述>"、"调整路线图" 或 /roadmap <描述> 时执行。
 argument-hint: "<变更描述>"
 ---
@@ -24,6 +24,8 @@ argument-hint: "<变更描述>"
 
 # 第三步：落笔
 
+- 拆 milestone：拆出所有说得清的 step，其余留在「待拆」（规则见 OVERVIEW「路线图」开头），该 milestone 状态改为「进行中」
+- 新需求先归入 milestone（现有的或新增的）：说得清的拆成 step，说不清的进「待拆」
 - 已有 step 编号不变；新增 step 编号接在最大编号之后；废弃的 step 直接删除条目，编号不复用
 - 已 plan 未 execute 的受影响 step，状态改为「需重跑 plan」
 - 变更带出的未决问题写进「待决」

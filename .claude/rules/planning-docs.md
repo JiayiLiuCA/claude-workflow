@@ -30,8 +30,8 @@ paths:
 | 信息 | 去处 | 谁读 |
 |---|---|---|
 | 用户可见的功能现状，产品语言，不写目录 | OVERVIEW「已有功能」 | 用户 |
-| 未完成 step 的目标、范围、状态 | OVERVIEW「路线图」 | 用户、plan |
-| 给某个后续 step 的提示与遗留问题 | OVERVIEW 路线图中该 step 的「前置提示」 | plan |
+| 全部 milestone 与未完成 step：目标、范围、状态 | OVERVIEW「路线图」 | 用户、plan、roadmap |
+| 给某个后续 step 的提示与遗留问题 | OVERVIEW 路线图中该 step 的「前置提示」；尚未拆出的写进所属 milestone | plan、roadmap |
 | 尚未决定的问题 | OVERVIEW「待决」 | 用户、plan |
 | 已有功能的目录、技术职责、依赖 | ARCHITECTURE「系统地图」 | 每个 session 自动加载 |
 | 涉及多个功能的约束与架构规则 | ARCHITECTURE「架构规则」 | 每个 session 自动加载 |
@@ -39,6 +39,8 @@ paths:
 | 代码约定：命名、错误处理、测试写法 | `.claude/rules/<layer>.md` | 读到对应文件时自动加载 |
 | 过程：偏离、推翻了什么、路线图为什么改 | step 文件「实录」与 commit 正文 | 存档，后续阶段不读 |
 | 代码能回答的 | 不写 | |
+
+**决定三条件**：决定写进架构规则或域笔记，须同时满足：撤回代价大；不知道背景的人会觉得奇怪或想改掉；当时有真实的备选。缺一条就不写，代码自己能说明。
 
 ## 域笔记
 

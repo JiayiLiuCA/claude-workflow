@@ -32,14 +32,15 @@ arguments: [step]
 
 把 commit 正文（偏离 / 临场决策 / 遗留）、「文档影响」、用户的手动变更说明逐条按「信息去处」分配，列成清单，每条一行：
 
-- 遗留与给后续的提示：目标 step 路线图条目的「前置提示」；没有明确目标 step 的进「待决」
+- 遗留与给后续的提示：目标 step 条目的「前置提示」；目标还没拆成 step 的，写进所属 milestone 的「前置提示」；没有明确目标的进「待决」
 - 新增的功能目录、功能间依赖的变化：ARCHITECTURE「系统地图」，每个功能一行，写目录、技术职责、依赖。从 `git diff --stat` 看新目录，从 commit 正文看依赖变化
 - 仍约束后续工作的决定与知识：涉及多个功能的进 ARCHITECTURE 架构规则；单个功能内的进该功能的域笔记。功能目录的 CLAUDE.md 由 execute 写，这里核对，缺了补；按层分的项目由 close 写进 `.claude/rules/<feature>.md`，新功能新建该文件，`paths` 列出该功能在各层的文件
 - 新代码约定：`.claude/rules/<layer>.md`
+- 本 step 出过的错（review fixes 与过门后修改的 commit、「验收」里的范围审查记录）：同类错误能被检查拦住的（固定写法、禁用的 API、文件放错位置），用 AskUserQuestion 问用户是否加 lint / 测试 / hook，同意的写进下一个 step 条目的「前置提示」，写明「plan 须纳入：加 <检查>」（下一个 step 还没拆出的，写进所属 milestone 的「前置提示」）；只能靠判断的，写进对应层的代码规范（bootstrap 生成的 `.claude/rules/<layer>.md`）；只涉及单个功能的，写进该功能的域笔记
 - 本 step 决定了的「待决」项：从「待决」删除，结论已落在上面某处
 - 只是过程（为什么偏离、试过什么）：只进实录
 
-「文档影响」为「无」、commit 正文的偏离 / 临场决策 / 遗留都是「无」：跳过第三步。
+「文档影响」为「无」、commit 正文的偏离 / 临场决策 / 遗留都是「无」、本 step 也没出过错：跳过第三步。
 
 # 第三步：定点写入
 
@@ -48,9 +49,10 @@ arguments: [step]
 # 第四步：OVERVIEW
 
 1. **已有功能**：更新或新增相关功能的两三句，只用产品语言，不写目录
-2. **路线图校验**：逐条看后续 step 的条目是否仍成立（依赖、范围、顺序、是否该新增或删除）。有变化按「路线图」开头的规则改，已 plan 未 execute 的标「需重跑 plan」，涉及取舍先用 AskUserQuestion 问用户；原因写进 commit 正文与实录
-3. 删除 Step {N} 的路线图条目，在「已完成」表顶部插入一行：`| {N} | [<标题>](STEPS/{NN}-<slug>.md) | {日期} | <用户得到了什么，一句话> |`
+2. **路线图校验**：逐条看后续 step 与 milestone 是否仍成立（依赖、范围、顺序、是否该新增或删除）。有变化按「路线图」开头的规则改，已 plan 未 execute 的标「需重跑 plan」，涉及取舍先用 AskUserQuestion 问用户；原因写进 commit 正文与实录
+3. 删除 Step {N} 的路线图条目，在「已完成」表顶部插入一行：`| {N} | [<标题>](STEPS/{NN}-<slug>.md) | {日期} | <用户得到了什么，一句话> |`；所属 milestone 的 step 全部完成且没有「待拆」的，状态改为「已完成（{日期}，Step x–y）」，删去其「待拆」「前置提示」行
 4. 「待决」里预计由路线图中下一个 step 决定的超过 2 条：总结里建议下一步先 `/discuss-step`
+5. 下一个 step 还没拆出：总结里建议下一步 `/roadmap 拆 Milestone X`
 
 # 第五步：压缩检查
 
@@ -82,7 +84,7 @@ arguments: [step]
 
 1. commit：`Step {N} Close: <标题>`；正文写路线图变更原因（如有）与压缩的删除与合并清单（如有）
 2. 触及鉴权 / 数据访问 / 外部输入解析的 step，建议用户先跑 `/security-review`
-3. push 分支，提议创建 PR（标题 `Step {N}: <标题>`，正文开头一段用户可感知的变化，其后贴实录），**经用户确认后**创建。无 origin 时不 push、不建 PR，经用户确认后在本地把分支 merge 进 main
+3. push 分支，提议创建 PR（标题 `Step {N}: <标题>`，正文开头一段用户可感知的变化；接着「合并风险」两行：能否直接撤回（能 / 不能，不能的写原因，如改了数据格式、删了数据）、可能受影响的功能；其后贴实录），**经用户确认后**创建。无 origin 时不 push、不建 PR，经用户确认后在本地把分支 merge 进 main
 4. 用 Bash 执行 `rm -f "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
 5. 输出总结（产品语言）：这个 step 给用户带来了什么；路线图有无调整；下一步建议（是否先 discuss）；给用户 review 的点
 6. 提示：PR merge 后可选在 main 打 tag `step-{NN}`

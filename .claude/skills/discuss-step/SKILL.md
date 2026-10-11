@@ -14,13 +14,13 @@ arguments: [step]
 # 第零步：阶段标记与分支
 
 1. 用 Bash 执行 `printf 'discuss' > "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
-2. 分支 `feat/step-{NN}-<slug>` 已存在则切过去。不存在则 `git fetch origin`，先核对上一个 step 已合入：`git show origin/main:docs/planning/OVERVIEW.md` 的路线图里 Step {N} 前面还有条目，说明上一个 step 的 PR 还没 merge 或顺序变了，停下问用户。核对通过后从 `origin/main` 创建（slug 为本 step 主题的 kebab-case 短词；无 origin 时核对与创建都用本地 main）
+2. 分支 `feat/step-{NN}-<slug>` 已存在则切过去。不存在则 `git fetch origin`，先核对上一个 step 已合入：`git show origin/main:docs/planning/OVERVIEW.md` 的路线图里 Step {N} 前面还有条目，说明上一个 step 的 PR 还没 merge 或顺序变了，停下问用户。Step {N} 条目不存在，停下，提示先用 `/roadmap` 拆出。核对通过后从 `origin/main` 创建（slug 为本 step 主题的 kebab-case 短词；无 origin 时核对与创建都用本地 main）
 
 # 第一步：读取
 
 ARCHITECTURE 已随根 CLAUDE.md 自动加载，项目全局、系统地图与架构规则都在 context 里，不用再读。另外只读下面这些，定位读取，不通读：
 
-1. OVERVIEW：路线图中 Step {N} 的条目（含前置提示）、「待决」中相关项
+1. OVERVIEW：路线图中 Step {N} 的条目（含前置提示）与所属 milestone 的前置提示、「待决」中相关项
 2. 相关代码：先用系统地图找到涉及的功能目录，再看结构与既有实现。想了解既有行为先搜测试名。域笔记在读到对应功能的代码时自动加载
 3. 涉及前端时：design reference 对应文件
 
@@ -28,13 +28,13 @@ ARCHITECTURE 已随根 CLAUDE.md 自动加载，项目全局、系统地图与�
 
 # 第二步：列出待决问题
 
-按类分组：范围边界（做 / 不做 / 推迟到哪）、技术选型、数据模型与接口形态、UI 与交互（如涉及）、与既有代码的关系（复用 / 重写 / 不动）。每个问题给推荐、理由、备选，按 CLAUDE.md「沟通风格」先讲对用户的影响。有明显惯例答案的不问，按惯例处理并在决议里注明。
+按类分组：范围边界（做 / 不做 / 推迟到哪）、技术选型、数据模型与接口形态、UI 与交互（如涉及）、与既有代码的关系（复用 / 重写 / 不动）。每个问题给推荐、理由、备选，按 CLAUDE.md「沟通风格」先讲对用户的影响。有明显惯例答案的不问，按惯例处理并在决议里注明。需要的事实（现有代码怎么做、某个库是否支持）自己查，必要时派 subagent，只问用户要决定。
 
-把问题建成任务清单（TaskCreate，一题一个；会话里没有该工具就用文字列出），每拍板一项置 completed，清零才进入第四步。
+把问题建成任务清单（TaskCreate，一题一个；会话里没有该工具就用文字列出），每拍板一项置 completed，新冒出的问题追加，清零才进入第四步。
 
-# 第三步：逐项拍板
+# 第三步：分轮拍板
 
-用 AskUserQuestion 或对话逐项确认，用户预先给出的议题优先。用户说「留到 plan 再定」的单独记录。
+每轮只问前提都已拍板的问题，依赖未决答案的留到下一轮；用 AskUserQuestion 或对话，用户预先给出的议题优先。用户说「留到 plan 再定」的单独记录。
 
 # 第四步：写决议
 
