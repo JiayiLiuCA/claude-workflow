@@ -58,6 +58,7 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 6. 项目已有的各层代码规范 `.claude/rules/<layer>.md` 补上或同步「注释与测试」一节，内容照 bootstrap skill 第四步
 7. 删除 `PROGRESS.md`、`domains/`、`STEPS/README.md`
 8. `.gitignore` 加 `.claude/verify/`。有 UI 但还没有 e2e 框架的项目，下一个 UI step 的 plan 把「e2e 框架就位」纳入范围内；在那之前 UI 的功能性验收用 `[实测]`
+9. OVERVIEW「路线图」改为 milestone 与 step 两层：开头说明与格式注释换成新版模板的；现有 step 条目按产品目标归入 milestone（数字编号，带状态行），还说不清的后续范围写进所属 milestone 的「待拆」；「已完成」表不动
 
 第 3 到 5 步是改写，让 Claude 在 commit 正文列出删除与合并清单，审这份清单即可。
 
