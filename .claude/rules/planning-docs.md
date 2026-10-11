@@ -30,8 +30,8 @@ paths:
 | 信息 | 去处 | 谁读 |
 |---|---|---|
 | 用户可见的功能现状，产品语言，不写目录 | OVERVIEW「已有功能」 | 用户 |
-| 未完成 step 的目标、范围、状态 | OVERVIEW「路线图」 | 用户、plan |
-| 给某个后续 step 的提示与遗留问题 | OVERVIEW 路线图中该 step 的「前置提示」 | plan |
+| 全部 milestone 与未完成 step：目标、范围、状态 | OVERVIEW「路线图」 | 用户、plan、roadmap |
+| 给某个后续 step 的提示与遗留问题 | OVERVIEW 路线图中该 step 的「前置提示」；尚未拆出的写进所属 milestone | plan、roadmap |
 | 尚未决定的问题 | OVERVIEW「待决」 | 用户、plan |
 | 已有功能的目录、技术职责、依赖 | ARCHITECTURE「系统地图」 | 每个 session 自动加载 |
 | 涉及多个功能的约束与架构规则 | ARCHITECTURE「架构规则」 | 每个 session 自动加载 |

@@ -14,13 +14,13 @@ arguments: [step]
 # 第零步：阶段标记与分支
 
 1. 用 Bash 执行 `printf 'discuss' > "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
-2. 分支 `feat/step-{NN}-<slug>` 已存在则切过去。不存在则 `git fetch origin`，先核对上一个 step 已合入：`git show origin/main:docs/planning/OVERVIEW.md` 的路线图里 Step {N} 前面还有条目，说明上一个 step 的 PR 还没 merge 或顺序变了，停下问用户。核对通过后从 `origin/main` 创建（slug 为本 step 主题的 kebab-case 短词；无 origin 时核对与创建都用本地 main）
+2. 分支 `feat/step-{NN}-<slug>` 已存在则切过去。不存在则 `git fetch origin`，先核对上一个 step 已合入：`git show origin/main:docs/planning/OVERVIEW.md` 的路线图里 Step {N} 前面还有条目，说明上一个 step 的 PR 还没 merge 或顺序变了，停下问用户。Step {N} 条目不存在，停下，提示先用 `/roadmap` 拆出。核对通过后从 `origin/main` 创建（slug 为本 step 主题的 kebab-case 短词；无 origin 时核对与创建都用本地 main）
 
 # 第一步：读取
 
 ARCHITECTURE 已随根 CLAUDE.md 自动加载，项目全局、系统地图与架构规则都在 context 里，不用再读。另外只读下面这些，定位读取，不通读：
 
-1. OVERVIEW：路线图中 Step {N} 的条目（含前置提示）、「待决」中相关项
+1. OVERVIEW：路线图中 Step {N} 的条目（含前置提示）与所属 milestone 的前置提示、「待决」中相关项
 2. 相关代码：先用系统地图找到涉及的功能目录，再看结构与既有实现。想了解既有行为先搜测试名。域笔记在读到对应功能的代码时自动加载
 3. 涉及前端时：design reference 对应文件
 

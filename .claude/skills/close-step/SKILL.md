@@ -32,11 +32,11 @@ arguments: [step]
 
 把 commit 正文（偏离 / 临场决策 / 遗留）、「文档影响」、用户的手动变更说明逐条按「信息去处」分配，列成清单，每条一行：
 
-- 遗留与给后续的提示：目标 step 路线图条目的「前置提示」；没有明确目标 step 的进「待决」
+- 遗留与给后续的提示：目标 step 条目的「前置提示」；目标还没拆成 step 的，写进所属 milestone 的「前置提示」；没有明确目标的进「待决」
 - 新增的功能目录、功能间依赖的变化：ARCHITECTURE「系统地图」，每个功能一行，写目录、技术职责、依赖。从 `git diff --stat` 看新目录，从 commit 正文看依赖变化
 - 仍约束后续工作的决定与知识：涉及多个功能的进 ARCHITECTURE 架构规则；单个功能内的进该功能的域笔记。功能目录的 CLAUDE.md 由 execute 写，这里核对，缺了补；按层分的项目由 close 写进 `.claude/rules/<feature>.md`，新功能新建该文件，`paths` 列出该功能在各层的文件
 - 新代码约定：`.claude/rules/<layer>.md`
-- 本 step 出过的错（review fixes 与过门后修改的 commit、「验收」里的范围审查记录）：同类错误能被检查拦住的（固定写法、禁用的 API、文件放错位置），用 AskUserQuestion 问用户是否加 lint / 测试 / hook，同意的写进下一个 step 条目的「前置提示」，写明「plan 须纳入：加 <检查>」（没有下一个 step 时进「待决」）；只能靠判断的，写进对应层的代码规范（bootstrap 生成的 `.claude/rules/<layer>.md`）；只涉及单个功能的，写进该功能的域笔记
+- 本 step 出过的错（review fixes 与过门后修改的 commit、「验收」里的范围审查记录）：同类错误能被检查拦住的（固定写法、禁用的 API、文件放错位置），用 AskUserQuestion 问用户是否加 lint / 测试 / hook，同意的写进下一个 step 条目的「前置提示」，写明「plan 须纳入：加 <检查>」（下一个 step 还没拆出的，写进所属 milestone 的「前置提示」）；只能靠判断的，写进对应层的代码规范（bootstrap 生成的 `.claude/rules/<layer>.md`）；只涉及单个功能的，写进该功能的域笔记
 - 本 step 决定了的「待决」项：从「待决」删除，结论已落在上面某处
 - 只是过程（为什么偏离、试过什么）：只进实录
 
@@ -49,9 +49,10 @@ arguments: [step]
 # 第四步：OVERVIEW
 
 1. **已有功能**：更新或新增相关功能的两三句，只用产品语言，不写目录
-2. **路线图校验**：逐条看后续 step 的条目是否仍成立（依赖、范围、顺序、是否该新增或删除）。有变化按「路线图」开头的规则改，已 plan 未 execute 的标「需重跑 plan」，涉及取舍先用 AskUserQuestion 问用户；原因写进 commit 正文与实录
-3. 删除 Step {N} 的路线图条目，在「已完成」表顶部插入一行：`| {N} | [<标题>](STEPS/{NN}-<slug>.md) | {日期} | <用户得到了什么，一句话> |`
+2. **路线图校验**：逐条看后续 step 与 milestone 是否仍成立（依赖、范围、顺序、是否该新增或删除）。有变化按「路线图」开头的规则改，已 plan 未 execute 的标「需重跑 plan」，涉及取舍先用 AskUserQuestion 问用户；原因写进 commit 正文与实录
+3. 删除 Step {N} 的路线图条目，在「已完成」表顶部插入一行：`| {N} | [<标题>](STEPS/{NN}-<slug>.md) | {日期} | <用户得到了什么，一句话> |`；所属 milestone 的 step 全部完成且没有「待拆」的，状态改为「已完成（{日期}，Step x–y）」，删去其「待拆」「前置提示」行
 4. 「待决」里预计由路线图中下一个 step 决定的超过 2 条：总结里建议下一步先 `/discuss-step`
+5. 下一个 step 还没拆出：总结里建议下一步 `/roadmap 拆 Milestone X`
 
 # 第五步：压缩检查
 
