@@ -54,7 +54,7 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 3. 每个 `domains/<domain>.md`：删掉契约索引和表索引；决议与行为参考改写成当前状态，去掉删除线和被推翻的原文，放进对应功能目录的 `CLAUDE.md`；按层分目录的项目改写成 `.claude/rules/<feature>.md`，并在 ARCHITECTURE「目录结构」注明；在 ARCHITECTURE「系统地图」为该功能加一行，写目录、技术职责、依赖；在 OVERVIEW「已有功能」为它写两三句产品语言，不写目录
 4. OVERVIEW：核心概念移到 ARCHITECTURE；路线图变更日志删除；决议台账里未决的进「待决」，已决的写进 ARCHITECTURE 架构规则或域笔记，被推翻的删除；实录里仍未处理的遗留写进目标 step 条目的「前置提示」
 5. ARCHITECTURE 的 ADR 改为「架构规则」：删掉删除线条目，被推翻的只留新结论；目录结构只留顶层与分层惯例；整份压到约 200 行以内，它每个 session 都会加载
-6. 项目已有的各层代码规范 `.claude/rules/<layer>.md` 补上「注释与测试」一节，内容照 bootstrap skill 第四步
+6. 项目已有的各层代码规范 `.claude/rules/<layer>.md` 补上或同步「注释与测试」一节，内容照 bootstrap skill 第四步
 7. 删除 `PROGRESS.md`、`domains/`、`STEPS/README.md`
 8. `.gitignore` 加 `.claude/verify/`。有 UI 但还没有 e2e 框架的项目，下一个 UI step 的 plan 把「e2e 框架就位」纳入范围内；在那之前 UI 的功能性验收用 `[实测]`
 
@@ -98,7 +98,7 @@ plan 给每条验收标准标明验证层级，execute 按层级逐条自检：
 | `[实测]` | Claude 用 e2e 框架的一次性脚本 / 浏览器工具 / curl / CLI 验证一次，产物不进 repo；只用于测试框架覆盖不到的集成点与实测数据，值得重复跑的升为 `[自动]` | Claude |
 | `[手动]` | 只允许审美（视觉、动效、手感）与本机无法复现的真实外部环境；审美项 Claude 先截图到 `.claude/verify/`，用户看图 | 用户 |
 
-段退出验收只允许前两层，审美项统一放 step 级验收。自检后三条全满足就过放行门：测试与类型检查 / build 绿、checklist 没有 ⚠️ 与 ❌、没有偏离或只有用户中途已裁决的小偏离。过门的段 execute 自行 commit，输出「✅ 已提交」与「👉 下一步」两行；末段同样自行 commit，再给完整汇报。不过门才等用户验收后 commit，commit 正文的「验收」段按用户结论改写，close 以它为准。「测试完全覆盖」的定义是每条验收标准都对应到一个通过的测试或一次实测，不用覆盖率。
+段退出验收只允许前两层，审美项统一放 step 级验收。自检后三条全满足就过放行门：测试与类型检查 / build 绿、checklist 没有 ⚠️ 与 ❌、没有偏离或只有用户中途已裁决的小偏离。过门的段 execute 自行 commit，输出「✅ 已提交」与「👉 下一步」两行；末段同样自行 commit，再给完整汇报。不过门才等用户验收后 commit，commit 正文的「验收」段按用户结论改写，close 以它为准。「测试完全覆盖」的定义是每条验收标准都对应到一个通过的测试或一次实测，不用覆盖率。测试按「注释与测试」写，验收测试须在实现前因结果不符而失败过，「测试绿」才可信。
 
 ## 文档体系
 
