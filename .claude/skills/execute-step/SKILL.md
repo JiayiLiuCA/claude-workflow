@@ -69,6 +69,8 @@ arguments: [step, segment]
 
 Plan 用的是没标层级的旧格式，按同样规则自己归类：能写成测试的写成测试。
 
+**范围审查**：`git add -A` 后派一个新 subagent（不用 fork），只读，对照 step 文件审 `git diff --cached`，列出：① Plan 要求了但没做的；② 做了但没要求、或碰了「范围外」的；③ 做了但与契约 / 验收不符的；④ 新增测试不合「注释与测试」的。分段时对照本段范围，属于后续段的算多做；末段另审整个 step 的改动（`git diff --cached $(git merge-base origin/main HEAD) -- . ':!docs/planning'`），对照整份 Plan 只查①。每条附 Plan 原文与文件位置。①③④ 修掉；② 删掉，确属必要的连带修改按偏离分流。判断不成立的，在 commit 正文「验收」注明理由。
+
 **放行门**，三条全满足才过：
 
 1. 测试绿、类型检查 / build 通过
