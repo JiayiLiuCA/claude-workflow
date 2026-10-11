@@ -83,7 +83,7 @@ arguments: [step]
 
 1. commit：`Step {N} Close: <标题>`；正文写路线图变更原因（如有）与压缩的删除与合并清单（如有）
 2. 触及鉴权 / 数据访问 / 外部输入解析的 step，建议用户先跑 `/security-review`
-3. push 分支，提议创建 PR（标题 `Step {N}: <标题>`，正文开头一段用户可感知的变化，其后贴实录），**经用户确认后**创建。无 origin 时不 push、不建 PR，经用户确认后在本地把分支 merge 进 main
+3. push 分支，提议创建 PR（标题 `Step {N}: <标题>`，正文开头一段用户可感知的变化；接着「合并风险」两行：能否直接撤回（能 / 不能，不能的写原因，如改了数据格式、删了数据）、可能受影响的功能；其后贴实录），**经用户确认后**创建。无 origin 时不 push、不建 PR，经用户确认后在本地把分支 merge 进 main
 4. 用 Bash 执行 `rm -f "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
 5. 输出总结（产品语言）：这个 step 给用户带来了什么；路线图有无调整；下一步建议（是否先 discuss）；给用户 review 的点
 6. 提示：PR merge 后可选在 main 打 tag `step-{NN}`
