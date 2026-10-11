@@ -67,7 +67,7 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 | Discuss（可选） | `/discuss-step N` | step 文件「决议」节 | 只能写文档 |
 | Plan | `/plan-step N` | step 文件「Plan」节；路线图对齐闸门 | 只能写文档 |
 | Execute | `/execute-step N [Pk]` | 代码 + 测试 + 域笔记；commit 正文记偏离 / 临场决策 / 遗留 / 验收；过放行门自行提交 | **禁止**写 planning 文档 |
-| Close | `/close-step N` | 信息写到消费点、路线图校验、step 文件「实录」节 + PR | 只能写文档 |
+| Close | `/close-step N` | 信息写到消费点、路线图校验、本 step 出过的错转成检查或规则、step 文件「实录」节 + PR | 只能写文档 |
 | hotfix | `/hotfix <描述>` | 小改动直接提交，文档有句子失效就顺手改 | 无标记 |
 | roadmap | `/roadmap <描述>` | 路线图与待决 | 只能写文档 |
 

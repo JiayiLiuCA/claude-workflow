@@ -36,10 +36,11 @@ arguments: [step]
 - 新增的功能目录、功能间依赖的变化：ARCHITECTURE「系统地图」，每个功能一行，写目录、技术职责、依赖。从 `git diff --stat` 看新目录，从 commit 正文看依赖变化
 - 仍约束后续工作的决定与知识：涉及多个功能的进 ARCHITECTURE 架构规则；单个功能内的进该功能的域笔记。功能目录的 CLAUDE.md 由 execute 写，这里核对，缺了补；按层分的项目由 close 写进 `.claude/rules/<feature>.md`，新功能新建该文件，`paths` 列出该功能在各层的文件
 - 新代码约定：`.claude/rules/<layer>.md`
+- 本 step 出过的错（review fixes 与过门后修改的 commit、「验收」里的范围审查记录）：同类错误能被检查拦住的（固定写法、禁用的 API、文件放错位置），用 AskUserQuestion 问用户是否加 lint / 测试 / hook，同意的写进下一个 step 条目的「前置提示」，写明「plan 须纳入：加 <检查>」（没有下一个 step 时进「待决」）；只能靠判断的，写进对应层的代码规范（bootstrap 生成的 `.claude/rules/<layer>.md`）；只涉及单个功能的，写进该功能的域笔记
 - 本 step 决定了的「待决」项：从「待决」删除，结论已落在上面某处
 - 只是过程（为什么偏离、试过什么）：只进实录
 
-「文档影响」为「无」、commit 正文的偏离 / 临场决策 / 遗留都是「无」：跳过第三步。
+「文档影响」为「无」、commit 正文的偏离 / 临场决策 / 遗留都是「无」、本 step 也没出过错：跳过第三步。
 
 # 第三步：定点写入
 
