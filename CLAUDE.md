@@ -53,7 +53,7 @@
 
 Execute 的权威输入是 step 文件，不是对话。小 step 可以 plan、execute、close 同会话连跑，但 review 结论仍须回写 step 文件、close 仍以 commit 正文为准；大 step 阶段之间开新会话或 `/clear`。resume 或 compact 后按 SessionStart 的提示重新调用当前阶段的 skill；新会话接着做未完成的阶段（如隔天继续 review plan）同样先重新调用该阶段的 skill，它的「续接」说明会从中断处接上。
 
-任务清单只在 execute（执行顺序里程碑）与 discuss（待决问题）使用，只反映完成项数，不代表剩余时间。
+任务清单只在 execute（执行顺序）与 discuss（待决问题）使用，只反映完成项数，不代表剩余时间。
 
 ## 阶段纪律（hooks 强制）
 
