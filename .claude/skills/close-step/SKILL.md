@@ -111,6 +111,6 @@ arguments: [step]
    详细记录在 `docs/planning/STEPS/{NN}-<slug>.md`。
    ~~~
 
-   「用户能看到什么不同」取自 Plan「目标」与第四步写进「已有功能」的内容；「和计划不一样的地方」取自 commit 正文「偏离」，本 step 引起的路线图调整也写在这里；「✅ 验收」「遗留」取自 commit 正文「验收」「遗留」；「👀 建议重点看」列 review 修复过的、过门后用户要求改过的、改了数据格式或会删数据的地方。
+   「用户能看到什么不同」取自 Plan「目标」与第四步写进「已有功能」的内容；「和计划不一样的地方」取自 commit 正文「偏离」，本 step 引起的路线图调整也写在这里；「✅ 验收」「遗留」取自 commit 正文「验收」「遗留」，第五步压缩过的加一句独立核对的结论；「👀 建议重点看」列 review 修复过的、过门后用户要求改过的、改了数据格式或会删数据的地方。
 4. 用 Bash 执行 `rm -f "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
 5. 按 CLAUDE.md「沟通风格」的汇报顺序输出总结：结论一句（Step {N} 收尾完成，附 PR 链接）；这个 step 给用户带来了什么；路线图有无调整；⚠️ 合并风险，同 PR 正文；👀 给用户 review 的点；👉 下一步建议（下一个 step 的 `/plan-step`，或按第四步先 `/roadmap`），PR merge 后可选在 main 打 tag `step-{NN}`

@@ -77,7 +77,7 @@ const list =
 const rollback = "（已跟踪文件 `git restore <文件>`；新文件 `git clean -f -- <文件>`）";
 const msg =
   phase === "execute"
-    ? `[phase-audit] Execute 阶段检测到文档（docs/planning/ 或 .claude/rules/）存在未提交改动：\n${list}\n这些文档由 Close 阶段更新（功能目录下的 CLAUDE.md 域笔记不受此限）。若这是你刚才的命令造成的，立即回滚${rollback}后再继续；若是既有改动或用户手动所为，如实向用户说明后继续，不要动它们。`
-    : `[phase-audit] ${DOCS_ONLY[phase]} 阶段检测到文档（docs/planning/、.claude/rules/）之外存在未提交改动：\n${list}\n本阶段只允许修改文档与功能目录下的 CLAUDE.md 域笔记。若这是你刚才的命令造成的，立即回滚${rollback}后再继续；若是既有改动、构建产物或用户手动所为，如实向用户说明后继续，不要动它们。`;
+    ? `[phase-audit] Execute 阶段检测到文档（docs/planning/ 或 .claude/rules/）存在未提交改动：\n${list}\n这些文档由 Plan / Close 阶段更新：要写进去的知识记进 commit 正文「临场决策」，由 close 写入（功能目录下的 CLAUDE.md 域笔记不受此限）。若这是你刚才的命令造成的，立即回滚${rollback}后再继续；若是既有改动或用户手动所为，如实向用户说明后继续，不要动它们。`
+    : `[phase-audit] ${DOCS_ONLY[phase]} 阶段检测到文档（docs/planning/、.claude/rules/）之外存在未提交改动：\n${list}\n本阶段只允许修改文档与功能目录下的 CLAUDE.md 域笔记${phase === "close" ? "；代码注释里还没有的「为什么」先写进该功能的域笔记" : ""}。若这是你刚才的命令造成的，立即回滚${rollback}后再继续；若是既有改动、构建产物或用户手动所为，如实向用户说明后继续，不要动它们。`;
 console.error(msg);
 process.exit(2);

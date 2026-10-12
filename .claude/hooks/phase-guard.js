@@ -89,10 +89,11 @@ function classify(rawToken, root) {
 
 function judge(phase, kind, target) {
   if (phase === "execute" && kind === "planning") {
-    return `[phase-guard] 当前处于 Execute 阶段，禁止修改 docs/planning/ 与 .claude/rules/ 下的文档（目标：${target}）。这些文档由 Close 阶段更新；功能目录下的 CLAUDE.md 域笔记不受此限。`;
+    return `[phase-guard] 当前处于 Execute 阶段，禁止修改 docs/planning/ 与 .claude/rules/ 下的文档（目标：${target}）。这些文档由 Plan / Close 阶段更新：要写进去的知识记进 commit 正文「临场决策」，由 close 写入；功能目录下的 CLAUDE.md 域笔记不受此限。`;
   }
   if (DOCS_ONLY[phase] && kind === "code") {
-    return `[phase-guard] 当前处于 ${DOCS_ONLY[phase]} 阶段，只允许修改 docs/planning/、.claude/rules/ 下的文档与功能目录下的 CLAUDE.md 域笔记，不允许改动代码或其他文件（目标：${target}）。`;
+    const hint = phase === "close" ? "代码注释里还没有的「为什么」先写进该功能的域笔记。" : "";
+    return `[phase-guard] 当前处于 ${DOCS_ONLY[phase]} 阶段，只允许修改 docs/planning/、.claude/rules/ 下的文档与功能目录下的 CLAUDE.md 域笔记，不允许改动代码或其他文件（目标：${target}）。${hint}`;
   }
   return null;
 }
