@@ -1,10 +1,6 @@
 # {项目名}
 
-<!-- bootstrap：替换 {项目名}，填写「关于本项目」；其余章节保持不动 -->
-
-## 关于本项目
-
-<!-- bootstrap：一句话定位 -->
+<!-- bootstrap：替换 {项目名}，其余章节保持不动。项目定位写在 ARCHITECTURE「概述」，这里不重复 -->
 
 ## 沟通风格
 
@@ -27,10 +23,10 @@
 | 文件 | 内容 | 谁读 |
 |---|---|---|
 | `docs/planning/OVERVIEW.md` | 已有功能、路线图、待决、已完成 | 用户；plan 读本 step 的条目 |
-| `docs/planning/ARCHITECTURE.md` | 概念、约束、技术栈、目录、系统地图、架构规则 | 每个 session 启动时自动导入，见本文件末尾 |
+| `docs/planning/ARCHITECTURE.md` | 概念、约束、目录惯例、系统地图、架构规则 | 每个 session 启动时自动导入，见本文件末尾 |
 | `docs/planning/STEPS/NN-slug.md` | 每 step 一个文件：决议、Plan、实录 | 当前 step 使用，close 后是存档 |
 | 功能目录下的 `CLAUDE.md` | 域笔记：该功能放不进代码的知识。按层分目录的项目改用 `.claude/rules/<feature>.md` | 读到该功能的代码时自动加载 |
-| `.claude/rules/<layer>.md` | 代码规范 | 读到对应文件时自动加载 |
+| `.claude/rules/*.md` | 按层的代码规范；只约束几个功能的架构规则 | 读到对应文件时自动加载 |
 
 知识先放进代码：类型、命名、测试和必要的注释，规则见各层 rules 的「注释与测试」。放不进代码的才写文档，文档只写当前状态，历史交给 git。写入规则与信息去处见 `.claude/rules/planning-docs.md`，读写这些文件时自动加载。找功能先看末尾导入的「系统地图」，再进对应目录；除 ARCHITECTURE 外，hotfix 与普通会话不预读 planning 文档。
 

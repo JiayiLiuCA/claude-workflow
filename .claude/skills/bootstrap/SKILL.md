@@ -16,25 +16,25 @@ argument-hint: "[项目简介或 brief 文件路径]"
 1. **项目定位**：做什么、给谁用
 2. **形态与平台**：Web / 桌面 / CLI / 服务 / 库；目标操作系统
 3. **技术栈**：前端 / 后端 / 数据库 / 关键依赖 / 测试工具链（单测、API 测试，有 UI 时 component 与 e2e 框架）；未定项标「Step N 决定」
-4. **核心约束**：离线要求、数据规模、性能目标、solo 或团队、部署方式
+4. **核心约束**：离线要求、数据规模、性能目标、部署方式；solo 或团队（决定第六步的 git 约定，不写进核心约束）
 5. **Design reference**：有无 UI/UX 视觉参考；有则确认位置（约定 `docs/design-reference/`）
 6. **功能清单与优先级**：有哪些功能、第一版必须有哪些，用于划分 milestone 与功能目录；brief 已有 milestone 划分的直接采用，只核对技术依赖顺序
 
 # 第二步：ARCHITECTURE.md
 
-按骨架注释逐节填充：概述、核心概念、核心约束、技术栈、目录结构、系统地图、初始架构规则（形态级决定，如进程 / 通信模型、数据持久化分层）。只写已确认的，未定项进 OVERVIEW「待决」。填完删除注释。
+按骨架注释逐节填充：概述、核心概念、核心约束、目录结构、系统地图、初始架构规则（形态级决定，如进程 / 通信模型、数据持久化分层）。技术栈不写在这里，写进第四步的各层代码规范。只写已确认的，未定项进 OVERVIEW「待决」。填完删除注释。
 
-本文件由根 CLAUDE.md 导入，每个 session 都会加载，是 Claude 看项目全局的入口：写得紧凑，控制在约 200 行以内。
+本文件由根 CLAUDE.md 导入，每个 session 都会加载，是 Claude 看项目全局的入口：按 `.claude/rules/planning-docs.md`「ARCHITECTURE」的写法，只写每个 session 都要用的。
 
 **目录结构决定域的边界**，这一步要定清楚，后续 step 不再重新判断：
 
-- 新项目按功能分目录、功能内部再分层，如 `backend/app/ocr/{router,service,models}.py` 与 `frontend/src/features/ocr/`。目录树只画顶层结构和功能目录内部的分层惯例，并注明「每个功能目录是一个域，域笔记 CLAUDE.md 放在这里」。
+- 新项目按功能分目录、功能内部再分层，如 `backend/app/ocr/{router,service,models}.py` 与 `frontend/src/features/ocr/`。目录结构用一两句写顶层分层和功能目录内部的惯例，不画目录树，并注明「每个功能目录是一个域，域笔记 CLAUDE.md 放在这里」。
 - 已有项目沿用现有布局。按功能分的同上。按层分的注明「域笔记用 `.claude/rules/<feature>.md`」，规则见 `.claude/rules/planning-docs.md`「按层分目录的项目」。
 - 框架惯例强制按层时（如 Rails 的 `app/models`、`app/controllers`），遵循框架，采用 rule 方式，同样在目录结构里注明。
 
 **系统地图**只列已经存在的功能，每个一行：目录、技术上负责什么、依赖哪些功能。新项目留空表头，功能由后续 close 逐个加入；已有项目按现状填。规划中的功能只在 OVERVIEW 路线图。
 
-brief / PRD **不复制进 `docs/planning/`**：概述写一段定位，功能拆进路线图，原文件留在原处并在概述末尾链接。原文几个 step 后必然过时，之后的需求变化走路线图与待决。
+brief / PRD **不复制进 `docs/planning/`**：ARCHITECTURE 概述写一两句定位，功能拆进路线图，原文件留在原处，链接放在 OVERVIEW 开头的定位句后（ARCHITECTURE 每个 session 都加载，不放会过时的原文链接）。原文几个 step 后必然过时，之后的需求变化走路线图与待决。
 
 # 第三步：OVERVIEW.md
 
@@ -47,7 +47,7 @@ brief / PRD **不复制进 `docs/planning/`**：概述写一段定位，功能�
 
 # 第四步：代码规范 rules
 
-按技术栈分层写 `.claude/rules/<layer>.md`（如 `backend.md`、`frontend.md`），frontmatter **必须带 `paths`**（如 `backend/**`），否则每个会话都会加载。内容按技术栈惯例简洁地写：语言版本与类型要求、错误处理模式、日志约定、命名约定（文件 / 类 / 函数 / DB 表 / API 路由）、测试约定（框架、目录、跑法；有 UI 的层写明 e2e 框架、怎么起 app、截图存 `.claude/verify/`）。
+按技术栈分层写 `.claude/rules/<layer>.md`（如 `backend.md`、`frontend.md`），frontmatter **必须带 `paths`**（如 `backend/**`），否则每个会话都会加载。内容按技术栈惯例简洁地写：该层的技术选型（语言与版本、框架、主要库、数据库）与类型要求、错误处理模式、日志约定、命名约定（文件 / 类 / 函数 / DB 表 / API 路由）、测试约定（框架、目录、跑法；有 UI 的层写明 e2e 框架、怎么起 app、截图存 `.claude/verify/`）。
 
 代码只有 Claude 读，写法按「让下一个 session 少走几轮、少犯错」来定。每份 rule 都必须有「注释与测试」一节，按下面的内容写，示例换成该层的语法：
 
@@ -73,7 +73,7 @@ brief / PRD **不复制进 `docs/planning/`**：概述写一段定位，功能�
 
 # 第六步：CLAUDE.md
 
-替换 `{项目名}`，填写「关于本项目」一句话；按用户偏好微调 git 约定，其余章节不动。
+替换 `{项目名}`，按用户偏好微调 git 约定，其余章节不动。项目定位只写在 ARCHITECTURE「概述」，两份都每个 session 加载，不重复。
 
 # 第七步：Step 0 plan
 

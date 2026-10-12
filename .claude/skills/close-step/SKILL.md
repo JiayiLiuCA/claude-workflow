@@ -34,8 +34,8 @@ arguments: [step]
 
 - 遗留与给后续的提示：目标 step 条目的「前置提示」；目标还没拆成 step 的，写进所属 milestone 的「前置提示」；没有明确目标的进「待决」
 - 新增的功能目录、功能间依赖的变化：ARCHITECTURE「系统地图」，每个功能一行，写目录、技术职责、依赖。从 `git diff --stat` 看新目录，从 commit 正文看依赖变化
-- 仍约束后续工作的决定与知识：涉及多个功能的进 ARCHITECTURE 架构规则；单个功能内的进该功能的域笔记。功能目录的 CLAUDE.md 由 execute 写，这里核对，缺了补；按层分的项目由 close 写进 `.claude/rules/<feature>.md`，新功能新建该文件，`paths` 列出该功能在各层的文件
-- 新代码约定：`.claude/rules/<layer>.md`
+- 仍约束后续工作的决定与知识：涉及多个功能的按 planning-docs「ARCHITECTURE」分全局规则与局部规则，局部规则的正文写进 `.claude/rules/<规则名>.md` 并在 ARCHITECTURE 加索引行，新功能受既有局部规则约束的加进其 `paths` 与索引；单个功能内的进该功能的域笔记。功能目录的 CLAUDE.md 由 execute 写，这里核对，缺了补；按层分的项目由 close 写进 `.claude/rules/<feature>.md`，新功能新建该文件，`paths` 列出该功能在各层的文件
+- 技术选型变化（新库、换版本）与新代码约定：`.claude/rules/<layer>.md`
 - 本 step 出过的错（review fixes 与过门后修改的 commit、「验收」里的范围审查记录）：同类错误能被检查拦住的（固定写法、禁用的 API、文件放错位置），用 AskUserQuestion 问用户是否加 lint / 测试 / hook，同意的写进下一个 step 条目的「前置提示」，写明「plan 须纳入：加 <检查>」（下一个 step 还没拆出的，写进所属 milestone 的「前置提示」）；只能靠判断的，写进对应层的代码规范（bootstrap 生成的 `.claude/rules/<layer>.md`）；只涉及单个功能的，写进该功能的域笔记
 - 本 step 决定了的「待决」项：从「待决」删除，结论已落在上面某处
 - 只是过程（为什么偏离、试过什么）：只进实录
@@ -56,7 +56,7 @@ arguments: [step]
 
 # 第五步：压缩检查
 
-本次碰过的域笔记超过约 150 行、或 ARCHITECTURE 超过约 200 行（它每个 session 都会加载，上限最要紧）：用 AskUserQuestion 问用户是否顺带压缩，说明压缩只合并重复、删过时内容，并会列出删除清单。同意则按规则文件的「压缩」一节执行。
+`wc -m` 量 ARCHITECTURE：超过 1 万字符（它每个 session 都会加载，上限最要紧），或本次碰过的域笔记超过约 150 行：用 AskUserQuestion 问用户是否顺带压缩，说明压缩只合并重复、删过时内容、把只约束部分功能的规则挪到用到时才加载的文件，并会列出清单。同意则按规则文件的「压缩」一节执行。
 
 # 第六步：追加实录
 
