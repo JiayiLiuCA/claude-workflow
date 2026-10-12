@@ -19,7 +19,7 @@
 
 <!-- 一两句写顶层分层与功能目录的惯例，不画目录树、不逐个列功能（功能在「系统地图」）。例：
 后端功能在 `backend/app/<feature>/`（内分 router / service / models），前端在 `frontend/src/features/<feature>/`；每个功能目录是一个域，域笔记是其中的 CLAUDE.md。
-按层分目录的项目在这里注明：域笔记改用 `.claude/rules/<feature>.md`，paths 列出该功能在各层的文件 -->
+按层分目录的项目在这里注明：域笔记改用 `.claude/rules/<feature>.md`，paths 列出该功能在各层的文件，要看某功能的完整文件直接读该文件 -->
 
 ## 系统地图
 
@@ -38,3 +38,4 @@
 
 | 编号 | 规则 | 约束的功能 | 正文 |
 |---|---|---|---|
+<!-- 「规则」先写哪种代码受约束，再写结论。例：| A7 | 新增 LLM 调用：先过共享 server 的归属检查 | 标注、评语 | `.claude/rules/llm-owner.md` | -->
