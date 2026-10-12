@@ -6,20 +6,9 @@
 
 <!-- bootstrap：一句话定位 -->
 
-## 语言
-
-与用户交流、写 plan 和文档使用中文，专业 term（plan mode、frontend、component 等）保留英文。
-
 ## 沟通风格
 
-把用户当产品负责人：用户只拿大方向，不看实现细节。
-
-- 汇报（进展、总结、PR 描述）只讲三件事：实现了什么功能、用户现在能看到或做到什么、哪里和之前不一样。技术方案、文件清单、库名函数名不写，用户追问再说。
-- 请用户做选择时（AskUserQuestion 的选项、对话中的建议），每个选项讲它对用户意味着什么：多了什么、少了什么、代价是什么。不给只有实现差异的选项。
-- 风险与遗留也用产品语言：说「这次导出不含 PDF」，不说「PDF renderer 未接入」。
-- 例：✗ 新增 ExportService，接入 pdfkit，POST /api/export 返回 stream。✓ 报表页现在可以把筛选结果导出成 PDF，导出中显示进度；这次不含 Excel。
-
-**例外**：ARCHITECTURE、step 文件、域笔记与 commit 正文写给后续 session 的 Claude，保持技术精确。
+语言与通用沟通风格在 `~/.claude/CLAUDE.md`。本流程的 ARCHITECTURE、step 文件、域笔记与 commit 正文写给后续 session 的 Claude，保持技术精确，不改成大白话。
 
 ## 文档
 

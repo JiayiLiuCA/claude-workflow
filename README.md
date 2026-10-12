@@ -59,6 +59,7 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 7. 删除 `PROGRESS.md`、`domains/`、`STEPS/README.md`
 8. `.gitignore` 加 `.claude/verify/`。有 UI 但还没有 e2e 框架的项目，下一个 UI step 的 plan 把「e2e 框架就位」纳入范围内；在那之前 UI 的功能性验收用 `[实测]`
 9. OVERVIEW「路线图」改为 milestone 与 step 两层：开头说明与格式注释换成新版模板的；现有 step 条目按产品目标归入 milestone（数字编号，带状态行），还说不清的后续范围写进所属 milestone 的「待拆」；「已完成」表不动
+10. `CLAUDE.md` 删掉「语言」一节（已移到用户级 `~/.claude/CLAUDE.md`），「沟通风格」只留新版那一句
 
 第 3 到 5 步是改写，让 Claude 在 commit 正文列出删除与合并清单，审这份清单即可。
 
@@ -247,7 +248,7 @@ node .claude/hooks/phase-audit.test.js
 
 ## 定制
 
-- `CLAUDE.md`：语言、git 约定按团队习惯改；沟通风格默认按产品负责人视角汇报，想在汇报里看到技术细节就改这一节
+- `CLAUDE.md`：git 约定按团队习惯改。语言与通用沟通风格（按产品负责人视角汇报、用日常说法）写在用户级 `~/.claude/CLAUDE.md`，换电脑要一起带上；项目里的「沟通风格」只写本流程哪些文档保持技术精确
 - `skills/*/SKILL.md`：各阶段步骤可按项目形态微调（如层推进顺序、验收要求）
 - `.claude/rules/planning-docs.md`：压缩阈值、域笔记结构按项目调整
 - `.claude/settings.json`：不想恢复任务清单工具就删掉 `env.CLAUDE_CODE_ENABLE_TODO_TOOLS`（skill 会退化为文字清单）；commit / PR 的署名通过 Claude Code 的 `attribution` 设置控制
