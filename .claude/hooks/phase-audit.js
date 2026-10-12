@@ -4,8 +4,8 @@
  *
  * phase-guard 对 Bash / PowerShell 的拦截是启发式的（解析不了 python -c / node -e 之类的写入），
  * 本 hook 在每次命令执行后用 git status 核对工作树（文档范围 = docs/planning/ + .claude/rules/）：
- *   execute                          → 文档范围内不应有任何未提交改动
- *   discuss / plan / close / roadmap → 文档范围之外不应有任何未提交改动
+ *   execute                → 文档范围内不应有任何未提交改动
+ *   plan / close / roadmap → 文档范围之外不应有任何未提交改动
  * 域笔记（功能目录下的 CLAUDE.md）各阶段都可写，两个方向都不审计。
  * 发现越界：stderr 报告 + exit 2（PostToolUse 无法撤销，但消息会反馈给 Claude，要求其立即回滚）。
  * 同一组文件只报告一次（状态存 .claude/workflow-phase.audit，gitignored），
@@ -16,7 +16,7 @@ const fs = require("fs");
 const path = require("path");
 const { execFileSync } = require("child_process");
 
-const DOCS_ONLY = { discuss: "Discuss", plan: "Plan", close: "Close", roadmap: "Roadmap" };
+const DOCS_ONLY = { plan: "Plan", close: "Close", roadmap: "Roadmap" };
 const root = process.env.CLAUDE_PROJECT_DIR || process.cwd();
 const markerPath = path.join(root, ".claude", "workflow-phase");
 const statePath = markerPath + ".audit";
@@ -77,7 +77,7 @@ const list =
 const rollback = "（已跟踪文件 `git restore <文件>`；新文件 `git clean -f -- <文件>`）";
 const msg =
   phase === "execute"
-    ? `[phase-audit] Execute 阶段检测到文档（docs/planning/ 或 .claude/rules/）存在未提交改动：\n${list}\n这些文档由 Close 阶段更新（功能目录下的 CLAUDE.md 域笔记不受此限）。若这是你刚才的命令造成的，立即回滚${rollback}后再继续；若是既有改动或用户手动所为，如实向用户说明后继续，不要动它们。`
-    : `[phase-audit] ${DOCS_ONLY[phase]} 阶段检测到文档（docs/planning/、.claude/rules/）之外存在未提交改动：\n${list}\n本阶段只允许修改文档与功能目录下的 CLAUDE.md 域笔记。若这是你刚才的命令造成的，立即回滚${rollback}后再继续；若是既有改动、构建产物或用户手动所为，如实向用户说明后继续，不要动它们。`;
+    ? `[phase-audit] Execute 阶段检测到文档（docs/planning/ 或 .claude/rules/）存在未提交改动：\n${list}\n这些文档由 Plan / Close 阶段更新：要写进去的知识记进 commit 正文「临场决策」，由 close 写入（功能目录下的 CLAUDE.md 域笔记不受此限）。若这是你刚才的命令造成的，立即回滚${rollback}后再继续；若是既有改动或用户手动所为，如实向用户说明后继续，不要动它们。`
+    : `[phase-audit] ${DOCS_ONLY[phase]} 阶段检测到文档（docs/planning/、.claude/rules/）之外存在未提交改动：\n${list}\n本阶段只允许修改文档与功能目录下的 CLAUDE.md 域笔记${phase === "close" ? "；代码注释里还没有的「为什么」先写进该功能的域笔记" : ""}。若这是你刚才的命令造成的，立即回滚${rollback}后再继续；若是既有改动、构建产物或用户手动所为，如实向用户说明后继续，不要动它们。`;
 console.error(msg);
 process.exit(2);

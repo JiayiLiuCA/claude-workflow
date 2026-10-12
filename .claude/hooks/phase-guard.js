@@ -3,9 +3,9 @@
  * phase-guard.js — PreToolUse hook：按当前工作流阶段限制文件写入范围。
  *
  * 阶段标记：.claude/workflow-phase（由各阶段 skill 通过 Bash 写入/清除）
- *   discuss / plan / close / roadmap → 只允许写文档：docs/planning/ 与 .claude/rules/
- *   execute                          → 禁止写文档
- *   标记不存在                       → 不限制
+ *   plan / close / roadmap → 只允许写文档：docs/planning/ 与 .claude/rules/
+ *   execute                → 禁止写文档
+ *   标记不存在             → 不限制
  * 域笔记（功能目录下的 CLAUDE.md，根目录与 .claude/ 下的除外）各阶段都可写：
  *   execute 随代码更新，plan / close 发现过期就地修正。
  *
@@ -26,7 +26,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const DOCS_ONLY = { discuss: "Discuss", plan: "Plan", close: "Close", roadmap: "Roadmap" };
+const DOCS_ONLY = { plan: "Plan", close: "Close", roadmap: "Roadmap" };
 const DOCS_RE = /(^|\/)(docs\/planning|\.claude\/rules)(\/|$)/; // 文档范围：planning 文档 + path-scoped rules
 const SEP = Symbol("sep"); // 命令分隔哨兵（; | || && 换行）
 const REDIR = /^(\d*|&)>{1,2}\|?$/; // > >> 2> &> >|  → 下一个 token 是写入目标
@@ -89,10 +89,11 @@ function classify(rawToken, root) {
 
 function judge(phase, kind, target) {
   if (phase === "execute" && kind === "planning") {
-    return `[phase-guard] 当前处于 Execute 阶段，禁止修改 docs/planning/ 与 .claude/rules/ 下的文档（目标：${target}）。这些文档由 Close 阶段更新；功能目录下的 CLAUDE.md 域笔记不受此限。`;
+    return `[phase-guard] 当前处于 Execute 阶段，禁止修改 docs/planning/ 与 .claude/rules/ 下的文档（目标：${target}）。这些文档由 Plan / Close 阶段更新：要写进去的知识记进 commit 正文「临场决策」，由 close 写入；功能目录下的 CLAUDE.md 域笔记不受此限。`;
   }
   if (DOCS_ONLY[phase] && kind === "code") {
-    return `[phase-guard] 当前处于 ${DOCS_ONLY[phase]} 阶段，只允许修改 docs/planning/、.claude/rules/ 下的文档与功能目录下的 CLAUDE.md 域笔记，不允许改动代码或其他文件（目标：${target}）。`;
+    const hint = phase === "close" ? "代码注释里还没有的「为什么」先写进该功能的域笔记。" : "";
+    return `[phase-guard] 当前处于 ${DOCS_ONLY[phase]} 阶段，只允许修改 docs/planning/、.claude/rules/ 下的文档与功能目录下的 CLAUDE.md 域笔记，不允许改动代码或其他文件（目标：${target}）。${hint}`;
   }
   return null;
 }

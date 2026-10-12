@@ -1,6 +1,6 @@
 ---
 name: hotfix
-description: 小改动快速通道：typo / 一行修复 / 依赖 bump / 文档小修，不走四阶段循环。触及接口契约 / DB schema / 新依赖时必须升级为正式 step。
+description: 小改动快速通道：typo / 一行修复 / 依赖 bump / 文档小修，不走 plan / execute / close 循环。触及接口契约 / DB schema / 新依赖时必须升级为正式 step。
 when_to_use: 用户输入 "hotfix <描述>" 或 /hotfix <描述> 时执行。
 argument-hint: "<改动描述>"
 ---
@@ -22,8 +22,8 @@ argument-hint: "<改动描述>"
 1. **同步 main**：当前分支有未提交工作时先停下向用户确认（stash 或先完成）。`git fetch origin` 后切到 main，`git merge --ff-only origin/main`，快进失败停下问用户。main 受保护或用户要求时，改为从 origin/main 建 `fix/<slug>` 分支走 PR。
 2. **改动**：修 bug 先写复现测试，确认它以该 bug 的症状失败，再修到通过。其他改到的行为没有测试覆盖的，能在量级内补就补。写不出测试的自己实测并说明方式。最后跑受影响的测试 / 类型检查。
 3. **文档**：改动让某句文档不再成立时，在同一 commit 里改掉那句。通常是该功能的域笔记（改了 edge case 行为），少数是 OVERVIEW「已有功能」（用户可见的能力变了）。否则不动文档，commit message 就是记录。
-4. **commit**：`Hotfix: <描述>`；直接推 main（或走 PR，见第 1 步）。第 1 步从 step 分支切过来的，推完切回该分支。
-5. **汇报**：改了什么、如何验证、是否改了文档。
+4. **commit**：`Hotfix: <描述>`；直接推 main。走 PR 时（见第 1 步）经用户确认后创建，标题同 commit，正文按 `.claude/skills/close-step/SKILL.md` 第七步的 PR 格式，各段一两行：一句话结论、用户能看到什么不同、✅ 验收（怎么验证的）、⚠️ 合并风险。第 1 步从 step 分支切过来的，推完切回该分支。
+5. **汇报**：一行 `✅ <改了什么，用户能感知的变化>：<怎么验证的>`。有遗留或要用户处理的事，才按 CLAUDE.md「沟通风格」的汇报顺序往下加段。
 
 # 禁止事项
 

@@ -20,7 +20,7 @@ argument-hint: "<变更描述>"
 
 # 第二步：提出变更方案
 
-按 CLAUDE.md「沟通风格」列出：改哪些 step 的目标 / 范围 / 顺序，新增或删除哪些，对交付节奏的影响，哪些已有 plan 会失效。涉及取舍的用 AskUserQuestion 交用户拍板。
+按 CLAUDE.md「沟通风格」的汇报顺序列出：改哪些 step 的目标 / 范围 / 顺序，新增或删除哪些；对交付节奏的影响；⚠️ 哪些已有 plan 会失效；❓ 涉及取舍的交用户拍板（AskUserQuestion）。
 
 # 第三步：落笔
 
@@ -34,7 +34,7 @@ argument-hint: "<变更描述>"
 # 第四步：收尾
 
 1. commit：`Roadmap: <描述>`，正文写改了什么、为什么，新需求的原话附在正文里
-2. 在 main 上的直接 push，下一个 step 从 `origin/main` 建分支才拿得到；`docs/<slug>` 分支 push 后提议建 PR，经用户确认后创建；step 分支上的不单独 push，随该 step 的 PR 合入
+2. 在 main 上的直接 push，下一个 step 从 `origin/main` 建分支才拿得到；`docs/<slug>` 分支 push 后提议建 PR，经用户确认后创建，正文按 `.claude/skills/close-step/SKILL.md` 第七步的 PR 格式，各段一两行：一句话结论、用户能看到什么不同（路线图改了什么、为什么）、⚠️ 合并风险（哪些 plan 要重跑）；step 分支上的不单独 push，随该 step 的 PR 合入
 3. 用 Bash 执行 `rm -f "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
 4. 第零步从 step 分支切过来的，切回该分支
-5. 输出摘要（产品语言）：改了什么、影响哪些 step、哪些 plan 需要重跑、建议的下一步
+5. 按 CLAUDE.md「沟通风格」的汇报顺序输出摘要：结论一句；改了什么、影响哪些 step；⚠️ 哪些 plan 需要重跑；👉 建议的下一步
