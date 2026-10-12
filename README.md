@@ -1,6 +1,6 @@
 # claude-workflow
 
-Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute → Close** 四阶段循环，配 hotfix 与 roadmap 两条快速通道。
+Claude Code 项目工作流脚手架：**Plan → Execute → Close** 三阶段循环，配 hotfix 与 roadmap 两条快速通道。
 
 源自一个 10 周 / 26 step / 137 commit 的生产项目（Electron + FastAPI 桌面应用，OCR / 本地 LLM / 模型训练三类重集成）的完整实践，并按实践教训做了系统性修订：plan 不写实现代码、文档只写当前状态、信息写到消费点、阶段纪律由 hooks 确定性强制。目标场景：中大型项目起步时搭好架子，把项目拆成线性的 step，step 之间把握大方向不跑偏。
 
@@ -29,12 +29,11 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 5. 之后每个 step 循环：
 
 ```text
-/discuss-step N      （可选：大 step 先逐项拍板）
-/plan-step N         → review plan（结论回写 step 文件）
+/plan-step N         → 有需要拍板的先分轮问清 → review plan（结论回写 step 文件）
 /execute-step N      → 过放行门自行提交，否则等验收（分段 plan：/execute-step N P1、P2…，每段新 session）
 /close-step N        → 信息写到消费点、路线图校验、实录 → merge PR
 
-/hotfix <描述>       （小改动：typo / 一行修复 / 依赖 bump，不走四阶段）
+/hotfix <描述>       （小改动：typo / 一行修复 / 依赖 bump，不走三阶段）
 /roadmap <变更描述>  （新需求 / 砍功能 / 拆 milestone / 合并拆分 step / 调顺序）
 ```
 
@@ -60,15 +59,15 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 8. `.gitignore` 加 `.claude/verify/`。有 UI 但还没有 e2e 框架的项目，下一个 UI step 的 plan 把「e2e 框架就位」纳入范围内；在那之前 UI 的功能性验收用 `[实测]`
 9. OVERVIEW「路线图」改为 milestone 与 step 两层：开头说明与格式注释换成新版模板的；现有 step 条目按产品目标归入 milestone（数字编号，带状态行），还说不清的后续范围写进所属 milestone 的「待拆」；「已完成」表不动
 10. `CLAUDE.md` 删掉「语言」一节（已移到用户级 `~/.claude/CLAUDE.md`），「沟通风格」换成新版的一节
+11. 删除 `.claude/skills/discuss-step/`：discuss 已并入 plan（有需要拍板的事由 plan 先分轮问清），用新版覆盖不会删掉这个旧目录。残留的 `discuss` 阶段标记不再生效，按需 `rm .claude/workflow-phase`
 
 第 3 到 5 步是改写，让 Claude 在 commit 正文列出删除与合并清单，审这份清单即可。
 
-## 四阶段与两条通道
+## 三阶段与两条通道
 
 | 阶段 | 触发语 | 产出 | 纪律（hooks 强制） |
 |---|---|---|---|
-| Discuss（可选） | `/discuss-step N` | step 文件「决议」节 | 只能写文档 |
-| Plan | `/plan-step N` | step 文件「Plan」节；路线图对齐闸门 | 只能写文档 |
+| Plan | `/plan-step N` | 有需要拍板的先分轮问清，写进 step 文件「决议」节；step 文件「Plan」节；路线图对齐闸门 | 只能写文档 |
 | Execute | `/execute-step N [Pk]` | 代码 + 测试 + 域笔记；commit 正文记偏离 / 临场决策 / 遗留 / 验收；过放行门自行提交 | **禁止**写 planning 文档 |
 | Close | `/close-step N` | 信息写到消费点、路线图校验、本 step 出过的错转成检查或规则、step 文件「实录」节 + PR | 只能写文档 |
 | hotfix | `/hotfix <描述>` | 小改动直接提交，文档有句子失效就顺手改 | 无标记 |
@@ -78,8 +77,7 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 
 ```mermaid
 flowchart LR
-    D["discuss step N<br/>（可选）拍板决议"] --> P["plan step N<br/>写 Plan 节"]
-    P --> R{用户 review}
+    P["plan step N<br/>分轮拍板 → 写 Plan 节"] --> R{用户 review}
     R -->|结论回写 step 文件| E["execute step N [Pk]<br/>严格按 plan 写代码"]
     E --> G{"放行门<br/>测试绿 · 无 👀 · 无偏离"}
     G -->|过| A["自行 commit"]
@@ -176,7 +174,7 @@ backend/app/ocr/                     backend/app/models/ocr.py
 | 阶段 | 读 |
 |---|---|
 | 任何会话 | 根 `CLAUDE.md` 与它导入的 ARCHITECTURE（启动时自动）；读到的代码所属功能的域笔记与 rules（自动） |
-| discuss / plan | OVERVIEW 中本 step 条目、所属 milestone 的前置提示与相关待决、相关代码 |
+| plan | OVERVIEW 中本 step 条目、所属 milestone 的前置提示与相关待决、相关代码 |
 | execute | 本 step 文件、相关代码 |
 | close | Plan 节的「目标」「文档影响」「执行分段」、commit 正文、`git diff --stat`，之后只为写入定点读 |
 | roadmap | OVERVIEW、受影响 step 的 Plan 目标 |
@@ -211,7 +209,7 @@ plan-step 的分段阈值按 200K 窗口校准，1M 窗口的模型可以放宽�
 │   │   ├── phase-audit.test.js      # 审计自测（node 运行，19 用例，需要 git）
 │   │   ├── clear-phase.js           # SessionStart(startup|clear)：清残留阶段标记
 │   │   └── announce-phase.js        # SessionStart(resume|compact)：播报当前阶段、提示重调 skill
-│   ├── skills/                      # bootstrap / discuss-step / plan-step / execute-step / close-step / hotfix / roadmap
+│   ├── skills/                      # bootstrap / plan-step / execute-step / close-step / hotfix / roadmap
 │   └── verify/                      # execute 的审美截图与实测产物（gitignored，运行时才出现）
 ├── docs/planning/
 │   ├── OVERVIEW.md                  # 给用户看的总览：已有功能、路线图、待决、已完成

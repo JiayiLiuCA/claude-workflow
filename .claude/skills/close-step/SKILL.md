@@ -51,7 +51,7 @@ arguments: [step]
 1. **已有功能**：更新或新增相关功能的两三句，只用产品语言，不写目录
 2. **路线图校验**：逐条看后续 step 与 milestone 是否仍成立（依赖、范围、顺序、是否该新增或删除）。有变化按「路线图」开头的规则改，已 plan 未 execute 的标「需重跑 plan」，涉及取舍先用 AskUserQuestion 问用户；原因写进 commit 正文与实录
 3. 删除 Step {N} 的路线图条目，在「已完成」表顶部插入一行：`| {N} | [<标题>](STEPS/{NN}-<slug>.md) | {日期} | <用户得到了什么，一句话> |`；所属 milestone 的 step 全部完成且没有「待拆」的，状态改为「已完成（{日期}，Step x–y）」，删去其「待拆」「前置提示」行
-4. 「待决」里预计由路线图中下一个 step 决定的超过 2 条：总结里建议下一步先 `/discuss-step`
+4. 「待决」里预计由路线图中下一个 step 决定的超过 2 条：总结的 👉 里点名这几项，建议跑下一个 step 的 `/plan-step` 时作为特殊关注点先问
 5. 下一个 step 还没拆出：总结里建议下一步 `/roadmap 拆 Milestone X`
 
 # 第五步：压缩检查
@@ -86,4 +86,4 @@ arguments: [step]
 2. 触及鉴权 / 数据访问 / 外部输入解析的 step，建议用户先跑 `/security-review`
 3. push 分支，提议创建 PR（标题 `Step {N}: <标题>`，正文开头一段用户可感知的变化；接着「合并风险」两行：能否直接撤回（能 / 不能，不能的写原因，如改了数据格式、删了数据）、可能受影响的功能；其后贴实录），**经用户确认后**创建。无 origin 时不 push、不建 PR，经用户确认后在本地把分支 merge 进 main
 4. 用 Bash 执行 `rm -f "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
-5. 按 CLAUDE.md「沟通风格」的汇报顺序输出总结：结论一句（Step {N} 收尾完成，附 PR 链接）；这个 step 给用户带来了什么；路线图有无调整；⚠️ 合并风险，同 PR 正文；👀 给用户 review 的点；👉 下一步建议（是否先 discuss），PR merge 后可选在 main 打 tag `step-{NN}`
+5. 按 CLAUDE.md「沟通风格」的汇报顺序输出总结：结论一句（Step {N} 收尾完成，附 PR 链接）；这个 step 给用户带来了什么；路线图有无调整；⚠️ 合并风险，同 PR 正文；👀 给用户 review 的点；👉 下一步建议（下一个 step 的 `/plan-step`，或按第四步先 `/roadmap`），PR merge 后可选在 main 打 tag `step-{NN}`

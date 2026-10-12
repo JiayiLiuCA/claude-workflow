@@ -10,8 +10,8 @@
 const fs = require("fs");
 const path = require("path");
 
-const SKILL = { discuss: "discuss-step", plan: "plan-step", execute: "execute-step", close: "close-step", roadmap: "roadmap" };
-const NAME = { discuss: "Discuss", plan: "Plan", execute: "Execute", close: "Close", roadmap: "Roadmap" };
+const SKILL = { plan: "plan-step", execute: "execute-step", close: "close-step", roadmap: "roadmap" };
+const NAME = { plan: "Plan", execute: "Execute", close: "Close", roadmap: "Roadmap" };
 
 let phase = "";
 try {

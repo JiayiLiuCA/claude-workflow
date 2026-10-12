@@ -40,13 +40,12 @@
 
 ## 工作流程
 
-**Discuss（可选）→ Plan → Execute → Close**；小改动走 hotfix，路线图变化走 roadmap。收到触发语必须调用对应 skill 按其步骤执行，不要直接开工。自然语言（`plan step 3`）与斜杠形式等价，触发语后的补充说明是该阶段的特殊关注点。不在任何阶段中时，用户要改代码或提新需求却没给触发语，同样不直接开工：按 hotfix 的适用判据判断，小改动提议走 `/hotfix`，新需求、砍功能、拆 milestone、调顺序提议走 `/roadmap`，其余提议开正式 step。
+**Plan → Execute → Close**，每个 step 都从 plan 开始；小改动走 hotfix，路线图变化走 roadmap。收到触发语必须调用对应 skill 按其步骤执行，不要直接开工。自然语言（`plan step 3`）与斜杠形式等价，触发语后的补充说明是该阶段的特殊关注点。不在任何阶段中时，用户要改代码或提新需求却没给触发语，同样不直接开工：按 hotfix 的适用判据判断，小改动提议走 `/hotfix`，新需求、砍功能、拆 milestone、调顺序提议走 `/roadmap`，其余提议开正式 step。
 
 | 触发 | 做什么 |
 |---|---|
 | `/bootstrap` | 项目启动：实例化文档、rules、CI 与 Step 0 plan（仅一次） |
-| `/discuss-step N` | 可选：逐项拍板本 step 的关键决定 |
-| `/plan-step N` | 写 step 文件的 Plan 节，含路线图对齐闸门 |
+| `/plan-step N` | 有需要拍板的先分轮问清、写进决议，再写 step 文件的 Plan 节；含路线图对齐闸门 |
 | `/execute-step N [Pk]` | 严格按 step 文件写代码；验收全部自动化覆盖且无偏离时自行提交并提示下一段；分段时每段一个新 session |
 | `/close-step N` | 把本 step 的信息写到消费点，校验路线图，写实录并建 PR |
 | `/hotfix <描述>` | 小改动快速通道，判据见 skill |
@@ -54,17 +53,17 @@
 
 Execute 的权威输入是 step 文件，不是对话。小 step 可以 plan、execute、close 同会话连跑，但 review 结论仍须回写 step 文件、close 仍以 commit 正文为准；大 step 阶段之间开新会话或 `/clear`。resume 或 compact 后按 SessionStart 的提示重新调用当前阶段的 skill；新会话接着做未完成的阶段（如隔天继续 review plan）同样先重新调用该阶段的 skill，它的「续接」说明会从中断处接上。
 
-任务清单只在 execute（执行顺序）与 discuss（待决问题）使用，只反映完成项数，不代表剩余时间。
+任务清单只在 execute（执行顺序）与 plan（待拍板问题）使用，只反映完成项数，不代表剩余时间。
 
 ## 阶段纪律（hooks 强制）
 
-阶段 skill 把阶段名写入 `.claude/workflow-phase`。Discuss / Plan / Close / Roadmap 只允许写 `docs/planning/` 与 `.claude/rules/`；Execute 禁止写这两处。功能目录下的 CLAUDE.md 域笔记各阶段都可写。**被 hook 拦下即越界，不要换写法（`python -c`、`node -e` 等）绕过。** 上个 session 残留标记导致误拦时手动 `rm .claude/workflow-phase`。
+阶段 skill 把阶段名写入 `.claude/workflow-phase`。Plan / Close / Roadmap 只允许写 `docs/planning/` 与 `.claude/rules/`；Execute 禁止写这两处。功能目录下的 CLAUDE.md 域笔记各阶段都可写。**被 hook 拦下即越界，不要换写法（`python -c`、`node -e` 等）绕过。** 上个 session 残留标记导致误拦时手动 `rm .claude/workflow-phase`。
 
 ## Git 约定
 
-- 每个 step 一个分支 `feat/step-NN-<slug>`，discuss 或 plan 开始时 `git fetch origin` 后从 `origin/main` 创建，上一个 step 的 PR 须已 merge；close 开始时先合入最新 `origin/main`，之后建 PR 合回 main，merge 后可选打 tag `step-NN`
+- 每个 step 一个分支 `feat/step-NN-<slug>`，plan 开始时 `git fetch origin` 后从 `origin/main` 创建，上一个 step 的 PR 须已 merge；close 开始时先合入最新 `origin/main`，之后建 PR 合回 main，merge 后可选打 tag `step-NN`
 - 比较与同步一律以 `origin/main` 为基准：PR 在 GitHub 上 merge 后本地 main 不会自动更新
-- 阶段 commit：`Step N Discuss|Plan|Execute|Close: <标题>`，分段 execute 加 `（Pk）`；execute 正文固定四段：偏离 / 临场决策 / 遗留 / 验收
+- 阶段 commit：`Step N Plan|Execute|Close: <标题>`，分段 execute 加 `（Pk）`；execute 正文固定四段：偏离 / 临场决策 / 遗留 / 验收
 - 其他：`Bootstrap: …`、`Hotfix: …`、`Roadmap: …`，默认直接在 main：提交前快进到 `origin/main`，提交后 push（main 受保护则分支 + PR）。改了路线图的 commit，正文写原因
 
 ## 项目架构（自动导入）

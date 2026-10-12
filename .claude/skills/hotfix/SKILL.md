@@ -1,6 +1,6 @@
 ---
 name: hotfix
-description: 小改动快速通道：typo / 一行修复 / 依赖 bump / 文档小修，不走四阶段循环。触及接口契约 / DB schema / 新依赖时必须升级为正式 step。
+description: 小改动快速通道：typo / 一行修复 / 依赖 bump / 文档小修，不走 plan / execute / close 循环。触及接口契约 / DB schema / 新依赖时必须升级为正式 step。
 when_to_use: 用户输入 "hotfix <描述>" 或 /hotfix <描述> 时执行。
 argument-hint: "<改动描述>"
 ---
