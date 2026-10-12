@@ -16,7 +16,7 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 - **Execute 的权威输入是 step 文件，不是对话**；每个 step 从干净 context 开始，大 step 阶段间开新会话
 - **验收先写成测试，用户只看审美**：plan 给每条验收标准标明验证层级，功能性行为默认自动化测试；execute 过放行门（测试绿、无需用户验证、无偏离）就自行提交并提示下一段
 - **阶段纪律由 hooks 确定性强制**，不止靠模型自律
-- **汇报用产品语言**：进展与总结只讲用户能看到什么；技术细节进 commit 正文与给 Claude 的文档
+- **汇报用产品语言、固定顺序**：进展与总结只讲用户能看到什么，已定的结论与现状在上，要用户看和决定的在下，👉 下一步收尾；技术细节进 commit 正文与给 Claude 的文档
 
 ## 快速开始
 
@@ -59,7 +59,7 @@ Claude Code 项目工作流脚手架：**Discuss（可选）→ Plan → Execute
 7. 删除 `PROGRESS.md`、`domains/`、`STEPS/README.md`
 8. `.gitignore` 加 `.claude/verify/`。有 UI 但还没有 e2e 框架的项目，下一个 UI step 的 plan 把「e2e 框架就位」纳入范围内；在那之前 UI 的功能性验收用 `[实测]`
 9. OVERVIEW「路线图」改为 milestone 与 step 两层：开头说明与格式注释换成新版模板的；现有 step 条目按产品目标归入 milestone（数字编号，带状态行），还说不清的后续范围写进所属 milestone 的「待拆」；「已完成」表不动
-10. `CLAUDE.md` 删掉「语言」一节（已移到用户级 `~/.claude/CLAUDE.md`），「沟通风格」只留新版那一句
+10. `CLAUDE.md` 删掉「语言」一节（已移到用户级 `~/.claude/CLAUDE.md`），「沟通风格」换成新版的一节
 
 第 3 到 5 步是改写，让 Claude 在 commit 正文列出删除与合并清单，审这份清单即可。
 
@@ -81,7 +81,7 @@ flowchart LR
     D["discuss step N<br/>（可选）拍板决议"] --> P["plan step N<br/>写 Plan 节"]
     P --> R{用户 review}
     R -->|结论回写 step 文件| E["execute step N [Pk]<br/>严格按 plan 写代码"]
-    E --> G{"放行门<br/>测试绿 · 无 ⚠️ · 无偏离"}
+    E --> G{"放行门<br/>测试绿 · 无 👀 · 无偏离"}
     G -->|过| A["自行 commit"]
     A -->|非末段| E
     G -->|不过| V{用户验收}
@@ -101,7 +101,7 @@ plan 给每条验收标准标明验证层级，execute 按层级逐条自检：
 | `[实测]` | Claude 用 e2e 框架的一次性脚本 / 浏览器工具 / curl / CLI 验证一次，产物不进 repo；只用于测试框架覆盖不到的集成点与实测数据，值得重复跑的升为 `[自动]` | Claude |
 | `[手动]` | 只允许审美（视觉、动效、手感）与本机无法复现的真实外部环境；审美项 Claude 先截图到 `.claude/verify/`，用户看图 | 用户 |
 
-段退出验收只允许前两层，审美项统一放 step 级验收。自检后三条全满足就过放行门：测试与类型检查 / build 绿、checklist 没有 ⚠️ 与 ❌、没有偏离或只有用户中途已裁决的小偏离。过门的段 execute 自行 commit，输出「✅ 已提交」与「👉 下一步」两行；末段同样自行 commit，再给完整汇报。不过门才等用户验收后 commit，commit 正文的「验收」段按用户结论改写，close 以它为准。「测试完全覆盖」的定义是每条验收标准都对应到一个通过的测试或一次实测，不用覆盖率。测试按「注释与测试」写，验收测试须在实现前因结果不符而失败过，「测试绿」才可信。放行门前，一个不带上下文的 subagent 对照 step 文件审一遍改动：漏做、多做、做错、测试写法。
+段退出验收只允许前两层，审美项统一放 step 级验收。自检后三条全满足就过放行门：测试与类型检查 / build 绿、checklist 没有 👀（待用户确认）与 ❌、没有偏离或只有用户中途已裁决的小偏离。过门的段 execute 自行 commit，输出「✅ 已提交」与「👉 下一步」两行；末段同样自行 commit，完整汇报夹在这两行之间。不过门才等用户验收后 commit，commit 正文的「验收」段按用户结论改写，close 以它为准。「测试完全覆盖」的定义是每条验收标准都对应到一个通过的测试或一次实测，不用覆盖率。测试按「注释与测试」写，验收测试须在实现前因结果不符而失败过，「测试绿」才可信。放行门前，一个不带上下文的 subagent 对照 step 文件审一遍改动：漏做、多做、做错、测试写法。
 
 ## 文档体系
 
@@ -248,7 +248,7 @@ node .claude/hooks/phase-audit.test.js
 
 ## 定制
 
-- `CLAUDE.md`：git 约定按团队习惯改。语言与通用沟通风格（按产品负责人视角汇报、用日常说法）写在用户级 `~/.claude/CLAUDE.md`，换电脑要一起带上；项目里的「沟通风格」只写本流程哪些文档保持技术精确
+- `CLAUDE.md`：git 约定按团队习惯改。语言与通用沟通风格（按产品负责人视角汇报、用日常说法）写在用户级 `~/.claude/CLAUDE.md`，换电脑要一起带上；项目里的「沟通风格」只写本流程专用的部分：哪些文档保持技术精确、阶段汇报的顺序与标记
 - `skills/*/SKILL.md`：各阶段步骤可按项目形态微调（如层推进顺序、验收要求）
 - `.claude/rules/planning-docs.md`：压缩阈值、域笔记结构按项目调整
 - `.claude/settings.json`：不想恢复任务清单工具就删掉 `env.CLAUDE_CODE_ENABLE_TODO_TOOLS`（skill 会退化为文字清单）；commit / PR 的署名通过 Claude Code 的 `attribution` 设置控制

@@ -73,7 +73,7 @@ brief / PRD **不复制进 `docs/planning/`**：概述写一段定位，功能�
 
 # 第六步：CLAUDE.md
 
-替换 `{项目名}`，填写「关于本项目」一句话；按用户偏好微调语言与 git 约定，其余章节不动。
+替换 `{项目名}`，填写「关于本项目」一句话；按用户偏好微调 git 约定，其余章节不动。
 
 # 第七步：Step 0 plan
 
@@ -87,9 +87,12 @@ brief / PRD **不复制进 `docs/planning/`**：概述写一段定位，功能�
 
 # 第八步：输出总结
 
-1. 实例化了哪些文件、生成了哪些 rules
+按 CLAUDE.md「沟通风格」的汇报顺序，不列文件清单：
+
+1. 结论一句：项目文档、代码规范与 CI 已建好，有几件事等用户拍板
 2. 路线图草案概览（等用户 review）
 3. Step 0 plan 的关键决定
-4. 需要用户拍板的清单
+4. ❓ 需要用户拍板的清单
+5. 👉 review 确认后提交，并开始 Step 0
 
 用户 review 确认后：去掉路线图的 DRAFT 标记，Step 0 状态改为「plan 已定稿」，在 main commit（`Bootstrap: 实例化 planning 文档`）并 push（无 origin 跳过），然后从 main 建 `feat/step-00-skeleton` 分支，提示下一步 `/execute-step 0`（Step 0 的 plan 已在本阶段生成，无需再跑 plan-step）。

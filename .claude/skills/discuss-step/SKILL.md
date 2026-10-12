@@ -34,7 +34,7 @@ ARCHITECTURE 已随根 CLAUDE.md 自动加载，项目全局、系统地图与�
 
 # 第三步：分轮拍板
 
-每轮只问前提都已拍板的问题，依赖未决答案的留到下一轮；用 AskUserQuestion 或对话，用户预先给出的议题优先。用户说「留到 plan 再定」的单独记录。
+每轮只问前提都已拍板的问题，依赖未决答案的留到下一轮；用 AskUserQuestion 或对话，用户预先给出的议题优先。每轮按 CLAUDE.md「沟通风格」：先一两句上一轮定下了什么，再列本轮的 ❓。用户说「留到 plan 再定」的单独记录。
 
 # 第四步：写决议
 
@@ -56,4 +56,4 @@ plan 阶段会在同一文件追加 Plan 节，决议是 plan 必须遵守的输
 
 1. commit：`Step {N} Discuss: <标题>`
 2. 用 Bash 执行 `rm -f "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
-3. 输出决议摘要（一条一行），提示下一步 `/plan-step {N}`
+3. 按 CLAUDE.md「沟通风格」的汇报顺序输出：结论一句；每条决议一行 ✅；「留到 plan 再定」的单独列出；👉 `/plan-step {N}`
