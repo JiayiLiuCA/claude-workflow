@@ -86,6 +86,25 @@ arguments: [step]
 
 1. commit：`Step {N} Close: <标题>`；正文写路线图变更原因（如有）与压缩的删除与合并清单（如有）
 2. 触及鉴权 / 数据访问 / 外部输入解析的 step，建议用户先跑 `/security-review`
-3. push 分支，提议创建 PR（标题 `Step {N}: <标题>`，正文开头一段用户可感知的变化；接着「合并风险」两行：能否直接撤回（能 / 不能，不能的写原因，如改了数据格式、删了数据）、可能受影响的功能；其后贴实录），**经用户确认后**创建。无 origin 时不 push、不建 PR，经用户确认后在本地把分支 merge 进 main
+3. push 分支，提议创建 PR，**经用户确认后**创建。无 origin 时不 push、不建 PR，经用户确认后在本地把分支 merge 进 main。标题 `Step {N}: <标题>`；正文写给要核对这次改动的人，用产品语言，按下面的格式，没有内容的段不写：
+
+   ~~~markdown
+   ## 用户能看到什么不同
+   - **<短语>**：<一两句：用户现在能做什么、和之前哪里不同>
+
+   ## 和计划不一样的地方
+   - **<短语>**：<计划怎么说、实际怎样、为什么>
+
+   ## 合并风险
+   - 能否直接撤回：能 / 不能（不能的写原因，如改了数据格式、删了数据）
+   - 可能受影响：<功能>；<测试通过数，用户亲自看过的项>
+
+   ## 提交
+   - <短 hash> <标题>
+
+   详细记录在 `docs/planning/STEPS/{NN}-<slug>.md`。
+   ~~~
+
+   「用户能看到什么不同」取自 Plan「目标」与第四步写进「已有功能」的内容；「和计划不一样的地方」取自 commit 正文「偏离」，本 step 引起的路线图调整也写在这里；「提交」由 `git log --oneline --no-merges --reverse origin/main..HEAD` 列出。
 4. 用 Bash 执行 `rm -f "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
 5. 按 CLAUDE.md「沟通风格」的汇报顺序输出总结：结论一句（Step {N} 收尾完成，附 PR 链接）；这个 step 给用户带来了什么；路线图有无调整；⚠️ 合并风险，同 PR 正文；👀 给用户 review 的点；👉 下一步建议（下一个 step 的 `/plan-step`，或按第四步先 `/roadmap`），PR merge 后可选在 main 打 tag `step-{NN}`

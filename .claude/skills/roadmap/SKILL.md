@@ -34,7 +34,7 @@ argument-hint: "<变更描述>"
 # 第四步：收尾
 
 1. commit：`Roadmap: <描述>`，正文写改了什么、为什么，新需求的原话附在正文里
-2. 在 main 上的直接 push，下一个 step 从 `origin/main` 建分支才拿得到；`docs/<slug>` 分支 push 后提议建 PR，经用户确认后创建；step 分支上的不单独 push，随该 step 的 PR 合入
+2. 在 main 上的直接 push，下一个 step 从 `origin/main` 建分支才拿得到；`docs/<slug>` 分支 push 后提议建 PR，经用户确认后创建，正文按 `.claude/skills/close-step/SKILL.md` 第七步的 PR 格式，各段一两行：用户能看到什么不同（路线图改了什么、为什么）、合并风险（哪些 plan 要重跑）、提交；step 分支上的不单独 push，随该 step 的 PR 合入
 3. 用 Bash 执行 `rm -f "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
 4. 第零步从 step 分支切过来的，切回该分支
 5. 按 CLAUDE.md「沟通风格」的汇报顺序输出摘要：结论一句；改了什么、影响哪些 step；⚠️ 哪些 plan 需要重跑；👉 建议的下一步
