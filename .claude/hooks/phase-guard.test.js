@@ -4,7 +4,8 @@
  * 用法：node .claude/hooks/phase-guard.test.js
  * 在系统临时目录搭 fixture 项目，逐用例喂 stdin JSON、断言退出码。
  * 覆盖：Write/Edit 路径判断、Bash 写入启发式（重定向 / heredoc / tee / sed -i / mv / mkdir / git rm）、
- *       PowerShell cmdlet、变量路径 fail-open、标记文件豁免、域笔记（功能目录下的 CLAUDE.md）各阶段可写。
+ *       PowerShell cmdlet、变量路径 fail-open、标记文件豁免、域笔记（功能目录下的 CLAUDE.md）各阶段可写、
+ *       项目根 package.json 为 "type": "module" 时仍按 CommonJS 加载。
  */
 const { spawnSync } = require("child_process");
 const fs = require("fs");
@@ -102,13 +103,35 @@ const CASES = [
 ];
 
 let failed = 0;
-for (const [name, phase, enc, input, expect] of CASES) {
-  setMarker(phase, enc);
-  const got = run(input);
+let total = 0;
+const check = (name, expect, got) => {
+  total++;
   const ok = got === expect;
   if (!ok) failed++;
   console.log(`${ok ? "PASS" : "FAIL"}  ${name}  (expect ${expect}, got ${got})`);
+};
+for (const [name, phase, enc, input, expect] of CASES) {
+  setMarker(phase, enc);
+  check(name, expect, run(input));
 }
+
+// 项目根 package.json 为 "type": "module" 时，没有 hooks/package.json 的 hook 一启动就因
+// require is not defined 以 exit 1 退出；Claude Code 只认 exit 2 为拦截，守卫静默失效。
+const esm = fs.mkdtempSync(path.join(os.tmpdir(), "phase-guard-esm-"));
+const esmHooks = path.join(esm, ".claude", "hooks");
+fs.mkdirSync(esmHooks, { recursive: true });
+fs.writeFileSync(path.join(esm, "package.json"), '{ "type": "module" }\n');
+for (const f of ["phase-guard.js", "package.json"]) {
+  if (fs.existsSync(path.join(__dirname, f))) fs.copyFileSync(path.join(__dirname, f), path.join(esmHooks, f));
+}
+fs.writeFileSync(path.join(esm, ".claude", "workflow-phase"), "execute");
+const esmGot = spawnSync(process.execPath, [path.join(esmHooks, "phase-guard.js")], {
+  input: j("docs/planning/ARCHITECTURE.md"),
+  env: { ...process.env, CLAUDE_PROJECT_DIR: esm },
+}).status;
+check('项目根 "type": "module"：execute 写 planning 仍拒绝', 2, esmGot);
+
 fs.rmSync(root, { recursive: true, force: true });
-console.log(failed ? `\n${failed} 个用例失败（共 ${CASES.length}）` : `\n全部通过（${CASES.length} 用例）`);
+fs.rmSync(esm, { recursive: true, force: true });
+console.log(failed ? `\n${failed} 个用例失败（共 ${total}）` : `\n全部通过（${total} 用例）`);
 process.exit(failed ? 1 : 0);

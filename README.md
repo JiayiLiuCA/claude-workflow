@@ -63,6 +63,7 @@ Claude Code 项目工作流脚手架：**Plan → Execute → Close** 三阶段�
 11. 删除 `.claude/skills/discuss-step/`：discuss 已并入 plan（有需要拍板的事由 plan 先分轮问清），用新版覆盖不会删掉这个旧目录。残留的 `discuss` 阶段标记不再生效，按需 `rm .claude/workflow-phase`
 12. ARCHITECTURE 精简，按下面「ARCHITECTURE 精简」的步骤做
 13. 域笔记精简，按下面「域笔记精简」的步骤做，在第 12 条之后
+14. 确认 `.claude/hooks/package.json` 存在，内容为 `{ "type": "commonjs" }`，逐个复制 hook 文件覆盖的会漏掉它。项目根 `package.json` 设了 `"type": "module"` 时，缺了它 hook 一启动就因 `require is not defined` 退出，Claude Code 把这种退出当作放行且不提示，阶段拦截等于没有。补上后在项目根跑两个 hook 自测
 
 第 3 到 5 条是改写，让 Claude 在 commit 正文列出删除与合并清单，审这份清单即可。第 12、13 条由独立的 subagent 核对，不需要你审。
 
@@ -247,11 +248,12 @@ plan-step 的分段阈值按 200K 窗口校准，1M 窗口的模型可以放宽�
 │   │                                # bootstrap 会在这里生成 backend.md / frontend.md 等代码规范
 │   ├── hooks/
 │   │   ├── phase-guard.js           # PreToolUse：按阶段拦截越界写入（Write/Edit + Bash/PowerShell 启发式）
-│   │   ├── phase-guard.test.js      # 守卫自测（node 运行，52 用例）
+│   │   ├── phase-guard.test.js      # 守卫自测（node 运行，53 用例）
 │   │   ├── phase-audit.js           # PostToolUse：Bash/PowerShell 之后用 git status 兜底审计
 │   │   ├── phase-audit.test.js      # 审计自测（node 运行，19 用例，需要 git）
 │   │   ├── clear-phase.js           # SessionStart(startup|clear)：清残留阶段标记
-│   │   └── announce-phase.js        # SessionStart(resume|compact)：播报当前阶段、提示重调 skill
+│   │   ├── announce-phase.js        # SessionStart(resume|compact)：播报当前阶段、提示重调 skill
+│   │   └── package.json             # 声明 CommonJS：项目根设了 "type": "module" 时 hook 照常加载
 │   ├── skills/                      # bootstrap / plan-step / execute-step / close-step / hotfix / roadmap
 │   └── verify/                      # execute 的审美截图与实测产物（gitignored，运行时才出现）
 ├── docs/planning/
@@ -271,7 +273,9 @@ plan-step 的分段阈值按 200K 窗口校准，1M 窗口的模型可以放宽�
 2. **`phase-audit.js`（PostToolUse）**：每次 Bash / PowerShell 之后跑 `git status`，execute 阶段文档范围内不该有未提交改动，其他阶段文档范围外不该有；发现即报告并要求回滚。同一组文件只报一次。
 3. **SessionStart**：`clear-phase.js` 在新会话清除残留标记；`announce-phase.js` 在 resume / compact 时播报当前阶段并提示重新调用 skill。
 
-域笔记（功能目录下的 `CLAUDE.md`，根目录与 `.claude/` 下的除外）两道检查都放行。启发式拦不住的写法（`python -c` / `node -e` 里的 fs 调用）由审计兜底。改动 hook 后跑自测：
+域笔记（功能目录下的 `CLAUDE.md`，根目录与 `.claude/` 下的除外）两道检查都放行。启发式拦不住的写法（`python -c` / `node -e` 里的 fs 调用）由审计兜底。
+
+hook 用 CommonJS 写，`.claude/hooks/package.json` 声明 `"type": "commonjs"`，项目根 `package.json` 设了 `"type": "module"` 也照常加载。hook 报错退出（退出码不是 2）时 Claude Code 照常放行、不提示，拦截失效也看不出来，所以改动 hook 或项目根 `package.json` 的 `type` 后，在项目根跑自测：
 
 ```text
 node .claude/hooks/phase-guard.test.js
