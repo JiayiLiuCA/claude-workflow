@@ -38,7 +38,7 @@ Claude Code 项目工作流脚手架：启动前用产品、设计稿、技术�
 /close-step N        → 信息写到消费点、路线图校验、实录 → merge PR
 
 /hotfix <描述>       （小改动：typo / 一行修复 / 依赖 bump，不走三阶段）
-/roadmap <变更描述>  （新需求 / 砍功能 / 拆 milestone / 合并拆分 step / 调顺序）
+/roadmap <变更描述>  （新需求 / 砍功能 / 拆 milestone / 合并拆分 step / 调顺序 / 中途插入 step，编号如 10a）
 ```
 
 斜杠形式是确定性调用，自然语言形式（`plan step 3`）同样有效，两种都可以在后面追加补充说明。
@@ -177,7 +177,7 @@ plan 给每条验收标准标明验证层级，execute 按层级逐条自检：
 
 启动前另有两份输入，不在这五种之内：`docs/brief/`（产品说明与技术方案，bootstrap 用一次后不再更新）与 `docs/design-reference/`（设计稿，做界面的 plan / execute 按页面对照表读，execute 新增公用组件时更新组件库）。
 
-`OVERVIEW.md` 是用户唯一的入口。四节中「已有功能」「待决」体量恒定。「路线图」分 milestone 与 step 两层：milestone 全程保留，完成的只留目标与完成记录；step 走到时再拆，完成后移到「已完成」表。「已完成」表每个 step 长一行，那一行就是用户的时间线。
+`OVERVIEW.md` 是用户唯一的入口。四节中「已有功能」「待决」体量恒定。「路线图」分 milestone 与 step 两层：milestone 全程保留，完成的只留目标与完成记录；step 走到时再拆，完成后移到「已完成」表。中途因需求变化要插进来的 step 用字母后缀编号（Step 10 与 11 之间依次为 10a、10b），后面的 step 不用改号。「已完成」表每个 step 长一行，那一行就是用户的时间线。
 
 Claude 的读取路径分三层，每层都小、都是当前状态、都指向下一层：
 

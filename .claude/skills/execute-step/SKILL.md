@@ -8,7 +8,7 @@ arguments: [step, segment]
 
 你现在处于 **Step {N}** 的 Execute 阶段。目标：严格按 step 文件写代码。
 
-**参数**：N = `$step`（为空或不是数字则从触发语取）；`$segment` 形如 `P{k}` 时本次只执行该段，否则它属于补充说明；`$ARGUMENTS` 去掉 N 与段号后为补充说明。
+**参数**：N = `$step`（为空或不是 step 编号则从触发语取。编号是数字，中途插入的 step 带小写字母后缀，如 `10a`；`{NN}` 是补零到两位的编号，字母照留，如 `03`、`10a`）；`$segment` 形如 `P{k}` 时本次只执行该段，否则它属于补充说明；`$ARGUMENTS` 去掉 N 与段号后为补充说明。
 **续接**（resume / compact 后或新会话接着做时重新调用）：先看 `git status`、`git log --oneline` 与对话摘要（如有）判断做到哪一步，跳过已完成的，不重复 commit。
 
 # 第零步：阶段标记与分支

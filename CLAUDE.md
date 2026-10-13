@@ -50,7 +50,7 @@
 | `/execute-step N [Pk]` | 严格按 step 文件写代码；验收全部自动化覆盖且无偏离时自行提交并提示下一段；分段时每段一个新 session |
 | `/close-step N` | 把本 step 的信息写到消费点，校验路线图，写实录并建 PR |
 | `/hotfix <描述>` | 小改动快速通道，判据见 skill |
-| `/roadmap <描述>` | 新需求 / 砍功能 / 拆 milestone / 拆合 step / 调顺序 |
+| `/roadmap <描述>` | 新需求 / 砍功能 / 拆 milestone / 拆合 step / 调顺序 / 中途插入 step（编号如 10a） |
 
 Execute 的权威输入是 step 文件，不是对话。小 step 可以 plan、execute、close 同会话连跑，但 review 结论仍须回写 step 文件、close 仍以 commit 正文为准；大 step 阶段之间开新会话或 `/clear`。resume 或 compact 后按 SessionStart 的提示重新调用当前阶段的 skill；新会话接着做未完成的阶段（如隔天继续 review plan）同样先重新调用该阶段的 skill，它的「续接」说明会从中断处接上。启动前的三步与 bootstrap 不设阶段标记，resume 或 compact 后没有提示，同样自己重新调用当前的 skill。
 
@@ -62,7 +62,7 @@ Execute 的权威输入是 step 文件，不是对话。小 step 可以 plan、e
 
 ## Git 约定
 
-- 每个 step 一个分支 `feat/step-NN-<slug>`，plan 开始时 `git fetch origin` 后从 `origin/main` 创建，上一个 step 的 PR 须已 merge；close 开始时先合入最新 `origin/main`，之后建 PR 合回 main，merge 后可选打 tag `step-NN`
+- 每个 step 一个分支 `feat/step-NN-<slug>`（NN 补零到两位；中途插入的 step 带字母后缀，如 `feat/step-10a-<slug>`、`Step 10a Plan: …`），plan 开始时 `git fetch origin` 后从 `origin/main` 创建，上一个 step 的 PR 须已 merge；close 开始时先合入最新 `origin/main`，之后建 PR 合回 main，merge 后可选打 tag `step-NN`
 - 比较与同步一律以 `origin/main` 为基准：PR 在 GitHub 上 merge 后本地 main 不会自动更新
 - 阶段 commit：`Step N Plan|Execute|Close: <标题>`，分段 execute 加 `（Pk）`；execute 正文固定四段：偏离 / 临场决策 / 遗留 / 验收
 - 其他：`Product: …`、`Design: …`、`Tech: …`、`Bootstrap: …`、`Hotfix: …`、`Roadmap: …`，默认直接在 main：提交前快进到 `origin/main`，提交后 push（main 受保护则分支 + PR；还没有 origin 时跳过同步与 push）。改了路线图的 commit，正文写原因
