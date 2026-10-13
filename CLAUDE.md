@@ -27,6 +27,8 @@
 | `docs/planning/STEPS/NN-slug.md` | 每 step 一个文件：决议、Plan、实录 | 当前 step 使用，close 后是存档 |
 | 功能目录下的 `CLAUDE.md` | 域笔记：该功能放不进代码的知识。按层分目录的项目改用 `.claude/rules/<feature>.md` | 读到该功能的代码时自动加载 |
 | `.claude/rules/*.md` | 按层的代码规范；只约束几个功能的架构规则 | 读到对应文件时自动加载 |
+| `docs/brief/PRODUCT.md`、`TECH.md` | 项目启动前的产品说明与技术方案 | bootstrap 用一次，之后不读也不更新 |
+| `docs/design-reference/` | 设计稿：样式数值、组件、页面稿与页面对照表 | bootstrap；做界面的 plan / execute 读，execute 新增公用组件时更新组件库 |
 
 知识先放进代码：类型、命名、测试和必要的注释，规则见各层 rules 的「注释与测试」。放不进代码的才写文档，文档只写当前状态，历史交给 git。写入规则与信息去处见 `.claude/rules/planning-docs.md`，读写这些文件时自动加载。找功能先看末尾导入的「系统地图」，再进对应目录；除 ARCHITECTURE 外，hotfix 与普通会话不预读 planning 文档。
 
@@ -36,20 +38,23 @@
 
 ## 工作流程
 
-**Plan → Execute → Close**，每个 step 都从 plan 开始；小改动走 hotfix，路线图变化走 roadmap。收到触发语必须调用对应 skill 按其步骤执行，不要直接开工。自然语言（`plan step 3`）与斜杠形式等价，触发语后的补充说明是该阶段的特殊关注点。不在任何阶段中时，用户要改代码或提新需求却没给触发语，同样不直接开工：按 hotfix 的适用判据判断，小改动提议走 `/hotfix`，新需求、砍功能、拆 milestone、调顺序提议走 `/roadmap`，其余提议开正式 step。
+项目启动依次走 `/product` → `/design-draft`（有界面时）→ `/tech-stack` → `/bootstrap`，之后每个 step 走 **Plan → Execute → Close**，都从 plan 开始；小改动走 hotfix，路线图变化走 roadmap。收到触发语必须调用对应 skill 按其步骤执行，不要直接开工。自然语言（`plan step 3`）与斜杠形式等价，触发语后的补充说明是该阶段的特殊关注点。不在任何阶段中时，用户要改代码或提新需求却没给触发语，同样不直接开工：按 hotfix 的适用判据判断，小改动提议走 `/hotfix`，新需求、砍功能、拆 milestone、调顺序提议走 `/roadmap`，其余提议开正式 step；`docs/planning/` 还是骨架（尚未 bootstrap）时，按启动顺序提议下一个该跑的命令。
 
 | 触发 | 做什么 |
 |---|---|
-| `/bootstrap` | 项目启动：实例化文档、rules、CI 与 Step 0 plan（仅一次） |
+| `/product` | 分轮问清产品，写 `docs/brief/PRODUCT.md` |
+| `/design-draft` | 按产品说明出 HTML 设计稿到 `docs/design-reference/`：关键页定方向，再铺开其余页面 |
+| `/tech-stack` | 按产品说明与设计稿定技术方案，写 `docs/brief/TECH.md` |
+| `/bootstrap` | 项目启动：读上面三份（缺的补问），实例化文档、rules、CI 与 Step 0 plan（仅一次） |
 | `/plan-step N` | 有需要拍板的先分轮问清、写进决议，再写 step 文件的 Plan 节；含路线图对齐闸门 |
 | `/execute-step N [Pk]` | 严格按 step 文件写代码；验收全部自动化覆盖且无偏离时自行提交并提示下一段；分段时每段一个新 session |
 | `/close-step N` | 把本 step 的信息写到消费点，校验路线图，写实录并建 PR |
 | `/hotfix <描述>` | 小改动快速通道，判据见 skill |
-| `/roadmap <描述>` | 新需求 / 砍功能 / 拆 milestone / 拆合 step / 调顺序 |
+| `/roadmap <描述>` | 新需求 / 砍功能 / 拆 milestone / 拆合 step / 调顺序 / 中途插入 step（编号如 10a） |
 
-Execute 的权威输入是 step 文件，不是对话。小 step 可以 plan、execute、close 同会话连跑，但 review 结论仍须回写 step 文件、close 仍以 commit 正文为准；大 step 阶段之间开新会话或 `/clear`。resume 或 compact 后按 SessionStart 的提示重新调用当前阶段的 skill；新会话接着做未完成的阶段（如隔天继续 review plan）同样先重新调用该阶段的 skill，它的「续接」说明会从中断处接上。
+Execute 的权威输入是 step 文件，不是对话。小 step 可以 plan、execute、close 同会话连跑，但 review 结论仍须回写 step 文件、close 仍以 commit 正文为准；大 step 阶段之间开新会话或 `/clear`。resume 或 compact 后按 SessionStart 的提示重新调用当前阶段的 skill；新会话接着做未完成的阶段（如隔天继续 review plan）同样先重新调用该阶段的 skill，它的「续接」说明会从中断处接上。启动前的三步与 bootstrap 不设阶段标记，resume 或 compact 后没有提示，同样自己重新调用当前的 skill。
 
-任务清单只在 execute（执行顺序）与 plan（待拍板问题）使用，只反映完成项数，不代表剩余时间。
+任务清单只在 execute（执行顺序）与 plan、product、tech-stack（待拍板问题）使用，只反映完成项数，不代表剩余时间。
 
 ## 阶段纪律（hooks 强制）
 
@@ -57,10 +62,10 @@ Execute 的权威输入是 step 文件，不是对话。小 step 可以 plan、e
 
 ## Git 约定
 
-- 每个 step 一个分支 `feat/step-NN-<slug>`，plan 开始时 `git fetch origin` 后从 `origin/main` 创建，上一个 step 的 PR 须已 merge；close 开始时先合入最新 `origin/main`，之后建 PR 合回 main，merge 后可选打 tag `step-NN`
+- 每个 step 一个分支 `feat/step-NN-<slug>`（NN 补零到两位；中途插入的 step 带字母后缀，如 `feat/step-10a-<slug>`、`Step 10a Plan: …`），plan 开始时 `git fetch origin` 后从 `origin/main` 创建，上一个 step 的 PR 须已 merge；close 开始时先合入最新 `origin/main`，之后建 PR 合回 main，merge 后可选打 tag `step-NN`
 - 比较与同步一律以 `origin/main` 为基准：PR 在 GitHub 上 merge 后本地 main 不会自动更新
 - 阶段 commit：`Step N Plan|Execute|Close: <标题>`，分段 execute 加 `（Pk）`；execute 正文固定四段：偏离 / 临场决策 / 遗留 / 验收
-- 其他：`Bootstrap: …`、`Hotfix: …`、`Roadmap: …`，默认直接在 main：提交前快进到 `origin/main`，提交后 push（main 受保护则分支 + PR）。改了路线图的 commit，正文写原因
+- 其他：`Product: …`、`Design: …`、`Tech: …`、`Bootstrap: …`、`Hotfix: …`、`Roadmap: …`，默认直接在 main：提交前快进到 `origin/main`，提交后 push（main 受保护则分支 + PR；还没有 origin 时跳过同步与 push）。改了路线图的 commit，正文写原因
 
 ## 项目架构（自动导入）
 

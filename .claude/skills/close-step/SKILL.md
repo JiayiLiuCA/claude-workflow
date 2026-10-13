@@ -8,7 +8,7 @@ arguments: [step]
 
 你现在处于 **Step {N}** 的 Close 阶段。目标：用最少的阅读，把本 step 产生的信息写到将来消费它的地方，后续 session 不用翻历史。只改文档，不写代码。信息去处与写作原则见 `.claude/rules/planning-docs.md`，读写文档时自动加载。
 
-**参数**：N = `$step`（为空或不是数字则从触发语取）；`$ARGUMENTS` 去掉 N 后是用户在 Execute 之外手动做的变更（如手改配置、手修数据），一并处理。
+**参数**：N = `$step`（为空或不是 step 编号则从触发语取。编号是数字，中途插入的 step 带小写字母后缀，如 `10a`；`{NN}` 是补零到两位的编号，字母照留，如 `03`、`10a`）；`$ARGUMENTS` 去掉 N 后是用户在 Execute 之外手动做的变更（如手改配置、手修数据），一并处理。
 **续接**（resume / compact 后或新会话接着做时重新调用）：先看 `git status` 与 `git diff --stat` 判断哪些文档已改，跳过已完成的步骤，不重复 commit 或建 PR。
 
 # 第零步：阶段标记与同步

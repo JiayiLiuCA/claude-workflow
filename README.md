@@ -1,6 +1,6 @@
 # claude-workflow
 
-Claude Code 项目工作流脚手架：**Plan → Execute → Close** 三阶段循环，配 hotfix 与 roadmap 两条快速通道。
+Claude Code 项目工作流脚手架：启动前用产品、设计稿、技术选型三步备齐输入，bootstrap 据此搭好架子；之后 **Plan → Execute → Close** 三阶段循环，配 hotfix 与 roadmap 两条快速通道。
 
 源自一个 10 周 / 26 step / 137 commit 的生产项目（Electron + FastAPI 桌面应用，OCR / 本地 LLM / 模型训练三类重集成）的完整实践，并按实践教训做了系统性修订：plan 不写实现代码、文档只写当前状态、信息写到消费点、阶段纪律由 hooks 确定性强制。目标场景：中大型项目起步时搭好架子，把项目拆成线性的 step，step 之间把握大方向不跑偏。
 
@@ -24,9 +24,12 @@ Claude Code 项目工作流脚手架：**Plan → Execute → Close** 三阶段�
 ### 新项目
 
 1. GitHub 上点 **Use this template**（或 clone 后删 `.git` 重新 `git init`）
-2. 写好需求文档（brief / PRD）：定位（做什么、给谁用）、形态与平台、技术栈、核心约束、功能清单与优先级；有 UI 的把设计稿放进 `docs/design-reference/`
-3. 在 Claude Code 中输入 `/bootstrap`，回答项目参数问题：Claude 会实例化 OVERVIEW 与 ARCHITECTURE、按技术栈生成代码规范 rules 与 CI、产出 Step 0 plan
-4. Review milestone 划分、Milestone 1 的 step 与 Step 0 plan
+2. 依次跑启动前的三步，每步 Claude 分轮问你、你确认后提交，详见下面「项目启动」：
+   - `/product`：产品说明 `docs/brief/PRODUCT.md`。已有需求文档的作为参数给它
+   - `/design-draft`（有界面时）：HTML 设计稿 `docs/design-reference/`，你看两次：关键页定方向，再看其余页面
+   - `/tech-stack`：技术方案 `docs/brief/TECH.md`
+3. `/bootstrap`：读这三份，不再提问，实例化 OVERVIEW 与 ARCHITECTURE、按技术栈生成代码规范 rules 与 CI、产出 Step 0 plan。不走前三步也可以，给一份简介，缺的由 bootstrap 补问
+4. Review milestone 划分、Milestone 1 的 step 与 Step 0 plan，然后 `/execute-step 0` 做出能跑的空项目
 5. 之后每个 step 循环：
 
 ```text
@@ -35,7 +38,7 @@ Claude Code 项目工作流脚手架：**Plan → Execute → Close** 三阶段�
 /close-step N        → 信息写到消费点、路线图校验、实录 → merge PR
 
 /hotfix <描述>       （小改动：typo / 一行修复 / 依赖 bump，不走三阶段）
-/roadmap <变更描述>  （新需求 / 砍功能 / 拆 milestone / 合并拆分 step / 调顺序）
+/roadmap <变更描述>  （新需求 / 砍功能 / 拆 milestone / 合并拆分 step / 调顺序 / 中途插入 step，编号如 10a）
 ```
 
 斜杠形式是确定性调用，自然语言形式（`plan step 3`）同样有效，两种都可以在后面追加补充说明。
@@ -44,7 +47,7 @@ Claude Code 项目工作流脚手架：**Plan → Execute → Close** 三阶段�
 
 ### 已有项目
 
-把 `.claude/`、`docs/planning/`、`CLAUDE.md` 复制进项目，跑 `/bootstrap`（会读取现状后实例化文档）。已有 `CLAUDE.md` 或 `.claude/settings.json` 时**合并而非覆盖**：把本脚手架的 PreToolUse / PostToolUse / SessionStart 条目并入既有 hooks 数组，`env` 同理。`.gitignore` 加上 `.claude/workflow-phase*` 与 `.claude/verify/`。如果设置了 `claudeMdExcludes`，不要排除功能目录下的 CLAUDE.md，否则域笔记不会自动加载。
+把 `.claude/`、`docs/planning/`、`CLAUDE.md` 复制进项目，跑 `/bootstrap`（会读取现状后实例化文档）。技术栈以现有代码为准，不用跑 `/tech-stack`；`/product` 与 `/design-draft` 按需先跑。已有 `CLAUDE.md` 或 `.claude/settings.json` 时**合并而非覆盖**：把本脚手架的 PreToolUse / PostToolUse / SessionStart 条目并入既有 hooks 数组，`env` 同理。`.gitignore` 加上 `.claude/workflow-phase*` 与 `.claude/verify/`。如果设置了 `claudeMdExcludes`，不要排除功能目录下的 CLAUDE.md，否则域笔记不会自动加载。
 
 ### 从旧版升级
 
@@ -64,6 +67,7 @@ Claude Code 项目工作流脚手架：**Plan → Execute → Close** 三阶段�
 12. ARCHITECTURE 精简，按下面「ARCHITECTURE 精简」的步骤做
 13. 域笔记精简，按下面「域笔记精简」的步骤做，在第 12 条之后
 14. 确认 `.claude/hooks/package.json` 存在，内容为 `{ "type": "commonjs" }`，逐个复制 hook 文件覆盖的会漏掉它。项目根 `package.json` 设了 `"type": "module"` 时，缺了它 hook 一启动就因 `require is not defined` 退出，Claude Code 把这种退出当作放行且不提示，阶段拦截等于没有。补上后在项目根跑两个 hook 自测
+15. OVERVIEW 开头定位句下加一行 `不做：…`，从原需求文档与已有决定里取产品明确不做的事，每条带半句原因，没有写「暂无」；`/roadmap` 加需求时会对照它。`/product`、`/design-draft`、`/tech-stack` 只用于项目启动前，已有项目不用补跑；设计稿不是 `/design-draft` 格式的，execute 不会去维护它的组件库
 
 第 3 到 5 条是改写，让 Claude 在 commit 正文列出删除与合并清单，审这份清单即可。第 12、13 条由独立的 subagent 核对，不需要你审。
 
@@ -105,12 +109,28 @@ ARCHITECTURE 每个 session 都会加载。目标是去掉 Claude 不是每次�
 4. 独立核对：派一个不带本会话上下文的 subagent，给它改前的笔记与本次全部改动，逐条确认：留下的意思没被改弱；挪走的在去处找得到；删掉的符合判据，说「代码注释里有」的要打开代码核实，说「与某文件重复」的要打开该文件核对，本功能特有的细节没被一起删；新 rule 文件的 `paths` 覆盖所列功能。不符合的补回后再核对一遍。试改 autograder 的标注笔记时，第一遍自己改丢了 5 条、改弱 4 条，都是这一步查出来的
 5. commit 正文写法同上
 
+## 项目启动
+
+| 阶段 | 触发语 | 产出 |
+|---|---|---|
+| 产品 | `/product` | `docs/brief/PRODUCT.md`：定位、用户与场景、核心名词、功能（用户能做到什么、第一版与之后）、不做什么、约束、页面与流程、待定 |
+| 设计稿 | `/design-draft` | `docs/design-reference/`：`tokens.css`（全部样式数值）、`components.css` 与 `components.html`（公用组件）、`pages/` 一页一文件、`README.md`（设计原则、页面对照表、组件、未覆盖） |
+| 技术选型 | `/tech-stack` | `docs/brief/TECH.md`：形态与平台、各层技术与版本、测试工具、整体结构决定、样式系统、部署、开发方式、待定 |
+| Bootstrap | `/bootstrap` | OVERVIEW、ARCHITECTURE、各层代码规范、CI、Step 0 plan |
+
+- **产品说明按 bootstrap 的消费点写**：功能写「用户能做到什么」，直接成为 milestone 与 step 的目标；核心名词进 ARCHITECTURE「核心概念」；「不做什么」进 OVERVIEW 开头，`/roadmap` 加需求时对照。产品说明不谈技术。
+- **设计稿双击即开**：纯 HTML + CSS，不绑前端框架，不需要构建或启动服务。所有数值集中在 `tokens.css`，组件样式只写一份，页面都引用它们，改一处全部跟着变。先在一两个关键页（最常用、最复杂的）上定配色、字体与布局，用户确认后再铺开第一版的其余页面；之后版本的页面列进「未覆盖」。审美方向可借助官方 frontend-design skill。
+- **技术选型排在设计稿之后**：设计稿能看出界面需要哪些能力（大表格、图表、拖拽），选库时照着挑；使用设备与离线要求已在产品说明里。Claude 先查资料定出完整方案，只拿影响用户的选择（费用、部署、平台、熟悉的语言）来问。
+- **生命周期不同**：`docs/brief/` 两份只给 bootstrap 用一次，之后需求变化走路线图，技术约定以代码规范为准；`docs/design-reference/` 在每个做界面的 step 都会被读，并由 execute 随代码维护。
+- 启动前的三步与 bootstrap 一样不设阶段标记：还没有代码要保护，各 skill 只写自己的产出文件。也因此 resume / compact 后没有 SessionStart 提示，接着做时自己重新调用当前的 skill，它的「续接」说明会从中断处接上。
+- **开工后设计稿由 execute 随代码维护**：新增组件库里没有的公用组件，或改了已有组件的样子、样式数值，在同一个提交里更新 `components.css`、`components.html`、README 组件表与 `tokens.css`，两边不一致时以代码为准。没有设计稿的页面，plan 写明按已有组件与样式做，视觉交给 step 验收时用户看。
+
 ## 三阶段与两条通道
 
 | 阶段 | 触发语 | 产出 | 纪律（hooks 强制） |
 |---|---|---|---|
 | Plan | `/plan-step N` | 有需要拍板的先分轮问清，写进 step 文件「决议」节；step 文件「Plan」节；路线图对齐闸门 | 只能写文档 |
-| Execute | `/execute-step N [Pk]` | 代码 + 测试 + 域笔记；commit 正文记偏离 / 临场决策 / 遗留 / 验收；过放行门自行提交 | **禁止**写 planning 文档 |
+| Execute | `/execute-step N [Pk]` | 代码 + 测试 + 域笔记 + 设计稿组件库同步；commit 正文记偏离 / 临场决策 / 遗留 / 验收；过放行门自行提交 | **禁止**写 planning 文档 |
 | Close | `/close-step N` | 信息写到消费点、路线图校验、本 step 出过的错转成检查或规则、step 文件「实录」节 + PR | 只能写文档 |
 | hotfix | `/hotfix <描述>` | 小改动直接提交，文档有句子失效就顺手改 | 无标记 |
 | roadmap | `/roadmap <描述>` | 路线图与待决 | 只能写文档 |
@@ -155,7 +175,9 @@ plan 给每条验收标准标明验证层级，execute 按层级逐条自检：
 | 功能目录下的 `CLAUDE.md` | 域笔记：该功能放不进代码的知识 | 读到该功能的代码时自动加载 |
 | `.claude/rules/*.md` | 按层的代码规范；只约束几个功能的架构规则 | 读到对应文件时自动加载 |
 
-`OVERVIEW.md` 是用户唯一的入口。四节中「已有功能」「待决」体量恒定。「路线图」分 milestone 与 step 两层：milestone 全程保留，完成的只留目标与完成记录；step 走到时再拆，完成后移到「已完成」表。「已完成」表每个 step 长一行，那一行就是用户的时间线。
+启动前另有两份输入，不在这五种之内：`docs/brief/`（产品说明与技术方案，bootstrap 用一次后不再更新）与 `docs/design-reference/`（设计稿，做界面的 plan / execute 按页面对照表读，execute 新增公用组件时更新组件库）。
+
+`OVERVIEW.md` 是用户唯一的入口。四节中「已有功能」「待决」体量恒定。「路线图」分 milestone 与 step 两层：milestone 全程保留，完成的只留目标与完成记录；step 走到时再拆，完成后移到「已完成」表。中途因需求变化要插进来的 step 用字母后缀编号（Step 10 与 11 之间依次为 10a、10b），后面的 step 不用改号。「已完成」表每个 step 长一行，那一行就是用户的时间线。
 
 Claude 的读取路径分三层，每层都小、都是当前状态、都指向下一层：
 
@@ -254,8 +276,10 @@ plan-step 的分段阈值按 200K 窗口校准，1M 窗口的模型可以放宽�
 │   │   ├── clear-phase.js           # SessionStart(startup|clear)：清残留阶段标记
 │   │   ├── announce-phase.js        # SessionStart(resume|compact)：播报当前阶段、提示重调 skill
 │   │   └── package.json             # 声明 CommonJS：项目根设了 "type": "module" 时 hook 照常加载
-│   ├── skills/                      # bootstrap / plan-step / execute-step / close-step / hotfix / roadmap
+│   ├── skills/                      # product / design-draft / tech-stack / bootstrap / plan-step / execute-step / close-step / hotfix / roadmap
 │   └── verify/                      # execute 的审美截图与实测产物（gitignored，运行时才出现）
+├── docs/brief/                      # /product 与 /tech-stack 产出（运行后才出现）：PRODUCT.md、TECH.md
+├── docs/design-reference/           # /design-draft 产出（运行后才出现）：tokens.css、组件、pages/、README 页面对照表
 ├── docs/planning/
 │   ├── OVERVIEW.md                  # 给用户看的总览：已有功能、路线图、待决、已完成
 │   ├── ARCHITECTURE.md              # 给 Claude 的全局：概念、约束、目录惯例、系统地图、架构规则（根 CLAUDE.md 导入）
@@ -287,6 +311,7 @@ node .claude/hooks/phase-audit.test.js
 ## 与 Claude Code 内建能力的配合
 
 - **`/code-review`**：execute-step 在末段验收后建议 `/code-review high origin/main...HEAD`。不要用 `--fix`：它的修改在会话 checkpoint 之外、`/rewind` 撤不掉，也绕过 execute 的分流规则。触及鉴权 / 数据访问的 step，close-step 建 PR 前提示 `/security-review`。
+- **frontend-design skill**：`/design-draft` 定配色、字体与整体方向时会加载（`/plugin install frontend-design@claude-plugins-official`）；没装也能出稿，页面结构与产出格式以 `/design-draft` 为准。
 - **subagent**：execute 的大规模机械改造用 `fork` 类型并行分组（继承 step 文件与已读代码）。
 - **浏览器工具**：execute 的 `[实测]` 项与审美截图用 Claude in Chrome（截图 `save_to_disk` 后挪进 `.claude/verify/`）或 e2e 框架的一次性脚本。值得重复跑的写成 `[自动]` 进 repo、CI 跑；浏览器 MCP 是否可用取决于环境。
 - **不适合的**：阶段 skill 不要加 `context: fork`（它们需要与用户交互）；不要用 skill frontmatter 的 `hooks` 取代标记文件（skill hook 在整个 session 持续生效，同会话连跑 plan → execute 会叠加相反规则）；不要给阶段 skill 设 `disable-model-invocation`（会让自然语言触发失效）。

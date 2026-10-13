@@ -1,6 +1,6 @@
 ---
 name: execute-step
-description: Execute 阶段：严格按 step 文件（docs/planning/STEPS/NN-slug.md）写代码，不越界、不自由发挥；随代码更新功能目录的域笔记。支持按 plan 定义的 P1/P2… 分段执行；验收全部自动化覆盖且无偏离时自行提交并提示下一段。
+description: Execute 阶段：严格按 step 文件（docs/planning/STEPS/NN-slug.md）写代码，不越界、不自由发挥；随代码更新功能目录的域笔记与设计稿组件库。支持按 plan 定义的 P1/P2… 分段执行；验收全部自动化覆盖且无偏离时自行提交并提示下一段。
 when_to_use: 用户输入 "execute step N"（分段执行时 "execute step N P1" / "P2" 等）或 /execute-step N [Pk] 时执行。
 argument-hint: "N [Pk] [补充说明]"
 arguments: [step, segment]
@@ -8,7 +8,7 @@ arguments: [step, segment]
 
 你现在处于 **Step {N}** 的 Execute 阶段。目标：严格按 step 文件写代码。
 
-**参数**：N = `$step`（为空或不是数字则从触发语取）；`$segment` 形如 `P{k}` 时本次只执行该段，否则它属于补充说明；`$ARGUMENTS` 去掉 N 与段号后为补充说明。
+**参数**：N = `$step`（为空或不是 step 编号则从触发语取。编号是数字，中途插入的 step 带小写字母后缀，如 `10a`；`{NN}` 是补零到两位的编号，字母照留，如 `03`、`10a`）；`$segment` 形如 `P{k}` 时本次只执行该段，否则它属于补充说明；`$ARGUMENTS` 去掉 N 与段号后为补充说明。
 **续接**（resume / compact 后或新会话接着做时重新调用）：先看 `git status`、`git log --oneline` 与对话摘要（如有）判断做到哪一步，跳过已完成的，不重复 commit。
 
 # 第零步：阶段标记与分支
@@ -25,7 +25,7 @@ arguments: [step, segment]
 1. **按 Plan 的「范围内 / 范围外」严格约束自己**：没写的不做，明确说不做的绝对不做。
 2. **Plan 没写清楚、且会影响用户可见行为或接口契约的细节，停下来问用户**（UI 交互、错误如何呈现给用户、契约字段的含义）；纯实现细节（内部命名、局部类型、代码组织）按既有代码与 `.claude/rules/` 的惯例决定，记进 commit 正文「临场决策」。
 3. **Plan 与实际代码冲突，停下来问用户**，不要自己调和。
-4. **不修改 `docs/planning/` 与 `.claude/rules/`**（hook 拦截）。唯一可写的文档是功能目录下的 CLAUDE.md 域笔记，见收尾第 1 步。
+4. **不修改 `docs/planning/` 与 `.claude/rules/`**（hook 拦截）。可写的只有功能目录下的 CLAUDE.md 域笔记（收尾第 1 步）与设计稿 `docs/design-reference/`（收尾第 2 步）。
 5. **按依赖顺序推进**：migration → model → service → API → 前端（按项目形态调整），每层写完先跑通再下一层。每层先写该层的 [自动] 验收测试并确认它因结果不符而失败，再写实现到通过。
 6. **分段执行时，本段之外一律视同「范围外」**：不提前实现后续段，不重构已交付段（Plan 明确要求的衔接改动除外）；段边界本身有问题时按「偏离」停下汇报。
 7. **知识先放进代码**：代码只有 Claude 读，按 `.claude/rules/<layer>.md`「注释与测试」写：类型写全、名字表达意图；edge case 写成测试，测试名描述行为；故意为之、看起来像 bug 的写法写明原因；会被其他功能调用的函数写清契约。不写复述代码的注释。放不进代码的才进域笔记。
@@ -34,7 +34,7 @@ arguments: [step, segment]
 
 1. step 文件完整阅读（决议 + Plan），记清「范围内」「范围外」「验收」；分段时另记清本段的范围、前置、退出验收与相邻段边界
 2. 相关的现有代码：用已自动加载的 ARCHITECTURE「系统地图」定位功能目录。域笔记与 `.claude/rules/` 在读写对应文件时自动加载，不用单独读；Plan「范围内」点名的局部规则，开工前读其正文
-3. 涉及前端时：design reference 对应文件
+3. 涉及前端时：`docs/design-reference/README.md` 页面对照表里本 step 涉及的页面稿；没有对照表的按前端代码规范「设计稿」一节找
 
 # 第二步：确认理解，再开工
 
@@ -112,15 +112,16 @@ diff 较大或触及核心逻辑时，在汇报的 👉 段建议用户在 close
 
 1. **更新域笔记**：本 step 碰过的功能里，有放不进代码、测试和注释、又仍约束后续工作的知识（功能内的决定，不论定在决议、Plan 还是执行现场；跨文件的行为、实测数据、踩坑、否决过的方案、外部依赖改造点、已知缺陷），就写进该功能目录的 CLAUDE.md。决定（含决议与 Plan 里的）按 planning-docs「决定三条件」筛过再写：step 文件 close 后是存档，后续 step 只能从这里读到。只和一处代码有关的「为什么」写成那段代码的注释，不进笔记；待办与未验收项写进 commit 正文「遗留」；已知缺陷写进笔记，要修的同时写进「遗留」。只写当前状态，已有条目过期就改写。没有这类知识就不动。写法见 `.claude/rules/planning-docs.md` 的「域笔记」一节，新建前先读。
    两种知识 execute 不能直接写，写进 commit 正文「临场决策」段，由 close 写入：涉及多个功能的规则与功能间依赖的变化，进 ARCHITECTURE 或局部规则文件；按层分的项目（ARCHITECTURE「目录结构」注明域笔记用 rule 文件）的功能内知识，进 `.claude/rules/<feature>.md`。
-2. commit：标题 `Step {N} Execute: <标题>`（分段时 `Step {N} Execute: <标题>（P{k}）`，P 标号专用于分段；单段内拆多个 commit 用 `Step {N} Execute: <子标题>`）。正文固定四段，close 直接取用，无内容写「无」：
+2. **同步设计稿**（`docs/design-reference/` 是 `/design-draft` 产出的，有 `tokens.css` 与 README 页面对照表时；其他格式的设计稿不动）：本 step 新增了组件库里没有的公用组件（会在多个页面复用的界面元素），就加进 `components.css` 与 `components.html`（各变体与状态），在 README「组件」表加一行，用到的新样式数值加进 `tokens.css`；改了已有组件的样子或样式数值，同步改这几处。设计稿里照样只用 `tokens.css` 的变量、双击能打开。页面特有的部分不进组件库；没有这类改动就不动。
+3. commit：标题 `Step {N} Execute: <标题>`（分段时 `Step {N} Execute: <标题>（P{k}）`，P 标号专用于分段；单段内拆多个 commit 用 `Step {N} Execute: <子标题>`）。正文固定四段，close 直接取用，无内容写「无」：
    ```text
    偏离：与 plan 不同之处 + 原因
    临场决策：plan 没明确、现场决定的事 + 理由；另含要交给 close 写入的知识（涉及多个功能的规则，按层分项目的功能内知识）
    遗留：已知但本 step 不解决的问题，能判断的注明该由哪个 step 处理
    验收：是否过放行门；逐条结果（✅ / 👀 / ❌，[自动] 项附测试名与实现前的失败信息）+ 测试通过数（分段的非末段写本段退出验收）。未过门的，👀 项按用户验收的结论改写后再 commit
    ```
-3. 用 Bash 执行 `rm -f "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
-4. 提示下一步：非末段 **新开 session** 跑 `/execute-step {N} P{k+1}`；单段或末段 `/close-step {N}`。过门的段这一句已在第五步的 👉 行里，不重复
+4. 用 Bash 执行 `rm -f "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
+5. 提示下一步：非末段 **新开 session** 跑 `/execute-step {N} P{k+1}`；单段或末段 `/close-step {N}`。过门的段这一句已在第五步的 👉 行里，不重复
 
 # 禁止事项
 

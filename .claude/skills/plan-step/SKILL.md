@@ -8,7 +8,7 @@ arguments: [step]
 
 你现在处于 **Step {N}** 的 Plan 阶段。不写代码，产物是 step 文件的「决议」节（有需要拍板的事时）与 Plan 节。
 
-**参数**：N = `$step`（为空或不是数字则从触发语取）；`$ARGUMENTS` 去掉 N 后为本 step 的特殊关注点，点名要先问清的议题在第三步优先问。
+**参数**：N = `$step`（为空或不是 step 编号则从触发语取。编号是数字，中途插入的 step 带小写字母后缀，如 `10a`；`{NN}` 是补零到两位的编号，字母照留，如 `03`、`10a`）；`$ARGUMENTS` 去掉 N 后为本 step 的特殊关注点，点名要先问清的议题在第三步优先问。
 **续接**（resume / compact 后或新会话接着做时重新调用）：先看 `git status`、`git log --oneline -5` 与 step 文件判断做到哪一步，跳过已完成的，不重复建分支或 commit：已有决议、还没有 Plan 节的，从第三步剩下的问题接着问，问完写 Plan。
 
 # 第零步：阶段标记与分支
@@ -23,7 +23,7 @@ ARCHITECTURE 已随根 CLAUDE.md 自动加载，项目全局、系统地图与�
 1. OVERVIEW：路线图中 Step {N} 的条目（含前置提示）与所属 milestone 的前置提示、「待决」中相关项
 2. step 文件的「决议」节（如有：上次中断或重跑 plan 时留下的）：plan 必须遵守
 3. 相关代码：先用系统地图找到涉及的功能目录（按层分的项目，功能的完整文件列表直接读 `.claude/rules/<feature>.md` 的 `paths`），再读其中的 model / migration / 路由 / 组件 / service。想了解既有行为先搜测试名。域笔记在读到对应功能的代码时自动加载；plan 要推翻其中的规则须在 Plan 里明写
-4. 涉及前端时：design reference 对应文件
+4. 涉及前端时：`docs/design-reference/README.md` 页面对照表里本 step 涉及的页面稿；没有对照表的按前端代码规范「设计稿」一节找。页面没有设计稿（列在「未覆盖」或表里没有）时，Plan 写明按已有组件与样式做，视觉留给 step 验收的 [手动] 审美项。要新增组件库里没有的公用组件，在「范围内」列出，execute 收尾时加进设计稿的组件库
 
 不读历史 step 文件：后续需要的信息 close 已写进路线图条目、域笔记和 ARCHITECTURE。
 
