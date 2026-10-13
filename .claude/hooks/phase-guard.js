@@ -20,7 +20,8 @@
  *     phase-audit.js 用 git status 兜底。
  *
  * 拦截方式：exit code 2 + stderr（阻止本次工具调用，消息反馈给 Claude）。
- * 只约束 repo 内的路径：repo 外（scratchpad、/tmp、/dev/null）与 .claude/workflow-phase 本身不管；
+ * 只约束 repo 内的路径：repo 外（scratchpad、/tmp、/dev/null）、.claude/workflow-phase 本身与
+ * .claude/verify/（截图与实测产物，gitignored，既非文档也非代码；close 收尾时清空）不管；
  * 含 $VAR / $(...) / ~ 等无法解析的路径 fail-open，但文本里出现 docs/planning 的一律按 planning 处理。
  */
 const fs = require("fs");
@@ -28,6 +29,7 @@ const path = require("path");
 
 const DOCS_ONLY = { plan: "Plan", close: "Close", roadmap: "Roadmap" };
 const DOCS_RE = /(^|\/)(docs\/planning|\.claude\/rules)(\/|$)/; // 文档范围：planning 文档 + path-scoped rules
+const VERIFY_RE = /(^|\/)\.claude\/verify(\/|$)/; // 截图与实测产物：各阶段都可写
 const SEP = Symbol("sep"); // 命令分隔哨兵（; | || && 换行）
 const REDIR = /^(\d*|&)>{1,2}\|?$/; // > >> 2> &> >|  → 下一个 token 是写入目标
 const FDDUP = /^(\d*|&)>{1,2}&\d*$/; // 2>&1 >&2      → fd 复制，不是文件
@@ -63,13 +65,13 @@ const unq = (t) => String(t).trim().replace(/^(["'])([\s\S]*)\1$/, "$2");
 /** 域笔记：repo 内子目录下的 CLAUDE.md；根目录与 .claude/ 下的是项目指令，不算 */
 const isNote = (rel) => rel.includes("/") && !rel.startsWith(".claude/") && path.posix.basename(rel) === "claude.md";
 
-/** 路径分类："planning" | "note" | "code" | "ignore"（repo 外 / 标记文件 / 无法判断） */
+/** 路径分类："planning" | "note" | "code" | "ignore"（repo 外 / 标记文件 / 截图目录 / 无法判断） */
 function classify(rawToken, root) {
   const t = unq(rawToken);
   if (!t || t === "-") return "ignore";
   let n = t.replace(/\\/g, "/");
   const lower = n.toLowerCase();
-  if (lower.includes(".claude/workflow-phase")) return "ignore";
+  if (lower.includes(".claude/workflow-phase") || VERIFY_RE.test(lower)) return "ignore";
   if (DOCS_RE.test(lower)) return "planning";
   if (/[$`~]/.test(n)) return "ignore"; // 变量 / 命令替换 / home 展开：无法确定
   if (process.platform === "win32") {

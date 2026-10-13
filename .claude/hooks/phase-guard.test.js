@@ -4,7 +4,7 @@
  * 用法：node .claude/hooks/phase-guard.test.js
  * 在系统临时目录搭 fixture 项目，逐用例喂 stdin JSON、断言退出码。
  * 覆盖：Write/Edit 路径判断、Bash 写入启发式（重定向 / heredoc / tee / sed -i / mv / mkdir / git rm）、
- *       PowerShell cmdlet、变量路径 fail-open、标记文件豁免、域笔记（功能目录下的 CLAUDE.md）各阶段可写、
+ *       PowerShell cmdlet、变量路径 fail-open、标记文件与截图目录豁免、域笔记（功能目录下的 CLAUDE.md）各阶段可写、
  *       项目根 package.json 为 "type": "module" 时仍按 CommonJS 加载。
  */
 const { spawnSync } = require("child_process");
@@ -74,6 +74,9 @@ const CASES = [
   ["execute：commit message 提到 planning 放行", "execute", undefined, b('git add -A && git commit -m "Step 3 Execute: 按 docs/planning/STEPS 实现"'), 0],
   ["plan：写阶段标记放行", "plan", undefined, b("printf 'plan' > \"$(git rev-parse --show-toplevel)/.claude/workflow-phase\""), 0],
   ["plan：清阶段标记放行", "plan", undefined, b("rm -f \"$(git rev-parse --show-toplevel)/.claude/workflow-phase\""), 0],
+  ["close：清空截图目录放行", "close", undefined, b("rm -rf .claude/verify/home.png .claude/verify/step-03"), 0],
+  ["plan：截图存进截图目录放行", "plan", undefined, j(abs(".claude/verify/home.png")), 0],
+  ["close：截图目录旁的 .claude 文件仍拒绝", "close", undefined, b("echo x > .claude/verify.txt"), 2],
   ["plan：heredoc 正文不当命令解析", "plan", undefined, b("cat <<'EOF' > docs/planning/STEPS/03-export.md\nrm -rf src\necho x > src/a.ts\nEOF"), 0],
   ["plan：Bash 追加写代码拒绝", "plan", undefined, b("echo 'x' >> src/foo.ts"), 2],
   ["plan：Bash tee 写 plan 文档放行", "plan", undefined, b("cat notes.txt | tee docs/planning/STEPS/03-export.md"), 0],

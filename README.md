@@ -270,14 +270,14 @@ plan-step 的分段阈值按 200K 窗口校准，1M 窗口的模型可以放宽�
 │   │                                # bootstrap 会在这里生成 backend.md / frontend.md 等代码规范
 │   ├── hooks/
 │   │   ├── phase-guard.js           # PreToolUse：按阶段拦截越界写入（Write/Edit + Bash/PowerShell 启发式）
-│   │   ├── phase-guard.test.js      # 守卫自测（node 运行，53 用例）
+│   │   ├── phase-guard.test.js      # 守卫自测（node 运行，56 用例）
 │   │   ├── phase-audit.js           # PostToolUse：Bash/PowerShell 之后用 git status 兜底审计
 │   │   ├── phase-audit.test.js      # 审计自测（node 运行，19 用例，需要 git）
 │   │   ├── clear-phase.js           # SessionStart(startup|clear)：清残留阶段标记
 │   │   ├── announce-phase.js        # SessionStart(resume|compact)：播报当前阶段、提示重调 skill
 │   │   └── package.json             # 声明 CommonJS：项目根设了 "type": "module" 时 hook 照常加载
 │   ├── skills/                      # product / design-draft / tech-stack / bootstrap / plan-step / execute-step / close-step / hotfix / roadmap
-│   └── verify/                      # execute 的审美截图与实测产物（gitignored，运行时才出现）
+│   └── verify/                      # execute 的审美截图与实测产物（gitignored，运行时才出现，close 收尾时清空）
 ├── docs/brief/                      # /product 与 /tech-stack 产出（运行后才出现）：PRODUCT.md、TECH.md
 ├── docs/design-reference/           # /design-draft 产出（运行后才出现）：tokens.css、组件、pages/、README 页面对照表
 ├── docs/planning/
@@ -297,7 +297,7 @@ plan-step 的分段阈值按 200K 窗口校准，1M 窗口的模型可以放宽�
 2. **`phase-audit.js`（PostToolUse）**：每次 Bash / PowerShell 之后跑 `git status`，execute 阶段文档范围内不该有未提交改动，其他阶段文档范围外不该有；发现即报告并要求回滚。同一组文件只报一次。
 3. **SessionStart**：`clear-phase.js` 在新会话清除残留标记；`announce-phase.js` 在 resume / compact 时播报当前阶段并提示重新调用 skill。
 
-域笔记（功能目录下的 `CLAUDE.md`，根目录与 `.claude/` 下的除外）两道检查都放行。启发式拦不住的写法（`python -c` / `node -e` 里的 fs 调用）由审计兜底。
+域笔记（功能目录下的 `CLAUDE.md`，根目录与 `.claude/` 下的除外）两道检查都放行。截图目录 `.claude/verify/` 既非文档也非代码，各阶段都可写，close 收尾时清空。启发式拦不住的写法（`python -c` / `node -e` 里的 fs 调用）由审计兜底。
 
 hook 用 CommonJS 写，`.claude/hooks/package.json` 声明 `"type": "commonjs"`，项目根 `package.json` 设了 `"type": "module"` 也照常加载。hook 报错退出（退出码不是 2）时 Claude Code 照常放行、不提示，拦截失效也看不出来，所以改动 hook 或项目根 `package.json` 的 `type` 后，在项目根跑自测：
 

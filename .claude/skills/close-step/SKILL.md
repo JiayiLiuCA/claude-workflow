@@ -112,5 +112,5 @@ arguments: [step]
    ~~~
 
    「用户能看到什么不同」取自 Plan「目标」与第四步写进「已有功能」的内容；「和计划不一样的地方」取自 commit 正文「偏离」，本 step 引起的路线图调整也写在这里；「✅ 验收」「遗留」取自 commit 正文「验收」「遗留」，第五步压缩过的加一句独立核对的结论；「👀 建议重点看」列 review 修复过的、过门后用户要求改过的、改了数据格式或会删数据的地方。
-4. 用 Bash 执行 `rm -f "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`
+4. 用 Bash 执行 `rm -f "$(git rev-parse --show-toplevel)/.claude/workflow-phase"`，再清空截图目录 `find "$(git rev-parse --show-toplevel)/.claude/verify" -mindepth 1 -delete 2>/dev/null || true`（目录不存在时跳过）：里面的审美截图与实测产物到这里已用完（用户看图的结论已写进 commit 正文「验收」，close 与之后的阶段都不读它们）；目录本身保留，下一个 step 的截图直接往里存
 5. 按 CLAUDE.md「沟通风格」的汇报顺序输出总结：结论一句（Step {N} 收尾完成，附 PR 链接）；这个 step 给用户带来了什么；路线图有无调整；⚠️ 合并风险，同 PR 正文；👀 给用户 review 的点；👉 下一步建议（下一个 step 的 `/plan-step`，或按第四步先 `/roadmap`），PR merge 后可选在 main 打 tag `step-{NN}`
