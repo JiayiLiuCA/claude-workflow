@@ -30,6 +30,8 @@ paths:
 | 信息 | 去处 | 谁读 |
 |---|---|---|
 | 用户可见的功能现状，产品语言，不写目录 | OVERVIEW「已有功能」 | 用户 |
+| 产品明确不做的事 | OVERVIEW 开头「不做」 | 用户、roadmap |
+| 页面长什么样：样式数值、组件、页面稿 | `docs/design-reference/`；开工后由 execute 随代码同步组件库与样式数值，不一致时以代码为准 | 做界面的 plan、execute |
 | 全部 milestone 与未完成 step：目标、范围、状态 | OVERVIEW「路线图」 | 用户、plan、roadmap |
 | 给某个后续 step 的提示与遗留问题 | OVERVIEW 路线图中该 step 的「前置提示」；尚未拆出的写进所属 milestone | plan、roadmap |
 | 尚未决定的问题；还没验收的行为，写成「待验收」并带预期结果 | OVERVIEW「待决」 | 用户、plan |

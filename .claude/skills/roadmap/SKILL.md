@@ -1,6 +1,6 @@
 ---
 name: roadmap
-description: 路线图变更快速通道：新需求、砍功能、拆 milestone、合并 / 拆分 step、调整顺序。只改 OVERVIEW 的路线图与待决，不写代码，不改历史 step 文件。
+description: 路线图变更快速通道：新需求、砍功能、拆 milestone、合并 / 拆分 step、调整顺序。只改 OVERVIEW 的路线图、待决与「不做」，不写代码，不改历史 step 文件。
 when_to_use: 用户输入 "roadmap <变更描述>"、"调整路线图" 或 /roadmap <描述> 时执行。
 argument-hint: "<变更描述>"
 ---
@@ -15,12 +15,12 @@ argument-hint: "<变更描述>"
 
 # 第一步：读取
 
-1. OVERVIEW 的「路线图」「待决」与「已完成」表（已完成的 step 只在表里，用来确定最大编号）
+1. OVERVIEW 开头的「不做」、「路线图」「待决」与「已完成」表（已完成的 step 只在表里，用来确定最大编号）
 2. 受影响的 step 若已有 step 文件，读其 Plan 的「目标」「范围内」
 
 # 第二步：提出变更方案
 
-按 CLAUDE.md「沟通风格」的汇报顺序列出：改哪些 step 的目标 / 范围 / 顺序，新增或删除哪些；对交付节奏的影响；⚠️ 哪些已有 plan 会失效；❓ 涉及取舍的交用户拍板（AskUserQuestion）。
+按 CLAUDE.md「沟通风格」的汇报顺序列出：改哪些 step 的目标 / 范围 / 顺序，新增或删除哪些；对交付节奏的影响；⚠️ 哪些已有 plan 会失效；❓ 涉及取舍的交用户拍板（AskUserQuestion）。新需求与「不做」里的某条冲突时也列为 ❓，说明当初不做的原因；用户决定要做，落笔时从「不做」删掉那条，原因写进 commit 正文。
 
 # 第三步：落笔
 

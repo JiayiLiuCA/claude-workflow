@@ -1,6 +1,6 @@
 ---
 name: bootstrap
-description: 项目启动（仅第一次运行）：收集项目参数，实例化 OVERVIEW 与 ARCHITECTURE，生成代码规范 rules、CI 与 Step 0 plan。
+description: 项目启动（仅第一次运行）：读 /product、/design-draft、/tech-stack 的产出（缺的补问），实例化 OVERVIEW 与 ARCHITECTURE，生成代码规范 rules、CI 与 Step 0 plan。
 when_to_use: 用户输入 "bootstrap" 或 /bootstrap 时执行；只在 docs/planning/ 还是骨架、尚未实例化时使用。
 argument-hint: "[项目简介或 brief 文件路径]"
 ---
@@ -11,18 +11,33 @@ argument-hint: "[项目简介或 brief 文件路径]"
 
 # 第一步：收集项目参数
 
-若用户提供了简介（brief / PRD / 备忘 / 口头描述），先完整阅读。已有项目先读现有代码结构与 README，以现状为准。然后核对以下参数，缺失项用 AskUserQuestion 或对话一次性问全，不要挤牙膏式追问：
+先读项目启动前的三份输入（存在的）：`docs/brief/PRODUCT.md`（`/product` 产出）、`docs/design-reference/README.md`（`/design-draft` 产出）、`docs/brief/TECH.md`（`/tech-stack` 产出）。用户另给了简介（brief / PRD / 备忘 / 口头描述）也完整阅读。已有项目先读现有代码结构与 README，以现状为准。
 
-1. **项目定位**：做什么、给谁用
-2. **形态与平台**：Web / 桌面 / CLI / 服务 / 库；目标操作系统
-3. **技术栈**：前端 / 后端 / 数据库 / 关键依赖 / 测试工具链（单测、API 测试，有 UI 时 component 与 e2e 框架）；未定项标「Step N 决定」
-4. **核心约束**：离线要求、数据规模、性能目标、部署方式；solo 或团队（决定第六步的 git 约定，不写进核心约束）
-5. **Design reference**：有无 UI/UX 视觉参考；有则确认位置（约定 `docs/design-reference/`）
-6. **功能清单与优先级**：有哪些功能、第一版必须有哪些，用于划分 milestone 与功能目录；brief 已有 milestone 划分的直接采用，只核对技术依赖顺序
+然后核对以下参数，括号里是在三份输入中的出处。全部取得到就不提问，直接进入第二步。缺失项用 AskUserQuestion 或对话一次性问全，不要挤牙膏式追问；整份输入都没有时，先提示用户可以跑对应的 skill，用户要直接继续就按清单问；已有项目的技术栈以代码为准，没有 TECH.md 不提示 `/tech-stack`。输入之间矛盾（如 TECH 选了纯 Web、PRODUCT 要求离线）时停下问用户，不自己调和。
+
+**产品**
+
+1. **项目定位**：做什么、给谁用（PRODUCT「定位」「用户与场景」）
+2. **核心名词**：本项目特有的领域名词（PRODUCT「核心名词」）
+3. **功能清单与优先级**：有哪些功能、第一版必须有哪些，用于划分 milestone 与功能目录；已有版本或 milestone 划分的直接采用，只核对技术依赖顺序（PRODUCT「功能」）
+4. **不做什么**（PRODUCT「不做什么」）
+5. **产品约束**：使用设备、离线要求、数据规模、性能目标（PRODUCT「约束」）
+
+**设计**
+
+6. **Design reference**：有无 UI/UX 视觉参考，约定放在 `docs/design-reference/`（`/design-draft` 产出即在此，不用确认；其他来源的确认位置）
+
+**技术**
+
+7. **形态与平台**：Web / 桌面 / CLI / 服务 / 库；目标操作系统（TECH「形态与平台」）
+8. **技术栈**：前端 / 后端 / 数据库 / 关键依赖 / 测试工具链（单测、API 测试，有 UI 时 component 与 e2e 框架）；未定项标「Step N 决定」（TECH「技术栈」「测试工具」「样式系统」「待定」）
+9. **形态级决定**：进程 / 通信模型、数据持久化分层等（TECH「整体结构决定」）
+10. **部署方式**（TECH「部署与发布」）
+11. **solo 或团队**：决定第六步的 git 约定，不写进核心约束（TECH「开发方式」）
 
 # 第二步：ARCHITECTURE.md
 
-按骨架注释逐节填充：概述、核心概念、核心约束、目录结构、系统地图、初始架构规则（形态级决定，如进程 / 通信模型、数据持久化分层）。技术栈不写在这里，写进第四步的各层代码规范。只写已确认的，未定项进 OVERVIEW「待决」。填完删除注释。
+按骨架注释逐节填充：概述、核心概念（第一步第 2 项）、核心约束、目录结构、系统地图、初始架构规则（第一步第 9 项，按 `.claude/rules/planning-docs.md` 的决定三条件筛）。技术栈不写在这里，写进第四步的各层代码规范。只写已确认的，未定项进 OVERVIEW「待决」。填完删除注释。
 
 本文件由根 CLAUDE.md 导入，每个 session 都会加载，是 Claude 看项目全局的入口：按 `.claude/rules/planning-docs.md`「ARCHITECTURE」的写法，只写每个 session 都要用的。
 
@@ -34,14 +49,15 @@ argument-hint: "[项目简介或 brief 文件路径]"
 
 **系统地图**只列已经存在的功能，每个一行：目录、技术上负责什么、依赖哪些功能。新项目留空表头，功能由后续 close 逐个加入；已有项目按现状填。规划中的功能只在 OVERVIEW 路线图。
 
-brief / PRD **不复制进 `docs/planning/`**：ARCHITECTURE 概述写一两句定位，功能拆进路线图，原文件留在原处，链接放在 OVERVIEW 开头的定位句后（ARCHITECTURE 每个 session 都加载，不放会过时的原文链接）。原文几个 step 后必然过时，之后的需求变化走路线图与待决。
+brief / PRD 与 `docs/brief/` 下的 PRODUCT、TECH **不复制进 `docs/planning/`**：ARCHITECTURE 概述写一两句定位，功能拆进路线图，技术选型写进第四步的代码规范，不做什么写进 OVERVIEW「不做」，原文件留在原处，链接放在 OVERVIEW 开头的定位句后（ARCHITECTURE 每个 session 都加载，不放会过时的原文链接）。原文几个 step 后必然过时，之后的需求变化走路线图与待决。
 
 # 第三步：OVERVIEW.md
 
 - 开头一句话定位
+- **不做**：定位句下一行，取第一步第 4 项，每条带半句原因；没有写「暂无」
 - **已有功能**：新项目保留「尚无」；已有项目每个功能写两三句现状，只用产品语言，不写目录
 - **路线图**：按「路线图」开头的规则起草：Step 0 在前，之后列出全部 milestone（按产品优先级与技术依赖排序），只把 Milestone 1 里说得清的部分拆成 step，其余进各 milestone 的「待拆」；Milestone 1 状态「进行中」，其余 milestone 与所有 step 都是「未开始」。标题后标 DRAFT 待用户 review
-- **待决**：所有未定选型与开放问题
+- **待决**：所有未定选型与开放问题，含 PRODUCT、TECH「待定」里仍未解决的
 
 已有项目不要为现有代码批量写域笔记：域笔记随后续 step 在碰到的目录里长出来。
 
@@ -65,7 +81,12 @@ brief / PRD **不复制进 `docs/planning/`**：ARCHITECTURE 概述写一两句�
 - 改代码时同步改相关注释，过期注释按 bug 处理。
 ~~~
 
-有 design reference 时逐个阅读，把使用原则、**实际出现**的 design tokens（颜色 / 字体 / 间距 / 圆角 / 阴影，标注来源文件，不自行发挥）、核心复用组件清单（布局壳 / 表格 / 表单控件 / 状态进度 / modal 等）写进前端 rule。没有则在前端 rule 注明 UI 规范待定。
+有 design reference 时在前端 rule 写「设计稿」一节：
+
+- `/design-draft` 产出的（有 `tokens.css` 与 README 页面对照表）：不抄数值与组件清单。写明：做页面前先读 `docs/design-reference/README.md`（设计原则、页面对照表），再读对应页面稿；组件按 `components.html` 的变体与状态实现，页面稿里没有的先复用已有组件；Step 0 把 `tokens.css` 接进样式代码后两边同步维护，新增组件库里没有的公用组件、改已有组件的样子或样式数值时，同一个提交里更新设计稿的 `components.css`、`components.html`、README 组件表与 `tokens.css`（execute-step 收尾第 2 步），两边不一致时以代码为准。
+- 其他格式（Figma 导出、截图等）：逐个阅读，把使用原则、**实际出现**的 design tokens（颜色 / 字体 / 间距 / 圆角 / 阴影，标注来源文件，不自行发挥）、核心复用组件清单（布局壳 / 表格 / 表单控件 / 状态进度 / modal 等）写进这一节。
+
+没有则在前端 rule 注明 UI 规范待定。
 
 # 第五步：CI
 
@@ -82,7 +103,7 @@ brief / PRD **不复制进 `docs/planning/`**：ARCHITECTURE 概述写一两句�
 - app 能启动，走通一次端到端调用（如前端调后端 ping / CLI 跑通空命令）
 - DB 初始化 + migration 机制就位（如适用）
 - 测试基础设施就位：单测与 API 测试框架各跑通一个用例；有 UI 时 e2e 框架跑通一个打开首页的用例，并能把截图存到 `.claude/verify/`；CI 全部跑。后续每个 step 的验收默认写成这些框架里的测试
-- design tokens 落进样式系统（如适用）
+- design tokens 落进样式系统（如适用）：`/design-draft` 产出的按 TECH「样式系统」接入 `tokens.css`
 - 「待决」中标「Step 0 决定」的选型在 Plan 中定下并写明理由
 
 # 第八步：输出总结
